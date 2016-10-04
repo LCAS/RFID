@@ -17,8 +17,8 @@ class SpatioModel():
 		self.filaName = fileName
 
 		self.model = pickle.load(open(fileName, "rb"))
-		self.gridSize = self.model[0][6]
-		self.gridResolution = self.model[0][7]
+		self.gridSize = 9#self.model[0][6]
+		self.gridResolution = 0.3#self.model[0][7]
 
 		if self.gridSize % self.gridResolution > 0.001:
 			print "Error: Sensor model size/resolution do not match"

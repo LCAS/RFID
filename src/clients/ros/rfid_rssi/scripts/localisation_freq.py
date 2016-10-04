@@ -25,6 +25,7 @@ import numpy as np
 from math import *
 from std_msgs.msg import String
 from geometry_msgs.msg import PointStamped, PoseArray, Pose, Point, Quaternion
+from SpatioModel import SpatioModel
 #from rfid_node.msg import TagReading
 
 PARTICLE_COUNT = 1000    # Total number of particles
@@ -102,69 +103,6 @@ class WeightedDistribution(object):
             # Happens when all particles are improbable w=0
             return None
 
-# ------------------------------------------------------------------------
-
-#===================================================================================================
-
-class SpatioFreqModel(object):
-
-    def __init__(self):
-
-        tid = '300833B2DDD9014000000014'
-        self.gridResolution = 0.3
-        self.gridSize = 9
-
-	if self.gridSize % self.gridResolution > 0.0001:
-		print "Error: grid size must be a multiple of the grid resolution"
-		_ = raw_input()
-
-	self.model = pickle.load(open("models/3000.p", "rb"))
-        #numFreqs = len(self.model) - 1
-
-    def probability(self,rssi_db, x, y, freq_khz):
-
-	if x > self.gridSize or y > self.gridSize or x < -self.gridSize or y < -self.gridSize:
-		print "Warning: position outside of sensor model, consider creating a larger sensor model"
-		return pow(10, -99)
-
-	roundedx = x - (x % self.gridResolution)
-	roundedy = y - (y % self.gridResolution)
-
-	indexx = roundedx / self.gridResolution
-	indexy = roundedy / self.gridResolution
-
-	correctedx = indexx + (self.gridSize / self.gridResolution)
-	correctedy = indexy + (self.gridSize / self.gridResolution)
-
-	index = int(((self.gridSize / self.gridResolution) * 2 * correctedy) + correctedx)
-	
-	for i in self.model:
-		if str(i[1]) == str(freq_khz):
-
-			if i[4][index] == 0 or i[5][index] == 0:
-				#sensor model blank for this location
-				#the next if/else statement checks to see if the generic model contains data and uses that instead
-				#this is sort of a hybrid technique, and the if else statement can be commented out to use purely the per-frequency probabilities
-				if self.model[0][4][index] == 0:
-					return pow(10, -99)
-				else:
-					av_rssi = self.model[0][4][index]
-					std_rssi = self.model[0][5][index]
-
-				#instead of defaulting to the generic model, this can be uncommented to ignore it
-				#return pow(10, -99) 
-			else:
-				av_rssi = i[4][index]
-				std_rssi = i[5][index]
-
-	if std_rssi == 0:
-		print "bad std"
-		return pow(10, -99)
-
-	rssi_dif = rssi_db - av_rssi
-	prob = math.exp(-math.pow(rssi_dif, 2) / (2*std_rssi*std_rssi)) / (std_rssi * math.sqrt(2 * math.pi))
-
-        return prob
 
 # ==================================================================================================
 class Particle(object):
@@ -201,7 +139,6 @@ class Particle(object):
 
 # ------------------------------------------------------------------------
 class Object(Particle):
-    speed = 0.0 # objects are *usually* static
 
     def __init__(self, sizeX,sizeY):
         rand_loc = random.uniform(0, sizeX), random.uniform(0, sizeY)
@@ -229,7 +166,7 @@ class PartFilter():
         self.robotTFName = '/base_link'
         self.globalTFName = '/map'
         self.tl = tf.TransformListener()
-        self.tagModel=SpatioFreqModel()
+        self.tagModel=SpatioModel("models/3000.p")
 
         # initial distribution assigns each particle an equal probability
         self.particles = Particle.create_random(PARTICLE_COUNT, self.mapSizeX,self.mapSizeY)
@@ -256,7 +193,7 @@ class PartFilter():
 	#convert map coords to robot coords
         rel_pose = self.tl.transformPoint(self.robotTFName, particlePose)
 
-        weights = self.tagModel.probability(rssi_db, rel_pose.point.x, rel_pose.point.y, freq_khz)
+        weights = self.tagModel.getProbability(rel_pose.point.x, rel_pose.point.y, rssi_db, freq_khz)
         return weights
 
     def parseTagData(self,data):
