@@ -26,8 +26,8 @@ class SpatioModel():
 	def reloadModel():
 
 		self.model = pickle.load(open(fileName, "rb"))
-		self.gridSize = self.model[0][6]
-		self.gridResolution = self.model[0][7]
+		self.gridSize = self.model[0][8]
+		self.gridResolution = self.model[0][9]
 	
 	def getProbability(self, x, y, rssiDB, freqKHz="generic"):
 
