@@ -79,7 +79,14 @@ class rol_server():
         elif payload == 'locations':
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
-            ans=self.createOkResponse(self.sublocationsList)
+            subLocResp=[]
+            for region in self.yDict['Regions']:
+                if region.has_key('subregions'):
+                    for subR in region['subregions']:
+                        subLocResp.append(subR['name'])
+                else:
+                    subLocResp.append(region['name'])
+            ans = self.createOkResponse(subLocResp)
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
