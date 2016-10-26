@@ -63,7 +63,7 @@ class rol_server():
         else:
             ans=self.createErrorResponse('Unknown action: '+ findObjectReq.action)
 
-        self.rol_pub.publish(ans.response)
+        self.rol_pub.publish(findObjectReq)
 
         return ans
 
@@ -79,7 +79,14 @@ class rol_server():
         elif payload == 'locations':
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
-            ans=self.createOkResponse(self.sublocationsList)
+            subLocResp=[]
+            for region in self.yDict['Regions']:
+                if region.has_key('subregions'):
+                    for subR in region['subregions']:
+                        subLocResp.append(subR['name'])
+                else:
+                    subLocResp.append(region['name'])
+            ans = self.createOkResponse(subLocResp)
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
@@ -249,7 +256,7 @@ class rol_server():
         self.rosSetup()
 
         # create publisher for service requests
-        self.rol_pub = rospy.Publisher(self.rolTopic, String, queue_size=10)
+        self.rol_pub = rospy.Publisher(self.rolTopic, findObjectRequest, queue_size=10)
 
 
         # start service callback

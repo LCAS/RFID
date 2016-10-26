@@ -18,16 +18,32 @@ namespace define_areas {
     {
         
       ROS_DEBUG("HI WORLD");
+    
+    
+      ros::Subscriber map_sub_ ;
+      isMapLoaded=false;
+            
+      map_sub_ = n.subscribe("/map", 10,  &define_areas::mapCallback,this);
+          
+      ROS_DEBUG("Waiting for map service");      
+      if (ros::service::waitForService("/static_map",500)){    
+          // connect to map server and get dimensions and resolution (meters)          
+          // get map via RPC
+          nav_msgs::GetMap::Request  req;
+          nav_msgs::GetMap::Response resp;
+          ROS_DEBUG("Requesting the map...");
+          ros::service::call("static_map", req, resp);
+          mapCallback(resp.map);
+      } else{          
+          ROS_DEBUG("Service not found. Data got from topic");         
+      }
+            
+     // don't judge me
+     while (!isMapLoaded){
+         ros::Duration(0.5).sleep(); // sleep for half a second
+         ROS_DEBUG(".");         
+         }; 
       
-      // connect to map server and get dimensions and resolution (meters)
-      ROS_DEBUG("Waiting for map service");
-      ros::service::waitForService("static_map");    
-      // get map via RPC
-      nav_msgs::GetMap::Request  req;
-      nav_msgs::GetMap::Response resp;
-      ROS_DEBUG("Requesting the map...");
-      ros::service::call("static_map", req, resp);
-      mapCallback(resp.map);
       
       // map resolution (m/cell)
       double resolution=mapDesc.resolution;    
@@ -83,7 +99,7 @@ namespace define_areas {
           d.sleep();
       }
       
-      //ROS_DEBUG("Regions published");
+      ROS_DEBUG("All regions published");
       //ros::Timer timer = n.createTimer(ros::Duration(0.5),  &define_areas::timerCallback,this);
 
       ros::spin(); 

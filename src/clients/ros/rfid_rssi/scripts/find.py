@@ -3,13 +3,11 @@ import ros, tf
 import random, time
 import threading, Queue
 
-from SpatioModel import SpatioModel
 from TagState import *
 from ParticleFilter import ParticleFilter
 
 PARTICLE_COUNT = 1000
 
-model = SpatioModel("models/3000.p")
 tagStates = []
 threadQueue = Queue.Queue()
 
@@ -23,13 +21,8 @@ def parseTagData(data):
 
 def tagCallback(data):
 
-	(id, rssi, phase, freq) = parseTagData(data)
-	now = rospy.Time(0)
-	tfListener.waitForTransform(robotTFName, tagTFName, now, rospy.Duration(2.0))
-	pos, orientation = tfListener.lookupTransform(robotTFName, tagTFName, now)
-	newTagRead = TagRead(id, rssi, phase, freq, pos, orientation, time.time())
-
-	threadQueue.put(newTagRead)
+	msg = parseTagData(data)
+	threadQueue.put(msg)
 
 def main():
 
