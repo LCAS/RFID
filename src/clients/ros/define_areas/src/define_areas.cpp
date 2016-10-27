@@ -302,6 +302,11 @@ void define_areas::drawSquare(double start_x,double start_y,double end_x,double 
   for (grid_map::SubmapIterator iterator(map_, submapStartIndex, submapBufferSize);
       !iterator.isPastEnd(); ++iterator) {     
         
+        //Position cP;
+        //map_.getPosition(*iterator, cP);
+        //ROS_INFO("(%3.3f,%3.3f)",cP(0),cP(1) );    
+
+        
         map_.at("type", *iterator) =  value +map_.at("type", *iterator);              
         if (isnan(map_.at("type", *iterator)))
         {

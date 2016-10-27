@@ -1,0 +1,33 @@
+<launch>     
+    
+  <!-- Check areas using rviz:
+  1. get map using map_saver
+        rosrun  map_server map_saver -f mapName
+     Use it to provide a map in this launcher (first node)
+  2. Exec this launch      
+  3. to plot new areas just use 'click point' from rviz (two times, lower and upper point)
+  4. Each time you close a poligon, it will be shadowed on rviz and will appear as a new rosparam under define_polygon_areas_node (without region names, only a number)
+  5. To build your regions yaml file use these polygons and rename regions. (Note: subregions follow name convention 'regionName - subregionName' )     
+  6. Relaunch this module to test your new regions
+  -->
+
+    
+  <!-- Map obtained running  map_saver -->
+  <node pkg="map_server" type="map_server" name="FDG_map" output="screen" args="$(find define_areas)/maps/FDG2.yaml"/>
+
+  <!-- Regions yaml file to check or improve -->
+  <rosparam command="load" file="$(find rfid_grid_map)/config/FDG3.yaml"/>  
+    
+  <!-- Launch define_areas: plots squares on every pair of clicked points. yaml file is initial config, taken from rfid gridmap package-->
+  <node pkg="define_polygon_areas" type="define_polygon_areas_node" name="define_polygon_areas_node" output="screen">
+  </node>
+    
+  <!-- Launch the grid map visualizer -->
+  <node pkg="grid_map_visualization" type="grid_map_visualization" name="areas_grid_map_visualization" output="screen">
+    <rosparam command="load" file="$(find define_polygon_areas)/config/visualization.yaml" />
+  </node>
+  
+  <!-- Launch RViz with the demo configuration -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find define_polygon_areas)/rviz/check_map.rviz" />
+  
+</launch>

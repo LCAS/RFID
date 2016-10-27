@@ -1,11 +1,11 @@
-
 <launch>
+  <!-- rfid_grid_map tracks an object, grid_map_visualization shows the layer.
+        This file requires from a Regions yaml file to be loaded as params -->    
     
-    
+   
     
   <arg name="tagID" default="390000010000000000000007"/>
   <arg name="object" default="kitchen table"/>
-  <arg name="regions_file" default="$(find rfid_grid_map)/config/LCAS.yaml"/>
 
   <group ns="grid_$(arg tagID)">
   <!-- Launch rfid_grid_map: locate objects -->
@@ -18,8 +18,7 @@
       <rosparam param="map_size_y">30</rosparam>   
       <rosparam param="orig_x">0</rosparam>        
       <rosparam param="orig_y">7</rosparam>       
-      <rosparam param="map_resolution">0.3</rosparam>        
-      <rosparam param="regions_file" subst_value="True">"$(arg regions_file)"</rosparam>
+      <rosparam param="map_resolution">0.3</rosparam>              
   </node>
       
   <!-- Launch the grid map visualizer -->

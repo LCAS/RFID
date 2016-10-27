@@ -1,4 +1,6 @@
 <launch>
+  <!-- Tester for FDG-->
+  <!-- It  includes visualization nodes -->
   <!-- Launch kompai nodes -->
   <!--  <include file="$(find ros_pure)/launch/ros_pure.launch" />  -->
 
@@ -7,12 +9,15 @@
 
   <!-- We need a map published under /map topic... -->
   
+   <!-- Load regions descriptions used by all object trackers -->
+  <rosparam command="load" file="$(find rfid_grid_map)/config/FDG3.yaml"/>
+  
   <!-- Launch the grid map and visualization for a tag -->
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000000" />
     <arg name="object" value="wallet" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/FDG.yaml"/>
+    
   </include>
 
   
@@ -21,7 +26,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000001" />
     <arg name="object" value="keys" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/FDG.yaml"/>
+    
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -29,7 +34,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000002" />
     <arg name="object" value="pillbox" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/FDG.yaml"/>
+    
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -37,7 +42,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000003" />
     <arg name="object" value="remote" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/FDG.yaml"/>
+    
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -45,7 +50,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000004" />
     <arg name="object" value="glasses" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/FDG.yaml"/>
+    
   </include>
   
  <!-- Launch ROL Node -->

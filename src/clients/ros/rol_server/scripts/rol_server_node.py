@@ -80,7 +80,7 @@ class rol_server():
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
             subLocResp=[]
-            for region in self.yDict['Regions']:
+            for region in self.yDict:
                 if region.has_key('subregions'):
                     for subR in region['subregions']:
                         subLocResp.append(subR['name'])
@@ -174,7 +174,7 @@ class rol_server():
 
         #get a probabilities dict from this location
         bestSublocationsDict=dict()
-        for reg in self.yDict['Regions']:
+        for reg in self.yDict:
             if reg.has_key('subregions'):
                 if reg['name'] == bestRegion:
                     for subR in reg['subregions']:
@@ -204,15 +204,13 @@ class rol_server():
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
 
         listOfTopics = rospy.get_published_topics()
-
+        self.loadLocations()
+        
         for tup in listOfTopics:
             if ('probs' in tup[0]) and ('std_msgs/String' in tup[1]):
                 foundTopic=tup[0]
                 nodeName=foundTopic[0:-5]
-                if len(self.regions_file)==0:
-                    self.regions_file=rospy.get_param(nodeName + 'regions_file')
-                    self.loadLocations()
-
+                
                 objectName=rospy.get_param(nodeName+'object')
                 self.objectsList.append(objectName)
 
@@ -222,22 +220,16 @@ class rol_server():
 
     def probCallback(self,data):
         probsString=data.data
-
+                   
     #called by rossetup, to load locations list.
     def loadLocations(self):
-        self.yDict = dict()
-        with open(self.regions_file) as stream:
-            try:
-                self.yDict=(yaml.load(stream))
-            except yaml.YAMLError as exc:
-                print(exc)
-
-        for region in self.yDict['Regions']:
+        self.yDict = rospy.get_param('Regions')
+        #print self.yDict
+        for region in self.yDict:
             self.locationsList.append(region['name'])
             if region.has_key('subregions'):
                 for subR in region['subregions']:
                     self.sublocationsList.append(subR['name'])
-
 
     # Must have __init__(self) function for a class, similar to a C++ class constructor.
     def __init__(self):
