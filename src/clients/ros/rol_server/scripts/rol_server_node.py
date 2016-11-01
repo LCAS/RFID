@@ -23,6 +23,11 @@ class ProbHandler():
         self.locs=locs
 
     def getLastLoc(self):
+        sublocSeparator=' - '
+        if sublocSeparator in self.lastLoc:
+            temp=self.lastLoc.split(sublocSeparator)
+            self.lastLoc=temp[0]
+
         return self.lastLoc
 
     def getProbs(self):
@@ -149,17 +154,18 @@ class rol_server():
 
         lastL=pH.getLastLoc()
         if (lastL != ' '):
-            #ans.append(lastL)
-            ans.append('kitchen')
+            ans.append(lastL)
+            #ans.append('kitchen')
             ans.append('-1')
-	else:
-            #ans.append(self.locationsList[0])
-            ans.append('kitchen')            
+        else:
+            ans.append(self.locationsList[0])
+            #ans.append('kitchen')
             ans.append('-1')
         for z,p in fullProbs:
             if z in self.locationsList:
-                ans.append(z)
-                ans.append(self.percentFormat(p))
+                if (float(p)>(self.minProb/100.0)):
+                    ans.append(z)
+                    ans.append(self.percentFormat(p))
         return ans
 
     def getAcProbs(self,obj):
@@ -189,15 +195,17 @@ class rol_server():
 
         #parse a list of relative probabilities
         if not bestSublocationsDict:
-            ans.append(bestRegion)
-            ans.append(self.percentFormat(bestProb))
-            #ans=','.join(ans)
+            if (float(bestProb) > (self.minProb / 100.0)):
+                ans.append(bestRegion)
+                ans.append(self.percentFormat(bestProb))
+                #ans=','.join(ans)
         else:
             sortedList = sorted(bestSublocationsDict.items(), key=operator.itemgetter(1),reverse=True)
             for bestRegion,bestProb in sortedList:
-                ans.append(bestRegion)
-                ans.append(self.percentFormat(bestProb))
-                #ans=[i for tup in sortedList for i in tup]
+                if (float(bestProb) > (self.minProb / 100.0)):
+                    ans.append(bestRegion)
+                    ans.append(self.percentFormat(bestProb))
+                    #ans=[i for tup in sortedList for i in tup]
 
 
         return ans
@@ -206,6 +214,8 @@ class rol_server():
         self.probHandlerList=dict()
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
+
+        self.minProb = float(rospy.get_param('~minProb', 0.0))
 
         listOfTopics = rospy.get_published_topics()
         self.loadLocations()

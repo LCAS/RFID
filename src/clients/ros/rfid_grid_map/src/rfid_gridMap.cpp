@@ -97,22 +97,27 @@ namespace rfid_grid_map {
     void rfid_gridMap::tagCallback(const rfid_node::TagReading::ConstPtr& msg)
     {
        
-       if (msg->ID.compare(tagID)==0){
+       if (msg->ID.compare(tagID)==0){           
         //ROS_INFO("Asking for location");
         updateTransform();
         //ROS_INFO("Location updated");       
         //where to plot circle (m)
         double x=transform_.getOrigin().x();
         double y=transform_.getOrigin().y();
-        //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
-		
-        //how big we want it (m)
-        double radius=2;            
-        //ROS_INFO("got my tag! ");
-        //ROS_INFO("got my tag! ");
-        updateLastDetectionPose(x,y);
-        drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-intensity_);
-        drawCircle( x,  y,  radius, 5*intensity_);        
+        if ((x!=0.0)&&(y!=0.0))
+        {
+            //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
+            
+            //how big we want it (m)
+            double radius=2;            
+            //ROS_INFO("got my tag! ");
+            //ROS_INFO("got my tag! ");
+            updateLastDetectionPose(x,y);
+            drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-intensity_);
+            drawCircle( x,  y,  radius, 5*intensity_);        
+        } else {
+            //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
+        }
        }
        
     }
