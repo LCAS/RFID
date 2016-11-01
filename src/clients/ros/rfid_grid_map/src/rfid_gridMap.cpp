@@ -219,8 +219,24 @@ namespace rfid_grid_map {
 		int i;
 		
 		total=0;
+        
+        double min_d=10000.0;
+        double d=0.0;
+        
 		for (std::size_t i=0;i<mapAreas.size();i++) { 
-             wasHere(mapAreas[i]);                
+             
+             // use polygon method to check points inside
+             wasHere(mapAreas[i]);
+                          
+             // use minimum distance to centroid
+             d = (mapAreas[i].polygon.getCentroid() - lastP).norm();     
+             if (d<=min_d) {
+                 lastRegion=mapAreas[i];
+                 min_d=d;
+            }
+             
+             
+             
              val=countValuesInArea(mapAreas[i].polygon);
              mapAreas[i].prob=val;
              total+=val;		 
@@ -292,9 +308,14 @@ void rfid_gridMap::updateLastDetectionPose(double x, double y){
 
 void rfid_gridMap::wasHere(type_area area)
 {            
+    //ROS_DEBUG("Point (%3.3f,%3.3f)", lastP.x(),lastP.y());
     if (area.polygon.isInside(lastP)){
 		lastRegion=area;
-    }		
+        //ROS_DEBUG("We are in area %s", area.name.c_str());
+    } else {
+        //ROS_DEBUG("We are NOT in area %s", area.name.c_str());
+    }
+        
 }
 
 void rfid_gridMap::drawPolygon(const grid_map::Polygon poly,double value)
