@@ -13,7 +13,7 @@ class ProbHandler():
     def __init__(self,top,obj):
         self.object=obj
         self.topic=top
-        self.lastLoc=''
+        self.lastLoc=' '
         rospy.Subscriber(self.topic, String, self.probCallback)
 
     def probCallback(self,data):
@@ -26,7 +26,6 @@ class ProbHandler():
         return self.lastLoc
 
     def getProbs(self):
-
         try:
             splitData=self.rawData.split(',')
             self.probs = splitData[3::2]
@@ -149,8 +148,13 @@ class rol_server():
         fullProbs = sorted(probDict.items(), key=operator.itemgetter(1), reverse=True)
 
         lastL=pH.getLastLoc()
-        if (lastL != ''):
-            ans.append(lastL)
+        if (lastL != ' '):
+            #ans.append(lastL)
+            ans.append('kitchen')
+            ans.append('-1')
+	else:
+            #ans.append(self.locationsList[0])
+            ans.append('kitchen')            
             ans.append('-1')
         for z,p in fullProbs:
             if z in self.locationsList:
