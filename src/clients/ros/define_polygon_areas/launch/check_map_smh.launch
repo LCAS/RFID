@@ -13,10 +13,10 @@
 
     
   <!-- Map obtained running  map_saver -->
-  <node pkg="map_server" type="map_server" name="FDG_map" output="screen" args="$(find define_polygon_areas)/maps/FDG2.yaml"/>
+  <node pkg="map_server" type="map_server" name="SMH_map" output="screen" args="$(find define_polygon_areas)/maps/SMH.yaml"/>
 
   <!-- Regions yaml file to check or improve -->
-  <rosparam command="load" file="$(find rfid_grid_map)/config/FDG3.yaml"/>  
+  <rosparam command="load" file="$(find rfid_grid_map)/config/SMH.yaml"/>  
     
   <!-- Launch define_areas: plots squares on every pair of clicked points. yaml file is initial config, taken from rfid gridmap package-->
   <node pkg="define_polygon_areas" type="define_polygon_areas_node" name="define_polygon_areas_node" output="screen">
