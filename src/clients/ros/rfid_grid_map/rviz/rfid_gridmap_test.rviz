@@ -28,7 +28,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -63,7 +63,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /grid_390000010000000000000006/grid_map_visualization/occupancy_grid
+      Topic: /grid_390200010000000000000002/grid_map_visualization/occupancy_grid
       Unreliable: false
       Value: true
     - Alpha: 0.5
@@ -81,9 +81,15 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
+        k2/depth_frame:
+          Value: true
+        k2/rgb_frame:
+          Value: true
         kompai_laser:
           Value: false
         map:
+          Value: true
+        odom:
           Value: true
         odom_combined:
           Value: true
@@ -94,10 +100,14 @@ Visualization Manager:
       Show Names: true
       Tree:
         map:
-          odom_combined:
-            base_link:
-              kompai_laser:
-                {}
+          odom:
+            odom_combined:
+              base_link:
+                k2/depth_frame:
+                  k2/rgb_frame:
+                    {}
+                kompai_laser:
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 0.7
@@ -171,11 +181,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 85.446
+      Scale: 55.7496
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 1.31861
-      Y: 1.56173
+      X: 8.84633
+      Y: 3.56577
     Saved: ~
 Window Geometry:
   Displays:

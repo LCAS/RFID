@@ -11,8 +11,7 @@
 
 namespace rfid_grid_map {
     rfid_gridMap::rfid_gridMap(ros::NodeHandle& n)
-    : nodeHandle_(n),
-      map_(vector<string>({"type"}))
+    : nodeHandle_(n)
     {
       ros::NodeHandle private_node_handle("~");
         
@@ -45,8 +44,34 @@ namespace rfid_grid_map {
       private_node_handle.param("tagID", tagID, std::string("390000010000000000000007"));
       private_node_handle.param("grid_map_name", grid_map_name, std::string("grid_map"));
       private_node_handle.param("prob_pub_name", prob_pub_name, std::string("probs"));
+
+      //....................................
+      bool loadGrid=false;
+      double saveTime;
+      std::string object_name;
       
-      //ROS_ASSERT(nodeHandle_.getParam("regions_file", regions_file));          
+      
+      // dirty trick...
+      // std::string temp;
+      //this does not work
+      //nodeHandle_.param("loadGrid", temp);
+      //ROS_DEBUG("...................................................................loadGrid: [%s]", temp.c_str());          
+      //loadGrid= (boost::iequals(temp, std::string("true")));
+      ROS_ASSERT_MSG(nodeHandle_.hasParam("loadGrid"),"Cant find loadGrid param!!!");
+      
+      nodeHandle_.param("prob_pub_name", loadGrid);
+      if (loadGrid) {
+        ROS_DEBUG("...................................................................loadGrid: [true]");          
+      } else {
+        ROS_DEBUG("...................................................................loadGrid: [false]");          
+      }
+      
+      
+      private_node_handle.param("saveTime", saveTime, 60.0);
+      private_node_handle.param("object", object_name, std::string("noname_object"));
+      
+      //private_node_handle.param("gridmap_image_file", gridmap_image_file);
+      gridmap_image_file=object_name+"_grid.png";
       
       // basically loads a lot of ROS parameters 
       mapAreas=loadAreas();
@@ -62,15 +87,35 @@ namespace rfid_grid_map {
       ROS_DEBUG("robot_frame: %s", robot_frame.c_str());
       ROS_DEBUG("tagID: %s", tagID.c_str());
       ROS_DEBUG("grid_map_name: %s", grid_map_name.c_str());      
-      ROS_DEBUG("regions_file: %s", regions_file.c_str());          
+     
       
       
-      intensity_=0.001;
   
+      
       // Setting up map. 
+      
+      //these parameters are hardcoded... 
+      layerName="type";
+      rosEncoding="mono16";
+      lowerValue=0.0;
+      upperValue=1.0;
+      intensity_=0.001;
+      
+      map_= vector<string>({layerName});
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
-      map_.setFrameId(global_frame);
+      map_.setFrameId(global_frame);      
       map_.clearAll();
+      
+      if (loadGrid) {
+        ROS_INFO("Loading previous gridmap from [%s]................................................................................................",gridmap_image_file.c_str());
+        // file to image...
+        cv::Mat imageCV = cv::imread(gridmap_image_file, CV_LOAD_IMAGE_GRAYSCALE);
+        sensor_msgs::ImagePtr imageROS = cv_bridge::CvImage(std_msgs::Header(), rosEncoding, imageCV).toImageMsg();        
+              
+        GridMapRosConverter::addLayerFromImage(*imageROS, layerName, map_, lowerValue, upperValue,0.5);        
+      } 
+      
+      
       lastRegion.name=std::string(" ");
       
       gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(grid_map_name, 1, true);      
@@ -87,11 +132,18 @@ namespace rfid_grid_map {
       // publish updated probabilities every reasonable time.
       ros::Timer timer2 = n.createTimer(ros::Duration(1),  &rfid_gridMap::updateProbs,this);
       
+      // publish updated probabilities every reasonable time.
+      ros::Timer timer3 = n.createTimer(ros::Duration(saveTime),  &rfid_gridMap::saveMapCallback,this);
+      
+      
       ros::spin(); 
        
     }
 
-    rfid_gridMap::~rfid_gridMap(){}
+    rfid_gridMap::~rfid_gridMap(){
+        ros::TimerEvent ev;
+        rfid_gridMap::saveMapCallback(ev);
+    }
     
     
     void rfid_gridMap::tagCallback(const rfid_node::TagReading::ConstPtr& msg)
@@ -120,6 +172,28 @@ namespace rfid_grid_map {
         }
        }
        
+    }
+    
+    void rfid_gridMap::saveMapCallback(const ros::TimerEvent&){
+        
+        
+        sensor_msgs::Image image;
+        cv_bridge::CvImagePtr cv_ptr;
+                
+        ROS_INFO("Periodic gridmap storage in [%s]",gridmap_image_file.c_str());        
+        
+        GridMapRosConverter::toImage(map_, layerName, rosEncoding, image);
+        // image to file...
+        try
+        {
+          cv_ptr = cv_bridge::toCvCopy(image, rosEncoding);
+        }
+        catch (cv_bridge::Exception& e)
+        {
+          ROS_ERROR("cv_bridge exception: %s", e.what());
+        } 
+        
+        cv::imwrite( gridmap_image_file, cv_ptr->image );
     }
     
     void rfid_gridMap::updateMapCallback(const ros::TimerEvent&)
@@ -295,9 +369,9 @@ double rfid_gridMap::countValuesInArea(Polygon pol)
 { 
   double total=0.0;
   for (grid_map::PolygonIterator iterator(map_, pol); !iterator.isPastEnd(); ++iterator) {     
-        if (!isnan(map_.at("type", *iterator)))
+        if (!isnan(map_.at(layerName, *iterator)))
         {
-            total+=map_.at("type", *iterator);
+            total+=map_.at(layerName, *iterator);
         }
   }
 
@@ -326,13 +400,15 @@ void rfid_gridMap::wasHere(type_area area)
 void rfid_gridMap::drawPolygon(const grid_map::Polygon poly,double value)
 {      
   for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {     
-        map_.at("type", *iterator) =  value +map_.at("type", *iterator);              
-        if (isnan(map_.at("type", *iterator)))
+        map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
+        if (isnan(map_.at(layerName, *iterator)))
         {
-            map_.at("type", *iterator) =  value;
+            map_.at(layerName, *iterator) =  value;
         }
-        if (map_.at("type", *iterator)<0.0)
-            map_.at("type", *iterator) =  0.0;        
+    if (map_.at(layerName, *iterator)<lowerValue)
+        map_.at(layerName, *iterator) =  lowerValue;
+    if (map_.at(layerName, *iterator)>upperValue)
+        map_.at(layerName, *iterator) = upperValue;       
   }
 }
 
@@ -390,13 +466,15 @@ void rfid_gridMap::drawSquare(double start_x,double start_y,double end_x,double 
   for (grid_map::SubmapIterator iterator(map_, submapStartIndex, submapBufferSize);
       !iterator.isPastEnd(); ++iterator) {     
         
-        map_.at("type", *iterator) =  value +map_.at("type", *iterator);              
-        if (isnan(map_.at("type", *iterator)))
+        map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
+        if (isnan(map_.at(layerName, *iterator)))
         {
-            map_.at("type", *iterator) =  value;
+            map_.at(layerName, *iterator) =  value;
         }
-        if (map_.at("type", *iterator)<0.0)
-            map_.at("type", *iterator) =  0.0;
+        if (map_.at(layerName, *iterator)<lowerValue)
+            map_.at(layerName, *iterator) =  lowerValue;
+        if (map_.at(layerName, *iterator)>upperValue)
+            map_.at(layerName, *iterator) = upperValue;
   }
 
 }
@@ -411,15 +489,16 @@ void rfid_gridMap::drawCircle(double x, double y, double radius, double value)
   
   for (grid_map::CircleIterator iterator(map_, center, radius);
       !iterator.isPastEnd(); ++iterator) {
-    map_.at("type", *iterator) =  value +map_.at("type", *iterator);
+    map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);
     
-    if (isnan(map_.at("type", *iterator)))
+    if (isnan(map_.at(layerName, *iterator)))
     {
-        map_.at("type", *iterator) =  value;
+        map_.at(layerName, *iterator) =  value;
     }    
-    if (map_.at("type", *iterator)<0.0)
-        map_.at("type", *iterator) =  0.0;
-    
+    if (map_.at(layerName, *iterator)<lowerValue)
+        map_.at(layerName, *iterator) =  lowerValue;
+    if (map_.at(layerName, *iterator)>upperValue)
+        map_.at(layerName, *iterator) = upperValue;
   }
 }
     

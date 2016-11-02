@@ -6,7 +6,8 @@
     
   <arg name="tagID" default="390000010000000000000007"/>
   <arg name="object" default="kitchen table"/>
-
+  <arg name="loadGrid" default="false"/>
+      
   <group ns="grid_$(arg tagID)">
   <!-- Launch rfid_grid_map: locate objects -->
   <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen">
@@ -14,6 +15,7 @@
       <rosparam param="global_frame">"map"</rosparam>
       <rosparam param="tagID" subst_value="True">"$(arg tagID)"</rosparam>        
       <rosparam param="object" subst_value="True">"$(arg object)"</rosparam>        
+      <rosparam param="loadGrid" subst_value="True">"$(arg loadGrid)"</rosparam>        
       <rosparam param="map_size_x">20</rosparam>        
       <rosparam param="map_size_y">30</rosparam>   
       <rosparam param="orig_x">0</rosparam>        
