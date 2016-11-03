@@ -8,6 +8,7 @@ Panels:
         - /Grid1
         - /Map1
         - /TF1/Frames1
+        - /Map3
       Splitter Ratio: 0.470803
     Tree Height: 675
   - Class: rviz/Selection
@@ -28,7 +29,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -50,22 +51,22 @@ Visualization Manager:
       Plane Cell Count: 55
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/Axes
+    - Alpha: 0.3
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
       Enabled: true
+      Name: Map
+      Topic: /map
+      Unreliable: false
+      Value: true
+    - Class: rviz/Axes
+      Enabled: false
       Length: 0.1
       Name: Axes
       Radius: 0.01
       Reference Frame: <Fixed Frame>
-      Value: true
-    - Alpha: 0.7
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: true
-      Name: Map
-      Topic: /grid_390200010000000000000002/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 0.5
       Class: rviz/Polygon
       Color: 255; 255; 255
@@ -75,50 +76,19 @@ Visualization Manager:
       Unreliable: false
       Value: false
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_link:
-          Value: true
-        k2/depth_frame:
-          Value: true
-        k2/rgb_frame:
-          Value: true
-        kompai_laser:
-          Value: false
-        map:
-          Value: true
-        odom:
-          Value: true
-        odom_combined:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            odom_combined:
-              base_link:
-                k2/depth_frame:
-                  k2/rgb_frame:
-                    {}
-                kompai_laser:
-                  {}
+        {}
       Update Interval: 0
-      Value: true
-    - Alpha: 0.7
-      Class: rviz/Map
-      Color Scheme: map
-      Draw Behind: false
-      Enabled: true
-      Name: Map
-      Topic: /map
-      Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -149,6 +119,78 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000006/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.9
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /grid_390000010000000000000007/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000009/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000010/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000012/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000013/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000015/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000020/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -172,7 +214,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -0.000791212
+      Angle: 0.00920882
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
@@ -181,11 +223,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 55.7496
+      Scale: 92.3276
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 8.84633
-      Y: 3.56577
+      X: 1.02473
+      Y: 1.1287
     Saved: ~
 Window Geometry:
   Displays:
