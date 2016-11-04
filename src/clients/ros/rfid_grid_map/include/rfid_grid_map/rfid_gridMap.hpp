@@ -104,6 +104,8 @@ class rfid_gridMap
       
       void saveMapCallback(const ros::TimerEvent&);
       
+      void mapCallback(const nav_msgs::OccupancyGrid& msg);
+      
     private:
     
       Position lastP;
@@ -124,8 +126,9 @@ class rfid_gridMap
       //! Grid map layer highest value
       double upperValue;
 
-      //! gridmap actualization rate .        
-      double intensity_;
+      //! gridmap actualization rates.        
+      double weight_inc;
+      double weight_dec;
             
       //! publisher for probs
       ros::Publisher prob_pub_ ;
@@ -140,6 +143,12 @@ class rfid_gridMap
       tf::StampedTransform transform_;
 
 
+      bool isMapLoaded;
+      std::string save_route;
+      double detectRadius;
+      
+      nav_msgs::MapMetaData mapDesc;
+      string mapFrame;
 
       std::string gridmap_image_file;
       std::string rosEncoding;
@@ -154,6 +163,7 @@ class rfid_gridMap
       std::string robot_frame;
       
       std::vector<rfid_gridMap::type_area> mapAreas;
+      std::map<std::string,std::vector<rfid_gridMap::type_area>> mapSubAreas;  
 
 }; // End of Class rfid_gridMap
 

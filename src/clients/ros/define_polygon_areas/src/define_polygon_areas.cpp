@@ -49,13 +49,15 @@ namespace define_polygon_areas {
       // map resolution (m/cell)
       double resolution=mapDesc.resolution;    
       // map Size (m.)
-      double size_x=2*mapDesc.height*resolution;
-      double size_y=2*mapDesc.width*resolution;
+      double size_y=2*mapDesc.height*resolution;
+      double size_x=2*mapDesc.width*resolution;
 
       //2d position of the grid map in the grid map frame [m]. 
       // we consider them alligned 
       double orig_x=0;
       double orig_y=0;
+      orig_x = mapDesc.origin.position.x;
+      orig_y = mapDesc.origin.position.y;
     
   
       // Setting up map. 
@@ -319,6 +321,7 @@ namespace define_polygon_areas {
     // we get information from our global map
     void define_polygon_areas::mapCallback(const nav_msgs::OccupancyGrid& msg)
     {
+        if ((msg.info.width>0.0)&&(msg.info.height>0.0)){
         isMapLoaded=true;
         mapDesc=msg.info;
         mapFrame=msg.header.frame_id;
@@ -328,6 +331,15 @@ namespace define_polygon_areas {
                 msg.info.resolution,
                 msg.info.origin.position.x,
                 msg.info.origin.position.y);
+        } else {
+            ROS_DEBUG("Received an INVALID!! %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
+                msg.info.width,
+                msg.info.height,
+                msg.info.resolution,
+                msg.info.origin.position.x,
+                msg.info.origin.position.y);
+        }
+        
     }
     
     /* we will start drawing squares using clicks*/

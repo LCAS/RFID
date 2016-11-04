@@ -28,57 +28,19 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000006" />
     <arg name="object" value="lounge table" />
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000007" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="object" value="kitchen table" />
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
+    <arg name="loadGrids" value="true" />        
   </include>
 
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000009" />
-    <arg name="object" value="red stapler" />
-  </include>
-  
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000010" />
-    <arg name="object" value="xbox gamepad" />
-  </include>
-
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000012" />
-    <arg name="object" value="logitech gamepad" />
-  </include>
-
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000013" />
-    <arg name="object" value="remote" />
-  </include>
-
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000015" />
-    <arg name="object" value="tape holder" />
-  </include>
-
-  <!-- Launch the grid map and visualization on grid.launch -->
-  <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <!-- all vars that included.launch requires must be set -->
-    <arg name="tagID" value="390000010000000000000020" />
-    <arg name="object" value="chair" />
-  </include>
   
   <!-- Launch RViz with the demo configuration -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test.rviz" />
