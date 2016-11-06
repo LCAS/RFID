@@ -2,7 +2,7 @@
     
   <!-- This launcher is a testing for the whole ROL system -->
   <!-- It includes visualization nodes (rviz-related) -->
-  <!-- Uses a bag file to simulate robot -->
+  <!-- Uses a bag file to simulate robot and just two tags -->
 
   <!-- Launch bag file: data -->
   <param name="use_sim_time" value="true" />  
@@ -28,7 +28,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000006" />
     <arg name="object" value="lounge table" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -37,8 +37,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000007" />
     <arg name="object" value="kitchen table" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
-    <arg name="loadGrids" value="true" />        
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
 
   
