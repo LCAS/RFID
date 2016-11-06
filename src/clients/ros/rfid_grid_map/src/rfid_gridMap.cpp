@@ -46,7 +46,10 @@ namespace rfid_grid_map {
       private_node_handle.param("grid_map_name", grid_map_name, std::string("grid_map"));
       private_node_handle.param("prob_pub_name", prob_pub_name, std::string("probs"));
       
-      ROS_ASSERT(nodeHandle_.getParam("regions_file", regions_file));          
+      //ROS_ASSERT(nodeHandle_.getParam("regions_file", regions_file));          
+      
+      // basically loads a lot of ROS parameters 
+      mapAreas=loadAreas();
       //...........................................
       ROS_DEBUG("Configuration params:");
       
@@ -62,64 +65,18 @@ namespace rfid_grid_map {
       ROS_DEBUG("regions_file: %s", regions_file.c_str());          
       
       
-      
-      
-      // load regions yaml file      
-      config = YAML::LoadFile(regions_file);
-
       intensity_=0.001;
-  
-
-
   
       // Setting up map. 
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
       map_.setFrameId(global_frame);
       map_.clearAll();
+      lastRegion.name=std::string(" ");
       
       gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(grid_map_name, 1, true);      
       publishMap();
       
       prob_pub_ = n.advertise<std_msgs::String>(prob_pub_name, 1000);
-      
-      // debug purposes, draw areas...
-      /*
-      double min_x,min_y,max_x,max_y;
-      std::string region_name;
-      for (std::size_t i=0;i<config["Regions"].size();i++) {
-		 region_name=config["Regions"][i]["name"].as<std::string>();;
-		 min_x=config["Regions"][i]["min"]["x"].as<double>();;
-		 min_y=config["Regions"][i]["min"]["y"].as<double>();;							
-		 max_x=config["Regions"][i]["max"]["x"].as<double>();;
-		 max_y=config["Regions"][i]["max"]["y"].as<double>();;		 
-         drawSquare(min_x,min_y,max_x,max_y,0.5);
-         publishMap();         
-         //ROS_DEBUG("Drawn region %s",region_name.c_str());			
-        // ros::Duration d(5);
-         //d.sleep();
-
-		 
-		 if (config["Regions"][i]["subregions"]){
-			 int j;
-			   for (std::size_t j=0;j<config["Regions"][i]["subregions"].size();j++) {
-				    region_name=config["Regions"][i]["subregions"][j]["name"].as<std::string>();;
-					min_x=config["Regions"][i]["subregions"][j]["min"]["x"].as<double>();;
-					min_y=config["Regions"][i]["subregions"][j]["min"]["y"].as<double>();;							
-					max_x=config["Regions"][i]["subregions"][j]["max"]["x"].as<double>();;
-					max_y=config["Regions"][i]["subregions"][j]["max"]["y"].as<double>();;
-                    drawSquare(min_x,min_y,max_x,max_y,0.5);
-                    publishMap();
-                    //ROS_DEBUG("Drawn region %s",region_name.c_str());			
-                    //ros::Duration d(5);
-                    //d.sleep();
-			   }	 
-		 }
-      }
-      //ros::Duration d(10);
-      //d.sleep();
-      //map_.clearAll();
-      */
-      
         
       // get tag readings
       ros::Subscriber sub_ = n.subscribe("/lastTag", 1000, &rfid_gridMap::tagCallback, this);
@@ -140,22 +97,27 @@ namespace rfid_grid_map {
     void rfid_gridMap::tagCallback(const rfid_node::TagReading::ConstPtr& msg)
     {
        
-       if (msg->ID.compare(tagID)==0){
+       if (msg->ID.compare(tagID)==0){           
         //ROS_INFO("Asking for location");
         updateTransform();
         //ROS_INFO("Location updated");       
         //where to plot circle (m)
         double x=transform_.getOrigin().x();
         double y=transform_.getOrigin().y();
-        //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
-		
-        //how big we want it (m)
-        double radius=2;            
-        //ROS_INFO("got my tag! ");
-        //ROS_INFO("got my tag! ");
-        updateLastDetectionPose(x,y);
-        drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-intensity_);
-        drawCircle( x,  y,  radius, 5*intensity_);        
+        if ((x!=0.0)&&(y!=0.0))
+        {
+            //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
+            
+            //how big we want it (m)
+            double radius=2;            
+            //ROS_INFO("got my tag! ");
+            //ROS_INFO("got my tag! ");
+            updateLastDetectionPose(x,y);
+            drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-intensity_);
+            drawCircle( x,  y,  radius, 5*intensity_);        
+        } else {
+            //ROS_INFO("I'm at %2.2f, %2.2f",x,y);
+        }
        }
        
     }
@@ -168,77 +130,133 @@ namespace rfid_grid_map {
        
      publishMap();
      }
+     
+     
+     std::vector<rfid_gridMap::type_area> rfid_gridMap::loadAreas(){
+       
+        
+        std::vector<type_area> mapa;
+        XmlRpc::XmlRpcValue regionsMap;
+
+        nodeHandle_.getParam("/Regions/",regionsMap);        
+        
+        ROS_DEBUG("Loaded: %d regions",regionsMap.size());
+        ROS_DEBUG("regionsMap Type %d",regionsMap.getType());
+
+        ROS_ASSERT(regionsMap.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        
+        for(int m=0; m<regionsMap.size(); ++m) {
+            string regionName =regionsMap[m]["name"];
+            //ROS_DEBUG("Region: %s" , regionName.c_str() );
+            
+            type_area area;  
+            area.name=regionName;
+            area.prob=0.0;
+                                 
+            XmlRpc::XmlRpcValue points;            
+            points=regionsMap[m]["points"];
+            
+            ROS_ASSERT(points.getType() == XmlRpc::XmlRpcValue::TypeArray);
+            //ROS_DEBUG("#%d",points.size());
+            
+            for(int j=0; j<points.size(); ++j) {
+                        double px,py;
+                        //ROS_DEBUG("#%d",points[j].getType());                        
+                                                
+                        if ( j % 2 == 0 ){
+                            px=points[j];
+                        }else {                        
+                            py=points[j];
+                            Position p=Position(px,py);
+                            area.polygon.addVertex(p);
+                        }
+                        //ROS_DEBUG("%3.3f,%3.3f",px,py);                        
+            }
+            mapa.push_back(area);
+            
+            if (regionsMap[m].hasMember("subregions")) {
+                //ROS_DEBUG("Region %s has subregions!!" , regionName.c_str() );
+                    
+                for(int s=0; s<regionsMap[m]["subregions"].size(); ++s) {                    
+                    string subRegionName =regionsMap[m]["subregions"][s]["name"];
+                    //ROS_DEBUG("subregion: %s" , subRegionName.c_str() );
+
+                    type_area area;  
+                    area.name=subRegionName;
+                    area.prob=0.0;
+                    XmlRpc::XmlRpcValue points;
+
+                    points=regionsMap[m]["subregions"][s]["points"];
+
+                    ROS_ASSERT(points.getType() == XmlRpc::XmlRpcValue::TypeArray);
+                    //ROS_DEBUG("#%d",points.size());
+                    //ROS_DEBUG("#n");
+                    for(int j=0; j<points.size(); ++j) {
+                        //ROS_DEBUG("#%d",points[j].getType());
+                        double px,py;
+                                                
+                        if ( j % 2 == 0 ){
+                            px=points[j];
+                        }else {                        
+                            py=points[j];
+                            Position p=Position(px,py);
+                            area.polygon.addVertex(p);
+                        }
+                        //ROS_DEBUG("%3.3f,%3.3f",px,py);        
+                    }
+                    mapa.push_back(area);
+
+                }               
+                
+            }
+            
+        }
+        return mapa;
+      
+      }
     
     void rfid_gridMap::updateProbs(const ros::TimerEvent&)
     {
 		double total=0;
-		// get total fddp
-		//total=countValuesInArea(-size_x/2,-size_y/2,size_x/2,size_y/2);
 
-		std:map<std::string,double> probs;
-		double min_x;
-		double min_y;							
-		double max_x;
-		double max_y;
 		double val=0;
-		std::string region_name;
 		std::stringstream sstream;
 		int i;
 		
 		total=0;
-		for (std::size_t i=0;i<config["Regions"].size();i++) {
-		 region_name=config["Regions"][i]["name"].as<std::string>();;
-		 min_x=config["Regions"][i]["min"]["x"].as<double>();;
-		 min_y=config["Regions"][i]["min"]["y"].as<double>();;							
-		 max_x=config["Regions"][i]["max"]["x"].as<double>();;
-		 max_y=config["Regions"][i]["max"]["y"].as<double>();;
-		 wasHere(min_x,min_y,max_x,max_y,region_name);
-			
-		 val=countValuesInArea(min_x,min_y,max_x,max_y);
-		 probs[region_name]=val;
-		 total+=val;		 
-		 if (config["Regions"][i]["subregions"]){
-			 int j;
-			   for (std::size_t j=0;j<config["Regions"][i]["subregions"].size();j++) {
-				    region_name=config["Regions"][i]["subregions"][j]["name"].as<std::string>();;
-					min_x=config["Regions"][i]["subregions"][j]["min"]["x"].as<double>();;
-					min_y=config["Regions"][i]["subregions"][j]["min"]["y"].as<double>();;							
-					max_x=config["Regions"][i]["subregions"][j]["max"]["x"].as<double>();;
-					max_y=config["Regions"][i]["subregions"][j]["max"]["y"].as<double>();;
-					
-					wasHere(min_x,min_y,max_x,max_y,region_name);
-		
-					val=countValuesInArea(min_x,min_y,max_x,max_y);
-					probs[region_name]=val;
-			   }	 
-		 }
+        
+        double min_d=10000.0;
+        double d=0.0;
+        
+		for (std::size_t i=0;i<mapAreas.size();i++) { 
+             
+             // use polygon method to check points inside
+             wasHere(mapAreas[i]);
+                          
+             // use minimum distance to centroid
+             d = (mapAreas[i].polygon.getCentroid() - lastP).norm();     
+             if (d<=min_d) {
+                 lastRegion=mapAreas[i];
+                 min_d=d;
+            }
+             
+             
+             
+             val=countValuesInArea(mapAreas[i].polygon);
+             mapAreas[i].prob=val;
+             total+=val;		 
 		}
         
-        sstream<<lastRegion+",-1";
-        //ROS_DEBUG("Prob in region:");
-        for (std::size_t i=0;i<config["Regions"].size();i++){
-
+        sstream<<lastRegion.name+",-1";
         
-			region_name=config["Regions"][i]["name"].as<std::string>();
+        for (std::size_t i=0;i<mapAreas.size();i++){
+            
             if (total>0.0)
-                probs[region_name]=probs[region_name]/total;
+                mapAreas[i].prob=mapAreas[i].prob/total;
             else
-                probs[region_name]=0;
-			//ROS_DEBUG("\t %s is %2.2f",region_name.c_str(),probs[region_name]);	
-            sstream<<","<<region_name<<","<<probs[region_name];		
-		    if (config["Regions"][i]["subregions"]){
-			 int j;             
-             for (std::size_t j=0;j<config["Regions"][i]["subregions"].size();j++) {
-				    region_name=config["Regions"][i]["subregions"][j]["name"].as<std::string>();;
-                    if (total>0.0)
-                        probs[region_name]=probs[region_name]/total;
-                    else
-                        probs[region_name]=0;
-					//ROS_DEBUG("\t\t %s is %2.2f",region_name.c_str(),probs[region_name]);
-                    sstream<<","<<region_name<<","<<probs[region_name];
-			 }	 
-		 }
-		}
+                mapAreas[i].prob=0;			
+            sstream<<","<<mapAreas[i].name<<","<<mapAreas[i].prob;			 
+        }		
         
         std_msgs::String msg;
         
@@ -273,67 +291,13 @@ namespace rfid_grid_map {
     }
 
 
-    // based on demoSubMapIterator
-double rfid_gridMap::countValuesInArea(double start_x,double start_y,double end_x,double end_y)
-{
-  Index submapStartIndex;
-  Index submapEndIndex;
-  Index submapBufferSize;
-  
-  Index lowerCorner(0,0);
-  Index upperCorner(0,0);
-  
+double rfid_gridMap::countValuesInArea(Polygon pol)
+{ 
   double total=0.0;
-  
-  Position position;
-  
-  Position submapStartPosition(end_x, end_y);
-  Position submapEndPosition(start_x, start_y);  
-  
-  Size mapSize=map_.getSize();
-  //ROS_INFO("Map is (%d w %d h)",mapSize(0),mapSize(1));
-  upperCorner(0)=  mapSize(0)-1;
-  upperCorner(1)=  mapSize(1)-1;  
-  
-  if (!map_.isInside(submapStartPosition)){
-      //ROS_INFO("Start Position is out of map");
-      map_.getPosition( lowerCorner, position ) ;
-        
-      //rounding
-      if (submapStartPosition(0)<position(0))
-            submapStartPosition(0)=position(0);
-      if (submapStartPosition(1)<position(1))
-            submapStartPosition(1)=position(1);
-      
-      //ROS_INFO("Accessing  from position (%2.2f,%2.2f) ",submapStartPosition(0),submapStartPosition(1) );    
-  }
-  if (!map_.isInside(submapEndPosition)){
-      //ROS_INFO("End Position is out of map");
-       map_.getPosition( upperCorner, position ) ;
-        
-      //rounding
-      if (submapEndPosition(0)<position(0))
-            submapEndPosition(0)=position(0);
-      if (submapEndPosition(1)<position(1))
-            submapEndPosition(1)=position(1);
-      
-      //ROS_INFO("Accessing up to position (%2.2f,%2.2f)",submapEndPosition(0),submapEndPosition(1) );    
-  }
-  
-  map_.getIndex(submapStartPosition,submapStartIndex);
-  map_.getIndex(submapEndPosition,submapEndIndex);
- //ROS_INFO("Accessing  from index (%d,%d) to (%d,%d)",submapStartIndex(0),submapStartIndex(1),submapEndIndex(0),submapEndIndex(1) );    
-      
-  submapBufferSize=abs(submapEndIndex-submapStartIndex);
-  
- // ROS_INFO("Accessing (%d width x %d high) indexes",submapBufferSize(0),submapBufferSize(1));    
-  for (grid_map::SubmapIterator iterator(map_, submapStartIndex, submapBufferSize);
-      !iterator.isPastEnd(); ++iterator) {              
-        //map_.getPosition( *iterator, position ) ;	          
+  for (grid_map::PolygonIterator iterator(map_, pol); !iterator.isPastEnd(); ++iterator) {     
         if (!isnan(map_.at("type", *iterator)))
         {
             total+=map_.at("type", *iterator);
-            //ROS_INFO("Cell(%1f,%1f) val is %2.2f",position(0),position(1),map_.at("type", *iterator));
         }
   }
 
@@ -343,16 +307,33 @@ double rfid_gridMap::countValuesInArea(double start_x,double start_y,double end_
 
 
 void rfid_gridMap::updateLastDetectionPose(double x, double y){
-	last_x=x;
-	last_y=y;
+	lastP=Position(x,y);
 }
 
 
-void rfid_gridMap::wasHere(double start_x,double start_y,double end_x,double end_y, std::string region_name)
-{
-    if ((last_x>=start_x) && (last_x<end_x) && (last_y>=start_y) && (last_y<end_y)){
-		lastRegion=region_name;
-    }		
+void rfid_gridMap::wasHere(type_area area)
+{            
+    //ROS_DEBUG("Point (%3.3f,%3.3f)", lastP.x(),lastP.y());
+    if (area.polygon.isInside(lastP)){
+		lastRegion=area;
+        //ROS_DEBUG("We are in area %s", area.name.c_str());
+    } else {
+        //ROS_DEBUG("We are NOT in area %s", area.name.c_str());
+    }
+        
+}
+
+void rfid_gridMap::drawPolygon(const grid_map::Polygon poly,double value)
+{      
+  for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {     
+        map_.at("type", *iterator) =  value +map_.at("type", *iterator);              
+        if (isnan(map_.at("type", *iterator)))
+        {
+            map_.at("type", *iterator) =  value;
+        }
+        if (map_.at("type", *iterator)<0.0)
+            map_.at("type", *iterator) =  0.0;        
+  }
 }
 
 void rfid_gridMap::drawSquare(double start_x,double start_y,double end_x,double end_y,double value)

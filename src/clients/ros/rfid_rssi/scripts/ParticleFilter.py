@@ -1,7 +1,10 @@
+import tf
 import threading
 import Queue
+import time
 
 from TagState import *
+from SpatioModel import SpatioModel
 
 class ParticleFilter(threading.Thread):
 	
@@ -13,6 +16,10 @@ class ParticleFilter(threading.Thread):
 
 		self.tagStates = []
 
+		self.model = SpatioModel("models/3000.p")
+
+		self.tf = tf.TransformListener()
+
 	def run(self):
 
 		try:
@@ -22,6 +29,12 @@ class ParticleFilter(threading.Thread):
 				return
 
 			else:
+
+				(id, rssi, phase, freq) = msg
+				now = rospy.Time(0)
+				self.tf.waitForTransform("/map", "/base_link", now, rospy.Duration(2.0))
+				pos, orientation = self.tf.lookupTransform("/map", "/base_link", now)
+				newTagRead = TagRead(id, rssi, phase, freq, pos, orientation, time.time())
 
 				foundTag = False
 
@@ -38,3 +51,9 @@ class ParticleFilter(threading.Thread):
 			pass
 
 		
+		for i in self.tagStates:
+
+			i.fade(60)
+			i.updateParticles(self.tf, self.model)
+
+			

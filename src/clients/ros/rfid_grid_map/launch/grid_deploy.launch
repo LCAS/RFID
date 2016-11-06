@@ -1,8 +1,7 @@
 <launch>
-  <!-- rfid_grid_map tracks an object, grid_map_visualization shows the layer.
-        This file requires from a Regions yaml file to be loaded as params -->    
-    
-   
+  <!-- This launcher is as grid.launch, but without any grid map visualizer 
+  This file requires from a Regions yaml file to be loaded as params -->    
+      
     
   <arg name="tagID" default="390000010000000000000007"/>
   <arg name="object" default="kitchen table"/>
@@ -18,14 +17,10 @@
       <rosparam param="map_size_y">30</rosparam>   
       <rosparam param="orig_x">0</rosparam>        
       <rosparam param="orig_y">7</rosparam>       
-      <rosparam param="map_resolution">0.3</rosparam>              
+      <rosparam param="map_resolution">0.3</rosparam>        
   </node>
       
-  <!-- Launch the grid map visualizer -->
-  <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen">
-    <rosparam command="load" file="$(find rfid_grid_map)/config/visualization.yaml" />
-    <rosparam param="grid_map_topic" subst_value="True">/grid_$(arg tagID)/rfid_grid_map_node/grid_map</rosparam>    
-  </node>
+
   
   </group>
   

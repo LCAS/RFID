@@ -1,4 +1,7 @@
 <launch>
+  <!-- Tester for biarritz-->
+  <!-- It  includes visualization nodes -->
+    
   <!-- Launch kompai nodes -->
   <!--  <include file="$(find ros_pure)/launch/ros_pure.launch" />  -->
 
@@ -7,12 +10,15 @@
 
   <!-- We need a map published under /map topic... -->
 
+  <!-- Load regions descriptions used by all object trackers -->
+  <rosparam command="load" file="$(find rfid_grid_map)/config/ROBOSOFT3.yaml"/>
+
+
   <!-- Launch the grid map and visualization for a tag -->
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000018" />
     <arg name="object" value="glasses" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/ROBOSOFT.yaml"/>
   </include>
   
 
@@ -21,7 +27,6 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390101110000000000000009" />
     <arg name="object" value="wallet" />
-    <arg name="regions_file" value="$(find rfid_grid_map)/config/ROBOSOFT.yaml"/>
   </include>
   
  <!-- Launch ROL Node -->
