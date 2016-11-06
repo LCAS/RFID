@@ -29,7 +29,7 @@
     <arg name="tagID" value="390000010000000000000006" />
     <arg name="object" value="lounge table" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -38,7 +38,7 @@
     <arg name="tagID" value="390000010000000000000007" />
     <arg name="object" value="kitchen table" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -47,7 +47,7 @@
     <arg name="tagID" value="390000010000000000000009" />
     <arg name="object" value="red stapler" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />            
+    <arg name="loadGrids" value="true" />            
   </include>
   
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -56,7 +56,7 @@
     <arg name="tagID" value="390000010000000000000010" />
     <arg name="object" value="xbox gamepad" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -65,7 +65,7 @@
     <arg name="tagID" value="390000010000000000000012" />
     <arg name="object" value="logitech gamepad" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -74,7 +74,7 @@
     <arg name="tagID" value="390000010000000000000013" />
     <arg name="object" value="remote" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -83,7 +83,7 @@
     <arg name="tagID" value="390000010000000000000015" />
     <arg name="object" value="tape holder" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
@@ -92,7 +92,7 @@
     <arg name="tagID" value="390000010000000000000020" />
     <arg name="object" value="chair" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
-    <arg name="loadGrids" value="false" />        
+    <arg name="loadGrids" value="true" />        
   </include>
   
   <!-- Launch RViz with the demo configuration -->

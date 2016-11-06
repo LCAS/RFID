@@ -120,7 +120,7 @@ namespace rfid_grid_map {
       }
           
 
-      ROS_DEBUG("Setting gridmap");         
+      //ROS_DEBUG("Setting gridmap");         
 
       // map resolution (m/cell)
       // we don't need same resolution than map...
@@ -153,20 +153,22 @@ namespace rfid_grid_map {
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
       map_.setFrameId(global_frame);      
       map_.clearAll();
-      ROS_DEBUG("Setting gridmap done");         
+      //ROS_DEBUG("Setting gridmap done");         
 
       Position p;
       p=map_.getPosition();
-      ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p.x(),p.y());         
+      //ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p.x(),p.y());         
 
       if (loadGrids) {        
-        ROS_DEBUG("Loading previous data");         
+        //ROS_DEBUG("Loading previous data");         
         // file to image...
         //cv::Mat imageCV = cv::imread(gridmap_image_file, CV_LOAD_IMAGE_GRAYSCALE);
-        cv::Mat imageCV = cv::imread(gridmap_image_file, CV_LOAD_IMAGE_UNCHANGED );
-        sensor_msgs::ImagePtr imageROS = cv_bridge::CvImage(std_msgs::Header(), rosEncoding, imageCV).toImageMsg();        
-              
-        GridMapRosConverter::addLayerFromImage(*imageROS, layerName, map_, lowerValue, upperValue,0.5);        
+        cv::Mat imageCV = cv::imread((save_route+gridmap_image_file), CV_LOAD_IMAGE_UNCHANGED );
+        //ROS_DEBUG("Converting to ROS format");         
+        sensor_msgs::ImagePtr imageROS = cv_bridge::CvImage(std_msgs::Header(), rosEncoding, imageCV).toImageMsg();                      
+        
+        ROS_ASSERT_MSG(GridMapRosConverter::addLayerFromImage(*imageROS, layerName, map_, lowerValue, upperValue,0.5),
+        "Mismatch loading layer image (%u w,%u h) Into map (%u r,%u c). Aborting",imageROS->width,imageROS->height,map_.getSize()(0),map_.getSize()(1));         
       } 
       
       
