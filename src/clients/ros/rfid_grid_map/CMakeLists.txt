@@ -112,7 +112,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES rfid_grid_map
-  CATKIN_DEPENDS yaml-cpp #cv_bridge geometry_msgs grid_map_cv grid_map_loader grid_map_msgs grid_map_ros grid_map_visualization rfid_node roscpp sensor_msgs tf
+  CATKIN_DEPENDS yaml-cpp cv_bridge #geometry_msgs grid_map_cv grid_map_loader grid_map_msgs grid_map_ros grid_map_visualization rfid_node roscpp sensor_msgs tf
   DEPENDS yaml-cpp #system_lib
 )
 

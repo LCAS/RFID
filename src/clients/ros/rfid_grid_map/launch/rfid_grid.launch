@@ -1,4 +1,4 @@
-<launch>
+<launch deprecated="Francois: if you use this for your ENSTA simulator, maybe you want to change FDG regions definition 'FDG3.yaml'">
   <!-- This launcher includes everything to launch object location system -->
   <!-- It does not include any visualization node/config -->
   <!-- However, ve still need some kompai topics such as odom and map -->
@@ -14,7 +14,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000000" />
     <arg name="object" value="wallet" />
-
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
 
   
@@ -23,7 +24,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000001" />
     <arg name="object" value="keys" />
-
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -31,7 +33,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000002" />
     <arg name="object" value="pillbox" />
-
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -39,7 +42,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000003" />
     <arg name="object" value="remote" />
-
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -47,7 +51,8 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000004" />
     <arg name="object" value="glasses" />
-
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
+    <arg name="loadGrids" value="false" />        
   </include>
   
  <!-- Launch ROL Node -->
