@@ -1,4 +1,4 @@
-<launch>
+<launch deprecated="Francois: if you use this for your ENSTA simulator, maybe you want to change FDG regions definition 'FDG3.yaml'">
   <!-- This launcher includes everything to launch object location system -->
   <!-- It does not include any visualization node/config -->
   <!-- However, ve still need some kompai topics such as odom and map -->

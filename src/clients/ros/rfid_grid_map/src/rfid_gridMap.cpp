@@ -310,7 +310,7 @@ namespace rfid_grid_map {
             mapa.push_back(area);
             
             if (regionsMap[m].hasMember("subregions")) {
-                ROS_DEBUG("Region %s has subregions!!" , regionName.c_str() );
+                //ROS_DEBUG("Region %s has subregions!!" , regionName.c_str() );
                 std::vector<rfid_gridMap::type_area> mapSubs;
                     
                 for(int s=0; s<regionsMap[m]["subregions"].size(); ++s) {                    
@@ -384,19 +384,19 @@ namespace rfid_grid_map {
              if (it != mapSubAreas.end()){
                  double sub_area_total=0;
                  //std::vector<rfid_gridMap::type_area> subAreasVec=it->second;
-                 ROS_DEBUG("-------------------->   Region [%s] has [%lu] subregions",mapAreas[i].name.c_str(),it->second.size());
+                 //ROS_DEBUG("-------------------->   Region [%s] has [%lu] subregions",mapAreas[i].name.c_str(),it->second.size());
                  for (std::size_t k=0;k<it->second.size();k++) {                     
                      val=countValuesInArea(it->second[k].polygon);
                      it->second[k].prob=val;
                      sub_area_total+=val;	                     	                      
-                     ROS_DEBUG("SUB Region [%s] has [%3.3f] weight",it->second[k].name.c_str(),it->second[k].prob);
+                     //ROS_DEBUG("SUB Region [%s] has [%3.3f] weight",it->second[k].name.c_str(),it->second[k].prob);
                  }                 
                  for (std::size_t k=0;k<it->second.size();k++) { 
                      if (sub_area_total>0.0)
                          it->second[k].prob=it->second[k].prob/sub_area_total;
                      else
                          it->second[k].prob=0;		                     
-                     ROS_DEBUG("SUB Region [%s] has rel prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
+                     //ROS_DEBUG("SUB Region [%s] has rel prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
                  }                                  
              }    
 //...................
@@ -419,11 +419,11 @@ namespace rfid_grid_map {
              std::map<std::string,std::vector<rfid_gridMap::type_area>>::iterator it = mapSubAreas.find(mapAreas[i].name);
              if (it != mapSubAreas.end()){
                  //std::vector<rfid_gridMap::type_area> subAreasVec=it->second;
-                 ROS_DEBUG("Region [%s] has Prob. [%3.3f]",mapAreas[i].name.c_str(),mapAreas[i].prob);
+                 //ROS_DEBUG("Region [%s] has Prob. [%3.3f]",mapAreas[i].name.c_str(),mapAreas[i].prob);
                  for (std::size_t k=0;k<it->second.size();k++) { 
                      if (it->second[k].prob>0.0)
                          it->second[k].prob=it->second[k].prob * mapAreas[i].prob;
-                     ROS_DEBUG("SUB Region [%s] has ABS prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
+                     //ROS_DEBUG("SUB Region [%s] has ABS prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
                      sstream<<","<<it->second[k].name<<","<<it->second[k].prob;			 
                  }                                  
              }    
@@ -435,7 +435,7 @@ namespace rfid_grid_map {
         
         msg.data=sstream.str();
         prob_pub_.publish(msg);
-        ROS_DEBUG("------------------------------------>  %d",__LINE__);
+        //ROS_DEBUG("------------------------------------>  %d",__LINE__);
     }
     
     void rfid_gridMap::updateTransform()
