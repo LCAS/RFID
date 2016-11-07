@@ -164,7 +164,7 @@ class rol_server():
         for z,p in fullProbs:
             if z!=lastL:
                 if z in self.locationsList:
-                    if (float(p)>(self.minProb/100.0)):
+                    if (float(p)>=(self.minProb/100.0)):
                         ans.append(z)
                         ans.append(self.percentFormat(p))
         return ans
@@ -196,14 +196,14 @@ class rol_server():
 
         #parse a list of relative probabilities
         if not bestSublocationsDict:
-            if (float(bestProb) > (self.minProb / 100.0)):
+            if (float(bestProb) >= (self.minProb / 100.0)):
                 ans.append(bestRegion)
                 ans.append(self.percentFormat(bestProb))
                 #ans=','.join(ans)
         else:
             sortedList = sorted(bestSublocationsDict.items(), key=operator.itemgetter(1),reverse=True)
             for bestRegion,bestProb in sortedList:
-                if (float(bestProb) > (self.minProb / 100.0)):
+                if (float(bestProb) >= (self.minProb / 100.0)):
                     ans.append(bestRegion)
                     ans.append(self.percentFormat(bestProb))
                     #ans=[i for tup in sortedList for i in tup]

@@ -59,10 +59,9 @@
   </include>
   
  <!-- Launch ROL Node -->
-<node name="rol_srv_node" pkg="rol_server" type="rol_server_node.py" output="screen">  
-      <!-- minProb is between 0.0 and 100.0 -->   
-      <rosparam param="minProb">0.0</rosparam>        
-  </node>
-
+ <include file="$(find rol_server)/launch/rol_server_node.launch">
+	<arg name="minProb"   value="0.0" />
+  </include>
+ 
 </launch>
 
