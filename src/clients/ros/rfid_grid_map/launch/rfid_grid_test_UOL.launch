@@ -20,8 +20,10 @@
   <!-- Load regions descriptions used by all object trackers -->
   <rosparam command="load" file="$(find rfid_grid_map)/config/LCAS3.yaml"/>
   
-   <!-- Launch ROL Node -->
-  <node name="rol_srv_node" pkg="rol_server" type="rol_server_node.py"/>
+ <!-- Launch ROL Node -->
+ <include file="$(find rol_server)/launch/rol_server_node.launch">
+	<arg name="minProb"   value="30.0" />
+  </include>
 
   <!-- Launch the grid map and visualization on grid.launch -->
   <include file="$(find rfid_grid_map)/launch/grid.launch">

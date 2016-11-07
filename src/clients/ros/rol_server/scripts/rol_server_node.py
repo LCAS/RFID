@@ -152,21 +152,25 @@ class rol_server():
         probDict=pH.getProbs()
         fullProbs = sorted(probDict.items(), key=operator.itemgetter(1), reverse=True)
 
-        lastL=pH.getLastLoc()
-        if (lastL != ' '):
-            ans.append(lastL)
-            #ans.append('kitchen')
-            ans.append('-1')
-        else:
-            ans.append(self.locationsList[0])
-            #ans.append('kitchen')
-            ans.append('-1')
         for z,p in fullProbs:
-            if z!=lastL:
+            #if z!=lastL:
                 if z in self.locationsList:
                     if (float(p)>=(self.minProb/100.0)):
                         ans.append(z)
                         ans.append(self.percentFormat(p))
+                else:
+                    rospy.logdebug('Region is:   ' )
+
+
+        lastL=pH.getLastLoc()
+        if (lastL != ' '):
+            ans.append(lastL)
+            #ans.append('kitchen')
+        else:
+            ans.append(self.locationsList[0])
+            #ans.append('kitchen')
+        ans.append('-1')
+
         return ans
 
     def getAcProbs(self,obj):
@@ -180,8 +184,8 @@ class rol_server():
 
         bestRegion,bestProb = fullProbs[0]
 
-        rospy.logdebug('Region is:   ' + bestRegion)
-        rospy.logdebug('Probability: ' + str(bestProb))
+        #rospy.logdebug('Region is:   ' + bestRegion)
+        #rospy.logdebug('Probability: ' + str(bestProb))
 
         #get a probabilities dict from this location
         bestSublocationsDict=dict()
@@ -216,7 +220,7 @@ class rol_server():
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
 
-        self.minProb = float(rospy.get_param('~minProb', 10.0))
+        self.minProb = float(rospy.get_param('~minProb', 30.0))
 
         listOfTopics = rospy.get_published_topics()
         self.loadLocations()
