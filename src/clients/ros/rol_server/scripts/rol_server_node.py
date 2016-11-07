@@ -162,10 +162,11 @@ class rol_server():
             #ans.append('kitchen')
             ans.append('-1')
         for z,p in fullProbs:
-            if z in self.locationsList:
-                if (float(p)>(self.minProb/100.0)):
-                    ans.append(z)
-                    ans.append(self.percentFormat(p))
+            if z!=lastL:
+                if z in self.locationsList:
+                    if (float(p)>(self.minProb/100.0)):
+                        ans.append(z)
+                        ans.append(self.percentFormat(p))
         return ans
 
     def getAcProbs(self,obj):
@@ -215,7 +216,7 @@ class rol_server():
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
 
-        self.minProb = float(rospy.get_param('~minProb', 0.0))
+        self.minProb = float(rospy.get_param('~minProb', 10.0))
 
         listOfTopics = rospy.get_published_topics()
         self.loadLocations()
