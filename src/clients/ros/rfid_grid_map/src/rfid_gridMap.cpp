@@ -59,9 +59,17 @@ namespace rfid_grid_map {
       detectRadius=std::stod(temp);
       
 
-      private_node_handle.param("loadGrids", temp,std::string("false"));
+      private_node_handle.param("loadGrids", temp, std::string("not found"));
+
       if (boost::iequals(temp, std::string("true"))) {
           loadGrids=true;
+      }
+      
+      
+      if (boost::iequals(temp, std::string("not found"))) {
+          loadGrids=false;
+          ROS_DEBUG("could not found loadGrids '%s'", temp.c_str());      
+
       }
       
       double saveTime;
