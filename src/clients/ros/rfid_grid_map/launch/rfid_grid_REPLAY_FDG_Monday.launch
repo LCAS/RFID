@@ -27,7 +27,7 @@
     <arg name="tagID" value="390200010000000000000000" />
     <arg name="object" value="wallet" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
-    <arg name="loadGrids" value="true" />           
+    <arg name="loadGrids" value="false" />           
   </include>
 
   
@@ -37,7 +37,7 @@
     <arg name="tagID" value="390200010000000000000001" />
     <arg name="object" value="keys" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
-    <arg name="loadGrids" value="true" />        
+    <arg name="loadGrids" value="false" />        
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -46,7 +46,7 @@
     <arg name="tagID" value="390200010000000000000002" />
     <arg name="object" value="pillbox" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
-    <arg name="loadGrids" value="true" />        
+    <arg name="loadGrids" value="false" />        
 </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -55,7 +55,7 @@
     <arg name="tagID" value="390200010000000000000003" />
     <arg name="object" value="remote" />    
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
-    <arg name="loadGrids" value="true" />        
+    <arg name="loadGrids" value="false" />        
   </include>
   
   <!-- Launch the grid map and visualization for a tag -->
@@ -64,7 +64,7 @@
     <arg name="tagID" value="390200010000000000000004" />
     <arg name="object" value="glasses" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/FDG/" />    
-    <arg name="loadGrids" value="true" />        
+    <arg name="loadGrids" value="false" />        
 </include>
   
   <!-- Launch RViz with the demo configuration -->
