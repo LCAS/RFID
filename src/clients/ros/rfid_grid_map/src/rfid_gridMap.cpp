@@ -63,6 +63,8 @@ namespace rfid_grid_map {
 
       if (boost::iequals(temp, std::string("true"))) {
           loadGrids=true;
+      } else {
+          loadGrids=false;
       }
       
       
