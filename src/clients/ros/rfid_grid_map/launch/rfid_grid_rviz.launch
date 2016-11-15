@@ -1,4 +1,9 @@
 <launch>
+  <!-- DEPRECATED!!!!!!  This is a temp testing launcher -->  
+    
+   < wont run!
+   
+   
   <!-- Launch the rfid grid map node -->
   <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen">
       <remap from="/rfid_grid_map/lastTag" to="/lastTag"/>	
