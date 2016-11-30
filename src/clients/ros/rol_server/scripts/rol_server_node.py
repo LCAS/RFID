@@ -220,7 +220,7 @@ class rol_server():
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
 
-        self.minProb = float(rospy.get_param('~minProb', 30.0))
+        self.minProb = float(rospy.get_param('~minProb', 0.01))
 
         listOfTopics = rospy.get_published_topics()
         self.loadLocations()
