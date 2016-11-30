@@ -77,6 +77,11 @@ namespace rfid_grid_map {
       double saveTime;
       std::string object_name;
       
+      double probUpdatePeriod;
+      double mapUpdatePeriod;
+      
+      private_node_handle.param("mapUpdatePeriod", mapUpdatePeriod, 10.0);
+      private_node_handle.param("probUpdatePeriod", probUpdatePeriod, 2.0);
       private_node_handle.param("saveTime", saveTime, 10.0);
       private_node_handle.param("object", object_name, std::string("noname_object"));
       
@@ -195,10 +200,10 @@ namespace rfid_grid_map {
       ros::Subscriber sub_ = n.subscribe("/lastTag", 1000, &rfid_gridMap::tagCallback, this);
       
       // Update map periodically
-      ros::Timer timer = n.createTimer(ros::Duration(0.5),  &rfid_gridMap::updateMapCallback,this);
-      
+      ros::Timer timer = n.createTimer(ros::Duration(mapUpdatePeriod),  &rfid_gridMap::updateMapCallback,this);
+
       // publish updated probabilities every reasonable time.
-      ros::Timer timer2 = n.createTimer(ros::Duration(1),  &rfid_gridMap::updateProbs,this);
+      ros::Timer timer2 = n.createTimer(ros::Duration(probUpdatePeriod),  &rfid_gridMap::updateProbs,this);
       
       // publish updated probabilities every reasonable time.
       ros::Timer timer3 = n.createTimer(ros::Duration(saveTime),  &rfid_gridMap::saveMapCallback,this);

@@ -174,6 +174,10 @@ namespace define_polygon_areas {
                         }
                         //ROS_DEBUG("%3.3f,%3.3f",px,py);                        
             }
+            
+            Position ct=area.polygon.getCentroid();
+            ROS_DEBUG("centroid: %3.3f,%3.3f" , ct.x(),ct.y() );
+            
             mapa.push_back(area);
             
             if (regionsMap[m].hasMember("subregions")) {
@@ -192,9 +196,9 @@ namespace define_polygon_areas {
                     points=regionsMap[m]["subregions"][s]["points"];
 
                     ROS_ASSERT(points.getType() == XmlRpc::XmlRpcValue::TypeArray);
-                    ROS_DEBUG("subregion has %d points",points.size());                    
+                    //ROS_DEBUG("subregion has %d points",points.size());                    
                     for(int j=0; j<points.size(); ++j) {
-                        ROS_DEBUG("Point type %d",points[j].getType());
+                        //ROS_DEBUG("Point type %d",points[j].getType());
                         ROS_ASSERT(points[j].getType() == XmlRpc::XmlRpcValue::TypeDouble);
                         double px,py;
                                                 
@@ -208,7 +212,8 @@ namespace define_polygon_areas {
                         //ROS_DEBUG("%3.3f,%3.3f",px,py);        
                     }
                     mapa.push_back(area);
-
+				    Position sct=area.polygon.getCentroid();
+                    ROS_DEBUG("centroid: %3.3f,%3.3f" , sct.x(),sct.y() );
                 }
                     //...........................
                 
