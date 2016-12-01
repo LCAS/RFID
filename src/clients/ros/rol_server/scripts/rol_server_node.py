@@ -196,8 +196,10 @@ class rol_server():
                         rospy.logdebug('Subregion is: '+subR['name'])
                         rospy.logdebug('Probability:  ' + probDict[subR['name']])
                         rospy.logdebug('Relative Pr:  ' + probDict[subR['name']])
-                        bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
-
+                        if (float(bestProb)>0.0):
+                           bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
+                        else:
+                           bestSublocationsDict[subR['name']]=str(0.0)
         #parse a list of relative probabilities
         if not bestSublocationsDict:
             if (float(bestProb) >= (self.minProb / 100.0)):
