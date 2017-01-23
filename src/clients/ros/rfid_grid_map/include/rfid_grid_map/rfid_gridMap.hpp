@@ -30,6 +30,7 @@
 #include <ros/console.h>
 #include <std_msgs/String.h>
 #include <tf/transform_listener.h>    
+#include <tf/transform_datatypes.h>
 #include <image_transport/image_transport.h>
 // - messages
 #include <sensor_msgs/image_encodings.h>
@@ -93,6 +94,10 @@ class rfid_gridMap
       void drawSquare(double start_x,double start_y,double end_x,double end_y,double value);
       
       void drawCircle(double x, double y, double radius, double value);
+      
+      void drawDetectionShape(double cx,double cy, double rh, 
+        double radius,double radiusMin,  double max_heading, 
+        double midProb, double lowProb, double highProb);
 
       void updateLastDetectionPose(double x, double y);
 

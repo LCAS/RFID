@@ -103,6 +103,6 @@
  <!-- Launch data crawler -->
  <node pkg="rol_server" type="prob_crawler.py" name="prob_client" output="screen">
     <rosparam command="load" file="$(find rfid_grid_map)/launch/article/REPLAY_UOL_2.yaml"/>
-    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/2/"</rosparam>
+    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/cone/"</rosparam>
  </node> 
 </launch>

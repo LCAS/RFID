@@ -100,7 +100,7 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
         return
 
     purgueColumns(df, deleteItems)
-
+    useTime=False
     # delete unprobable regions under 10 %
     meanConf = df.mean()
     # meanConf.sort_values(inplace=True)
@@ -141,23 +141,26 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
     print 'Region accuracy (% times):', locAccStr
     print 'Tag detections (#)', numDetectsStr
 
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
+    if useTime:
+        ax = df.plot(x=seconds)
+        changeYaxisToPercent(ax)
+        ax.set_xlabel('Elapsed seconds')
+        ax.set_ylabel('Region Confidence (%)')
+        ax.legend(title="Regions", loc='best')
+        if showFig:
+            plt.show()
 
-    ax = df.plot(x=seconds)
-    changeYaxisToPercent(ax)
-    ax.set_xlabel('Elapsed seconds')
-    ax.set_ylabel('Region Confidence (%)')
-    ax.legend(title="Regions", loc='best')
-    if showFig:
-        plt.show()
+        fileName=objectName+"_regions_time"
+        if saveMe:
+            pdfURL = fullPath + '/' + fileName + '.pdf'
+            with PdfPages(pdfURL) as pdf:
+                fig = ax.get_figure()
+                pdf.savefig(fig)
+        plt.close(fig)
 
-    fileName=objectName+"_regions_time"
-    if saveMe:
-        pdfURL = fullPath + '/' + fileName + '.pdf'
-        with PdfPages(pdfURL) as pdf:
-            fig = ax.get_figure()
-            pdf.savefig(fig)
-    plt.close(fig)
 
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
     ax = df.plot(x=detect)
     changeYaxisToPercent(ax)
     ax.set_xlabel('Num. of Tag detections')
@@ -174,6 +177,7 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
             pdf.savefig(fig)
         plt.close(fig)
 
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
     ax = df.plot(kind='box')
     changeYaxisToPercent(ax)
     ax.set_xlabel('Region')
@@ -189,16 +193,33 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
             pdf.savefig(fig)
         plt.close(fig)
 
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
     df['dife'] = dife
+    if useTime:
+        ax = df.plot(y='dife', x=seconds, legend=None)
+        changeYaxisToPercent(ax)
+        ax.set_xlabel('Elapsed seconds')
+        # plt.legend(title="Regions",loc='best')
+        ax.set_ylabel('Confidence error (%)')
+        if showFig:
+            plt.show()
+        fileName=objectName+"_conf_error_t"
+        if saveMe:
+            pdfURL = fullPath + '/' + fileName + '.pdf'
+            with PdfPages(pdfURL) as pdf:
+                fig = ax.get_figure()
+                pdf.savefig(fig)
+            plt.close(fig)
 
-    ax = df.plot(y='dife', x=seconds, legend=None)
+    # . . . . . . . . . . . . . . . . . . . . . . . . . .
+    ax = df.plot(y='dife', x=detect, legend=None)
     changeYaxisToPercent(ax)
-    ax.set_xlabel('Elapsed seconds')
+    ax.set_xlabel('Num. of Tag detections')
     # plt.legend(title="Regions",loc='best')
     ax.set_ylabel('Confidence error (%)')
     if showFig:
         plt.show()
-    fileName=objectName+"_conf_error_t"
+    fileName = objectName + "_conf_error_t"
     if saveMe:
         pdfURL = fullPath + '/' + fileName + '.pdf'
         with PdfPages(pdfURL) as pdf:
@@ -206,21 +227,38 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
             pdf.savefig(fig)
         plt.close(fig)
 
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
     df['dife'] = dist
+    if useTime:
+        ax = df.plot(y='dife', x=seconds, legend=None)
+        ax.set_xlabel('Elapsed seconds')
+        ax.set_ylabel('Distance Error to region centroid (m.)')
+        if showFig:
+            plt.show()
 
-    ax = df.plot(y='dife', x=seconds, legend=None)
-    ax.set_xlabel('Elapsed seconds')
+        fileName=objectName+"_dist_error_t"
+        if saveMe:
+            pdfURL = fullPath + '/' + fileName + '.pdf'
+            with PdfPages(pdfURL) as pdf:
+                fig = ax.get_figure()
+                pdf.savefig(fig)
+            plt.close(fig)
+
+    #. . . . . . . . . . . . . . . . . . . . . . . . . .
+    ax = df.plot(y='dife', x=detect, legend=None)
+    ax.set_xlabel('Num. of Tag detections')
     ax.set_ylabel('Distance Error to region centroid (m.)')
     if showFig:
         plt.show()
 
-    fileName=objectName+"_dist_error_t"
+    fileName=objectName+"_dist_error_detect"
     if saveMe:
         pdfURL = fullPath + '/' + fileName + '.pdf'
         with PdfPages(pdfURL) as pdf:
             fig = ax.get_figure()
             pdf.savefig(fig)
         plt.close(fig)
+
 
     endLineStr = '\\\\'
     ansRow=[objectName, trueLoc,  locConfStr, avDistStr, locAccStr, numDetectsStr, endLineStr]
@@ -265,10 +303,10 @@ def runExpThree():
     #what we save for the csv file
     #Experiment, R, Wi, Wd, objectName, trueLoc,  locConfStr, avDistStr, locAccStr, numDetectsStr, endLineStr
 
-    experiment='UOL_3'
-    R='4'
+    experiment='UOL_2'
+    R='3'
     Wi='0.005'
-    Wd='0.001'
+    Wd='0.003'
     drawMe=False
 
     resultsFileName = 'results.csv'
@@ -335,31 +373,54 @@ def runExpThree():
 def runAll():
     basePath = '/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/'
 
+    # original option, sweep all
+    # r_min = 2.0
+    # r_step = 1.0
+    # r_max = 5.0
+    # r_num = 4
+    #
+    # wi_min = 0.005
+    # wi_step = 0.01
+    # wi_max = 0.045
+    # wi_num = 5
+    #
+    # wd_min = 0.001
+    # wd_step = 0.002
+    # wd_max = 0.009
+    # wd_num = 5
+
+
+# to do only r2.0-i0.15-d0.007
     r_min = 2.0
     r_step = 1.0
-    r_max = 5.0
-    r_num = 4
+    r_max = 2.0
+    r_num = 1
 
-    wi_min = 0.005
+    wi_min = 0.015
     wi_step = 0.01
-    wi_max = 0.045
-    wi_num = 5
+    wi_max = 0.15
+    wi_num = 1
 
-    wd_min = 0.001
-    wd_step = 0.002
-    wd_max = 0.009
-    wd_num = 5
+    wd_min = 0.007
+    wd_step = 0.001
+    wd_max = 0.007
+    wd_num = 1
 
     r_vec = np.linspace(r_min, r_max, r_num)
     wi_vec = np.linspace(wi_min, wi_max, wi_num)
     wd_vec = np.linspace(wd_min, wd_max, wd_num)
 
-    experiment_vec = ['FDG_1', 'UOL_2', 'UOL_3']
-    test_vec = [0, 1, 2]
+    # original option, sweep all
+    # experiment_vec = ['FDG_1', 'UOL_2', 'UOL_3']
+    # test_vec = [0, 1, 2]
+    # endTime_vec = [300, 500, 500]
+    # minConf_vec =[0.1, 0.1, 0.1]
 
-    endTime_vec = [300, 500, 500]
+    experiment_vec = ['FDG_1']
+    test_vec = [0]
+    endTime_vec = [300]
+    minConf_vec =[0.1]
 
-    minConf_vec =[0.1, 0.1, 0.1]
 
     centr1 = {'kitchen': (3.015, 0.565),
               'kitchen - fridge': (3.015, -0.275),
@@ -384,8 +445,10 @@ def runAll():
               'livingroom - study': (12.901, 4.183)}
 
     centr2 = centr1
-    # TODO add fdg centroids
-    centr_vec = [centr0, centr1, centr2]
+
+    # original option, sweep all
+    # centr_vec = [centr0, centr1, centr2]
+    centr_vec = [centr0]
 
     # deleteItems for FDG
     deleteItems0 = ['livingroom']
@@ -408,12 +471,21 @@ def runAll():
     trueLocs1 = ['entrance corridor', 'entrance corridor', 'entrance corridor']
     objects2 = objects1
     trueLocs2 = trueLocs1
-    object_vec = [objects0, objects1, objects2]
-    trueLoc_vec = [trueLocs0, trueLocs1, trueLocs2]
 
-    offsets_vec = [13, 11, 11]
+    # original option, sweep all
+    # object_vec = [objects0, objects1, objects2]
+    # trueLoc_vec = [trueLocs0, trueLocs1, trueLocs2]
+    object_vec = [objects0]
+    trueLoc_vec = [trueLocs0]
 
-    resultsFileName = 'results.csv'
+    # original option, sweep all
+    # offsets_vec = [13, 11, 11]
+    offsets_vec = [13]
+
+    # original option, sweep all
+#    resultsFileName = 'results.csv'
+    resultsFileName = 'resultsTEMP.csv'
+
     resultsFileURI = basePath + resultsFileName
     csvfile = open(resultsFileURI, 'wb')
     spamwriter = csv.writer(csvfile, delimiter='&')
@@ -460,12 +532,98 @@ def runAll():
 
 
 
+# runs one single experiment
+def runExp(fullPath,prefix):
 
+
+    endTime = 900
+    minConf = 0.1
+
+    centr = {'kitchen': (3.015, 0.565),
+             'kitchen - fridge': (3.015, -0.275),
+             'kitchen - coffee': (3.015, 1.300),
+             'entrance corridor': (0.910, 3.605),
+             'bathroom corridor': (0.655, 0.435),
+             'workzone corridor': (0.410, 9.435),
+             'workzone G': (-2.620, 6.860),
+             'workzone P': (2.935, 6.960),
+             'workzone Y': (-2.555, 11.270),
+             'workzone T': (3.120, 11.345),
+             'entrance': (-3.915, 3.605),
+             'lounge': (-2.700, 0.470),
+             'lounge - sofas': (-3.825, 0.470),
+             'lounge - tv': (-1.395, 0.470)}
+
+
+    # delete subregions - keep only regions
+    deleteItems = ['kitchen - coffee', 'kitchen - fridge',
+                   'lounge - sofas', 'lounge - tv']
+    #, 'entrance', 'workzone G', 'workzone P', 'workzone T', 'workzone Y', 'workzone corridor']
+
+
+    #what we save for the csv file
+    #Experiment, R, Wi, Wd, objectName, trueLoc,  locConfStr, avDistStr, locAccStr, numDetectsStr, endLineStr
+
+    experiment='UOL_2'
+    drawMe=True
+    saveMe=True
+    offset = 11
+
+    # 1 ......................................................................
+    fileName = prefix+'kitchen table.p'
+    trueLoc = 'bathroom corridor'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,drawMe,saveMe,offset)
+
+    #.........................................................................
+
+
+    # 1 ......................................................................
+    fileName = prefix+'tape holder.p'
+    trueLoc = 'entrance corridor'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,drawMe,saveMe,offset)
+    #.........................................................................
+
+
+    # 1 ......................................................................
+    fileName = prefix+'lounge table.p'
+    trueLoc = 'lounge'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,drawMe,saveMe,offset)
+    #.........................................................................
+
+
+
+    fileName=prefix+'logitech gamepad.p'
+    trueLoc = 'entrance corridor'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,drawMe,saveMe,offset)
+
+
+    #.........................................................................
+
+
+
+    fileName=prefix+'chair.p'
+    trueLoc = 'entrance corridor'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,drawMe,saveMe,offset)
+
+
+    #.........................................................................
+
+    fileName=prefix+'remote.p'
+    trueLoc = 'entrance corridor'
+    ansRow = allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr, drawMe,saveMe,offset)
+
+
+
+
+#....................................................................................................................
 
 # Main function.
 if __name__ == '__main__':
-    #runAll()
-    resultsFile='/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/results.csv'
-    df = pd.read_csv(resultsFile,delimiter='&')
-    df[(df['Experiment'] == 'FDG_1') & (df['object'] == 'pillbox') & (df['Accuracy'] > 60)].plot()
-    df[(df['Experiment']=='FDG_1') & (df['object']=='pillbox')].plot(x='Av. Reg. Confidence',y='Av. dist. error')
+     runAll()
+    # resultsFile='/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/results.csv'
+    # df = pd.read_csv(resultsFile,delimiter='&')s
+    # df[(df['Experiment'] == 'FDG_1') & (df['object'] == 'pillbox') & (df['Accuracy'] > 60)].plot()
+    # df[(df['Experiment']=='FDG_1') & (df['object']=='pillbox')].plot(x='Av. Reg. Confidence',y='Av. dist. error')
+    #runExpThree()
+    #runExp('/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/cone/','REPLAY_UOL_')
+
