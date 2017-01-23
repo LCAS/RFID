@@ -6,8 +6,9 @@
 import rospy
 import tf
 import math
+
 from std_msgs.msg import String
-import TagModel
+#import TagModel
 
 class la_clase():
 
@@ -41,18 +42,18 @@ class la_clase():
 
         tagModel=[]
 
-        if tid not in self.tagDict:
-            print "new tag "+tid
-            self.do = True
-            tagModel=TagModel.TagModel(tid,self.gridSize,self.resolution)
-            self.tagDict[tid]=tagModel
-        else:
-            tagModel=self.tagDict[tid]
+        #if tid not in self.tagDict:
+            #print "new tag "+tid
+            #self.do = True
+            #tagModel=TagModel.TagModel(tid,self.gridSize,self.resolution)
+            #self.tagDict[tid]=tagModel
+        #else:
+            #tagModel=self.tagDict[tid]
 
 
         now = rospy.Time()
         try:
-            self.tf.waitForTransform(self.robotTFName,self.getTagTFName(tid),  now, rospy.Duration(2.0))
+            self.tf.waitForTransform(self.robotTFName,self.getTagTFName(tid),  now, rospy.Duration(0.5))
             rel_pose, rel_quat = self.tf.lookupTransform(self.robotTFName,self.getTagTFName(tid),  now)
             rel_x = rel_pose[0]
             rel_y = rel_pose[1]
@@ -61,11 +62,15 @@ class la_clase():
             rel_phi = math.atan2(rel_y, rel_x)
             # relative position of the tag respect to the antenna
             if self.do:
-                self.do = False
-                print "Pose:   "+"{:2.2f}".format(rel_x)+" m. "+"{:2.2f}".format(rel_y)+" m. "+"{:2.2f}".format(rel_yaw*180/3.141592)+" deg."
-                print " polar: "+"{:2.2f}".format(rel_r) + " " + "{:2.2f}".format(rel_phi * 180 / 3.141592)+" deg."
+                #self.do = False
+                print "Robot Pose:   "+"{:2.2f}".format(rel_x)+" m. "+"{:2.2f}".format(rel_y)+" m. "+"{:2.2f}".format(rel_yaw*180/3.141592)+" deg."
+                print "\t polar: "+"{:2.2f}".format(rel_r) + " " + "{:2.2f}".format(rel_phi * 180 / 3.141592)+" deg."
 
-            tagModel.updateCell(rel_x,rel_y,rssi_db,freq_khz,phase_deg)
+                txPower = 20.0
+                txLoss = math.pow( 10.0, 9 + (txPower + rssi_db - 30) / 10.0   )
+
+
+                #tagModel.updateCell(rel_x,rel_y,rssi_db,freq_khz,phase_deg)
         except tf.Exception:
             rospy.logerr("Detected tag ("+tid+") with no know location. Skipping")
 

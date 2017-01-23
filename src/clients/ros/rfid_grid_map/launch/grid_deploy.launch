@@ -3,8 +3,7 @@
   This file requires from a Regions yaml file to be loaded as params -->    
       
 
-    
-  <arg name="tagID" default="3900.110000000000000007"/>
+  <arg name="tagID" default="3900.390000010000000000000007"/>
   <arg name="object" default="kitchen table"/>
   <arg name="saveRoute" default=""/>
   <arg name="loadGrids" default="false"/>

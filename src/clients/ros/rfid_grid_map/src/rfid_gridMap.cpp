@@ -80,8 +80,17 @@ namespace rfid_grid_map {
       double probUpdatePeriod;
       double mapUpdatePeriod;
       
-      private_node_handle.param("mapUpdatePeriod", mapUpdatePeriod, 10.0);
-      private_node_handle.param("probUpdatePeriod", probUpdatePeriod, 2.0);
+       ROS_DEBUG("CHANGE UPDATE PERIOD CHANGE UPDATE PERIOD!!!!!");
+       
+       ROS_DEBUG("CHANGE UPDATE PERIOD CHANGE UPDATE PERIOD!!!!!");
+       
+       ROS_DEBUG("CHANGE UPDATE PERIOD CHANGE UPDATE PERIOD!!!!!");
+       
+       ROS_DEBUG("CHANGE UPDATE PERIOD CHANGE UPDATE PERIOD!!!!!");
+       
+       ROS_DEBUG("CHANGE UPDATE PERIOD CHANGE UPDATE PERIOD!!!!!");
+      private_node_handle.param("mapUpdatePeriod", mapUpdatePeriod, 1.0);
+      private_node_handle.param("probUpdatePeriod", probUpdatePeriod, 1.0);
       private_node_handle.param("saveTime", saveTime, 10.0);
       private_node_handle.param("object", object_name, std::string("noname_object"));
       
@@ -238,19 +247,62 @@ namespace rfid_grid_map {
         //where to plot circle (m)
         double x=transform_.getOrigin().x();
         double y=transform_.getOrigin().y();
+        
+        const double pi = std::acos(-1);
+        double cone_heading=pi/6; 
+        double radiusMin=0.3*detectRadius;
+        
+        double lowProb;
+			double midProb;
+            double highProb;
+            bool oldMode=false;
+       
+        
+        tf::Quaternion 	q=transform_.getRotation();
+        tf::Matrix3x3 m(q);
+		double roll, pitch, yaw;
+		m.getRPY(roll, pitch, yaw);
+        double rh=yaw;
+        
+        
         if ((x!=0.0)&&(y!=0.0))
         {
-            ////////ROS_INFO("I'm at %2.2f, %2.2f",x,y);            
-            ////ROS_DEBUG("got my tag! ");
-            ////////ROS_INFO("got my tag! ");
+            //ROS_INFO("Robot at (%2.2f, %2.2f) m. %2.2f deg. ",x,y,yaw*180/pi);
+            double txPower=20.0; //dBm        
+            double txLoss=std::pow( 10.0 , 9+(msg->rssi -30-txPower) /10.0   ); //received power in nanoWatts
+			
+			
+			weight_inc= -(msg->rssi) /100.0;
+			if (weight_inc<0.0){
+				weight_inc=0.0;
+			}
+            
+            
+            lowProb=0.001*weight_inc;
+			midProb=0.01*weight_inc;
+            highProb=0.1*weight_inc;
+            
+            weight_dec=0.02*(weight_inc+0.1);
+            
+            
+            //ROS_INFO("RSSI (%d) dBm. -> (%.3e) nW -> wi (%2.2f)  ",msg->rssi,pot,weight_inc);
             updateLastDetectionPose(x,y);
 
             ////ROS_DEBUG("Decreasing map ");
-            drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-weight_dec);
-            ////ROS_DEBUG("Increasing map ");
-            drawCircle( x,  y,  detectRadius, weight_inc);        
+            drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-weight_dec);            
+            //ROS_DEBUG("Increasing map ");
+            if (oldMode){
+                drawCircle( x,  y,  detectRadius, weight_inc);      
+            } else {
+                drawDetectionShape(x,y, rh, 
+                   detectRadius, radiusMin, cone_heading, 
+                   midProb,  lowProb,  highProb);
+            }
+            
+              
         } else {
-            ////ROS_DEBUG("I'm at %2.2f, %2.2f",x,y);
+            ROS_DEBUG("WHERE IS MY TF!!! %2.2f, %2.2f",x,y);
+
         }
         
        }
@@ -579,11 +631,14 @@ void rfid_gridMap::drawSquare(double start_x,double start_y,double end_x,double 
         {
             map_.at(layerName, *iterator) =  value;
         }
+        
+        
         if (map_.at(layerName, *iterator)<lowerValue)
             map_.at(layerName, *iterator) =  lowerValue;
+        /*
         if (map_.at(layerName, *iterator)>upperValue)
             map_.at(layerName, *iterator) = upperValue;
-
+		*/
     }
 }
 
@@ -610,7 +665,59 @@ void rfid_gridMap::drawCircle(double x, double y, double radius, double value)
         map_.at(layerName, *iterator) = upperValue;
   }
 }
+
+
+void rfid_gridMap::drawDetectionShape(double cx,double cy, double rh, 
+        double radius,double radiusMin,  double cone_heading, 
+        double midProb, double lowProb, double highProb)
+{
+	////////////////////////////////////////////////////////////////
+  double x;
+  double y;
+  double tetha;
+  double r;
+
+  Position position;
+  Position center(cx, cy);
+
+
+  for (grid_map::CircleIterator iterator(map_, center, radius);
+      !iterator.isPastEnd(); ++iterator) {
     
+    if (isnan(map_.at(layerName, *iterator)))
+    {
+        map_.at(layerName, *iterator) =  0;
+    }
+    
+    
+    
+    map_.getPosition(*iterator, position);
+    x=position.x()-center.x();
+    y=position.y()-center.y();
+    tetha=std::abs(std::atan2(y,x)-rh);   
+    r=std::sqrt(x*x+y*y);
+
+
+	if ((tetha-cone_heading)>=0){
+		if (r<radiusMin){
+			map_.at(layerName, *iterator) += midProb;
+		} else {
+			map_.at(layerName, *iterator) += lowProb;			
+		}
+	} else {
+		map_.at(layerName, *iterator) += highProb;
+	}
+			
+    
+	
+	
+    ////////////////////////////////////////////////////////////////
+    
+	
+	}
+    
+}
+
     
 } // end of namespace rfid_grid_map
 
