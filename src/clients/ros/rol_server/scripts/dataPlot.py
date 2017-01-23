@@ -236,7 +236,7 @@ def allPlots(fullPath, endTime, minConf, deleteItems, fileName, trueLoc, centr,s
 # example for some tests in dataset 3....
 def runExpThree():
 
-    fullPath = '/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/3/'
+    fullPath = '~/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/3/'
     endTime = 900
     minConf = 0.1
 
@@ -333,7 +333,7 @@ def runExpThree():
 #....................................................................................................................
 # goes through all files ...
 def runAll():
-    basePath = '/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/'
+    basePath = '~/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/'
 
     r_min = 2.0
     r_step = 1.0
@@ -464,8 +464,8 @@ def runAll():
 
 # Main function.
 if __name__ == '__main__':
-    #runAll()
-    resultsFile='/home/mfcarmona/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/results.csv'
+    runAll()
+    resultsFile='~/catkin_ws/src/ENRICHME/codes/ais/LibMercuryRFID/src/clients/ros/rfid_grid_map/launch/article/results.csv'
     df = pd.read_csv(resultsFile,delimiter='&')
     df[(df['Experiment'] == 'FDG_1') & (df['object'] == 'pillbox') & (df['Accuracy'] > 60)].plot()
     df[(df['Experiment']=='FDG_1') & (df['object']=='pillbox')].plot(x='Av. Reg. Confidence',y='Av. dist. error')

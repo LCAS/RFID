@@ -27,7 +27,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000006" />
     <arg name="object" value="lounge table" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -36,7 +36,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000007" />
     <arg name="object" value="kitchen table" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -45,7 +45,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000009" />
     <arg name="object" value="red stapler" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />            
   </include>
   
@@ -54,7 +54,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000010" />
     <arg name="object" value="xbox gamepad" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -63,7 +63,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000012" />
     <arg name="object" value="logitech gamepad" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -72,7 +72,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000013" />
     <arg name="object" value="remote" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -81,7 +81,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000015" />
     <arg name="object" value="tape holder" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -90,7 +90,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390000010000000000000020" />
     <arg name="object" value="chair" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
   
@@ -103,6 +103,6 @@
  <!-- Launch data crawler -->
  <node pkg="rol_server" type="prob_crawler.py" name="prob_client" output="screen">
     <rosparam command="load" file="$(find rfid_grid_map)/launch/article/REPLAY_UOL_3.yaml"/>
-    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/3/r6.0-i0.55-d0.11/"</rosparam>
+    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/3/"</rosparam>
  </node> 
 </launch>

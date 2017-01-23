@@ -4,15 +4,15 @@
       
 
     
-  <arg name="tagID" default="3900.110000000000000007"/>
+  <arg name="tagID" default="390000010000000000000007"/>
   <arg name="object" default="kitchen table"/>
   <arg name="saveRoute" default=""/>
   <arg name="loadGrids" default="false"/>
   <arg name="saveTime" default="60.0"/>
   <arg name="map_resolution" default="0.3"/> 
-  <arg name="weight_inc" default="0.55"/> 
-  <arg name="weight_dec" default="0.11"/> 
-  <arg name="detectRadius" default="6.0"/> 
+  <arg name="weight_inc" default="0.005"/> 
+  <arg name="weight_dec" default="0.001"/> 
+  <arg name="detectRadius" default="2.0"/> 
       
   <group ns="grid_$(arg tagID)">
   <!-- Launch rfid_grid_map: locate objects -->

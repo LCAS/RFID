@@ -21,7 +21,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000000" />
     <arg name="object" value="wallet" />    
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
 
@@ -31,7 +31,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000001" />
     <arg name="object" value="keys" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
   
@@ -40,7 +40,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000002" />
     <arg name="object" value="pillbox" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
   
@@ -49,7 +49,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000003" />
     <arg name="object" value="remote" />    
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
   
@@ -58,7 +58,7 @@
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390200010000000000000004" />
     <arg name="object" value="glasses" />
-    <arg name="saveRoute" value="$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/" />    
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/" />    
     <arg name="loadGrids" value="false" />        
   </include>
   
@@ -103,6 +103,6 @@
  <!-- Launch data crawler -->
  <node pkg="rol_server" type="prob_crawler.py" name="prob_client" output="screen">
     <rosparam command="load" file="$(find rfid_grid_map)/launch/article/REPLAY_FDG_1.yaml"/>
-    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/1/r6.0-i0.55-d0.11/"</rosparam>
+    <rosparam param="saveRoute" subst_value="True">"$(find rfid_grid_map)/launch/article/1/"</rosparam>
  </node> 
 </launch>

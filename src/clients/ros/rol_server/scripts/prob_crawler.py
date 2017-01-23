@@ -98,7 +98,7 @@ class prob_crawler():
 # Main function.
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('prob_crawler', log_level=rospy.DEBUG)
+    rospy.init_node('prob_crawler')#, log_level=rospy.DEBUG)
 
     # Go to class functions that do all the heavy lifting. Do error checking.
     try:

@@ -15,7 +15,7 @@ namespace rfid_grid_map {
     {
       ros::NodeHandle private_node_handle("~");
         
-      //ROS_INFO("HI WORLD");
+      ////////ROS_INFO("HI WORLD");
       
       // map resolution
       double resolution;
@@ -70,7 +70,7 @@ namespace rfid_grid_map {
       
       if (boost::iequals(temp, std::string("not found"))) {
           loadGrids=false;
-          ROS_DEBUG("could not found loadGrids '%s'", temp.c_str());      
+          //ROS_DEBUG("could not found loadGrids '%s'", temp.c_str());      
 
       }
       
@@ -92,16 +92,21 @@ namespace rfid_grid_map {
       mapAreas=loadAreas();
       //...........................................
       ROS_DEBUG("Configuration params:");
+      ROS_DEBUG("r: %2.1f", detectRadius);    
+      ROS_DEBUG("wi: %3.3f", weight_inc);
+      ROS_DEBUG("wd: %3.3f", weight_dec);
+      ROS_DEBUG("........................................");
       
-      ROS_DEBUG("global_frame: %s", global_frame.c_str());    
-      ROS_DEBUG("robot_frame: %s", robot_frame.c_str());
-      ROS_DEBUG("tagID: %s", tagID.c_str());
-      ROS_DEBUG("grid_map_name: %s", grid_map_name.c_str());      
-      ROS_DEBUG("load/save_route is [%s]",save_route.c_str());          
+      
+      //ROS_DEBUG("global_frame: %s", global_frame.c_str());    
+      //ROS_DEBUG("robot_frame: %s", robot_frame.c_str());
+      //ROS_DEBUG("tagID: %s", tagID.c_str());
+      //ROS_DEBUG("grid_map_name: %s", grid_map_name.c_str());      
+      //ROS_DEBUG("load/save_route is [%s]",save_route.c_str());          
       if (loadGrids){
-        ROS_DEBUG("Load Saved data [TRUE]");          
+        //ROS_DEBUG("Load Saved data [TRUE]");          
       }else{
-        ROS_DEBUG("Load Saved data [FALSE]");          
+        //ROS_DEBUG("Load Saved data [FALSE]");          
       }
       
       // Setting up map. 
@@ -115,7 +120,7 @@ namespace rfid_grid_map {
             
       map_sub_ = n.subscribe("/map", 10,  &rfid_gridMap::mapCallback,this);
           
-      ROS_DEBUG("Waiting for map service");      
+      //ROS_DEBUG("Waiting for map service");      
       if (ros::service::waitForService("/static_map",500)&(!isMapLoaded) ){    
          // don't judge me
          while (!isMapLoaded){
@@ -123,19 +128,19 @@ namespace rfid_grid_map {
           // get map via RPC
           nav_msgs::GetMap::Request  req;
           nav_msgs::GetMap::Response resp;
-          ROS_DEBUG("Requesting the map...");
+          //ROS_DEBUG("Requesting the map...");
           ros::service::call("/static_map", req, resp);
           mapCallback(resp.map);
           
           ros::Duration(1).sleep(); // sleep for a second
-          ROS_DEBUG(".");         
+          //ROS_DEBUG(".");         
         }; 
       } else{          
-          ROS_DEBUG("Service not found. Data got from topic");         
+          //ROS_DEBUG("Service not found. Data got from topic");         
       }
           
 
-      //ROS_DEBUG("Setting gridmap");         
+      ////ROS_DEBUG("Setting gridmap");         
 
       // map resolution (m/cell)
       // we don't need same resolution than map...
@@ -168,18 +173,18 @@ namespace rfid_grid_map {
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
       map_.setFrameId(global_frame);      
       map_.clearAll();
-      //ROS_DEBUG("Setting gridmap done");         
+      ////ROS_DEBUG("Setting gridmap done");         
 
       Position p;
       p=map_.getPosition();
-      //ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p.x(),p.y());         
+      ////ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p.x(),p.y());         
 
       if (loadGrids) {        
-        //ROS_DEBUG("Loading previous data");         
+        ////ROS_DEBUG("Loading previous data");         
         // file to image...
         //cv::Mat imageCV = cv::imread(gridmap_image_file, CV_LOAD_IMAGE_GRAYSCALE);
         cv::Mat imageCV = cv::imread((save_route+gridmap_image_file), CV_LOAD_IMAGE_UNCHANGED );
-        //ROS_DEBUG("Converting to ROS format");         
+        ////ROS_DEBUG("Converting to ROS format");         
         sensor_msgs::ImagePtr imageROS = cv_bridge::CvImage(std_msgs::Header(), rosEncoding, imageCV).toImageMsg();                      
         
         ROS_ASSERT_MSG(GridMapRosConverter::addLayerFromImage(*imageROS, layerName, map_, lowerValue, upperValue,0.5),
@@ -189,13 +194,13 @@ namespace rfid_grid_map {
       
       lastRegion.name=std::string(" ");
       
-      ROS_DEBUG("Advertising publishers");         
+      //ROS_DEBUG("Advertising publishers");         
       gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(grid_map_name, 1, true);      
       publishMap();
       
       prob_pub_ = n.advertise<std_msgs::String>(prob_pub_name, 1000);
         
-      ROS_DEBUG("Subscribing...");         
+      //ROS_DEBUG("Subscribing...");         
       // get tag readings
       ros::Subscriber sub_ = n.subscribe("/lastTag", 1000, &rfid_gridMap::tagCallback, this);
       
@@ -208,7 +213,7 @@ namespace rfid_grid_map {
       // publish updated probabilities every reasonable time.
       ros::Timer timer3 = n.createTimer(ros::Duration(saveTime),  &rfid_gridMap::saveMapCallback,this);
       
-      ROS_DEBUG("Spin...");         
+      //ROS_DEBUG("Spin...");         
       ros::spin(); 
        
     }
@@ -223,33 +228,33 @@ namespace rfid_grid_map {
     {
       //Position p1;
       //p1=map_.getPosition();
-      //ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p1.x(),p1.y());         
+      ////ROS_DEBUG("Map origin at (%3.3f,%3.3f)",p1.x(),p1.y());         
 
        
        if (msg->ID.compare(tagID)==0){           
-        //ROS_DEBUG("Asking for location");
+        ////ROS_DEBUG("Asking for location");
         updateTransform();
-        //ROS_DEBUG("Location updated");       
+        ////ROS_DEBUG("Location updated");       
         //where to plot circle (m)
         double x=transform_.getOrigin().x();
         double y=transform_.getOrigin().y();
         if ((x!=0.0)&&(y!=0.0))
         {
-            //ROS_INFO("I'm at %2.2f, %2.2f",x,y);            
-            //ROS_DEBUG("got my tag! ");
-            //ROS_INFO("got my tag! ");
+            ////////ROS_INFO("I'm at %2.2f, %2.2f",x,y);            
+            ////ROS_DEBUG("got my tag! ");
+            ////////ROS_INFO("got my tag! ");
             updateLastDetectionPose(x,y);
 
-            //ROS_DEBUG("Decreasing map ");
+            ////ROS_DEBUG("Decreasing map ");
             drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-weight_dec);
-            //ROS_DEBUG("Increasing map ");
+            ////ROS_DEBUG("Increasing map ");
             drawCircle( x,  y,  detectRadius, weight_inc);        
         } else {
-            //ROS_DEBUG("I'm at %2.2f, %2.2f",x,y);
+            ////ROS_DEBUG("I'm at %2.2f, %2.2f",x,y);
         }
         
        }
-       //ROS_DEBUG("Done");
+       ////ROS_DEBUG("Done");
     }
     
     void rfid_gridMap::saveMapCallback(const ros::TimerEvent&){
@@ -258,7 +263,7 @@ namespace rfid_grid_map {
         sensor_msgs::Image image;
         cv_bridge::CvImagePtr cv_ptr;
                 
-        //ROS_INFO("Periodic gridmap storage in [%s]",(save_route+gridmap_image_file).c_str());        
+        ////////ROS_INFO("Periodic gridmap storage in [%s]",(save_route+gridmap_image_file).c_str());        
         
         GridMapRosConverter::toImage(map_, layerName, rosEncoding, image);
         // image to file...
@@ -292,14 +297,14 @@ namespace rfid_grid_map {
 
         nodeHandle_.getParam("/Regions/",regionsMap);        
         
-        ROS_DEBUG("Loaded: %d regions",regionsMap.size());
-        ROS_DEBUG("regionsMap Type %d",regionsMap.getType());
+        //ROS_DEBUG("Loaded: %d regions",regionsMap.size());
+        //ROS_DEBUG("regionsMap Type %d",regionsMap.getType());
 
         ROS_ASSERT(regionsMap.getType() == XmlRpc::XmlRpcValue::TypeArray);
         
         for(int m=0; m<regionsMap.size(); ++m) {
             string regionName =regionsMap[m]["name"];
-            //ROS_DEBUG("Region: %s" , regionName.c_str() );
+            ////ROS_DEBUG("Region: %s" , regionName.c_str() );
             
             type_area area;  
             area.name=regionName;
@@ -309,11 +314,11 @@ namespace rfid_grid_map {
             points=regionsMap[m]["points"];
             
             ROS_ASSERT(points.getType() == XmlRpc::XmlRpcValue::TypeArray);
-            //ROS_DEBUG("#%d",points.size());
+            ////ROS_DEBUG("#%d",points.size());
             
             for(int j=0; j<points.size(); ++j) {
                         double px,py;
-                        //ROS_DEBUG("#%d",points[j].getType());                        
+                        ////ROS_DEBUG("#%d",points[j].getType());                        
                                                 
                         if ( j % 2 == 0 ){
                             px=points[j];
@@ -322,17 +327,17 @@ namespace rfid_grid_map {
                             Position p=Position(px,py);
                             area.polygon.addVertex(p);
                         }
-                        //ROS_DEBUG("%3.3f,%3.3f",px,py);                        
+                        ////ROS_DEBUG("%3.3f,%3.3f",px,py);                        
             }
             mapa.push_back(area);
             
             if (regionsMap[m].hasMember("subregions")) {
-                //ROS_DEBUG("Region %s has subregions!!" , regionName.c_str() );
+                ////ROS_DEBUG("Region %s has subregions!!" , regionName.c_str() );
                 std::vector<rfid_gridMap::type_area> mapSubs;
                     
                 for(int s=0; s<regionsMap[m]["subregions"].size(); ++s) {                    
                     string subRegionName =regionsMap[m]["subregions"][s]["name"];
-                    //ROS_DEBUG("subregion: %s" , subRegionName.c_str() );
+                    ////ROS_DEBUG("subregion: %s" , subRegionName.c_str() );
 
                     type_area area;  
                     area.name=subRegionName;
@@ -342,10 +347,10 @@ namespace rfid_grid_map {
                     points=regionsMap[m]["subregions"][s]["points"];
 
                     ROS_ASSERT(points.getType() == XmlRpc::XmlRpcValue::TypeArray);
-                    //ROS_DEBUG("#%d",points.size());
-                    //ROS_DEBUG("#n");
+                    ////ROS_DEBUG("#%d",points.size());
+                    ////ROS_DEBUG("#n");
                     for(int j=0; j<points.size(); ++j) {
-                        //ROS_DEBUG("#%d",points[j].getType());
+                        ////ROS_DEBUG("#%d",points[j].getType());
                         double px,py;
                                                 
                         if ( j % 2 == 0 ){
@@ -355,7 +360,7 @@ namespace rfid_grid_map {
                             Position p=Position(px,py);
                             area.polygon.addVertex(p);
                         }
-                        //ROS_DEBUG("%3.3f,%3.3f",px,py);        
+                        ////ROS_DEBUG("%3.3f,%3.3f",px,py);        
                     }
                     mapSubs.push_back(area);
 
@@ -401,19 +406,19 @@ namespace rfid_grid_map {
              if (it != mapSubAreas.end()){
                  double sub_area_total=0;
                  //std::vector<rfid_gridMap::type_area> subAreasVec=it->second;
-                 //ROS_DEBUG("-------------------->   Region [%s] has [%lu] subregions",mapAreas[i].name.c_str(),it->second.size());
+                 ////ROS_DEBUG("-------------------->   Region [%s] has [%lu] subregions",mapAreas[i].name.c_str(),it->second.size());
                  for (std::size_t k=0;k<it->second.size();k++) {                     
                      val=countValuesInArea(it->second[k].polygon);
                      it->second[k].prob=val;
                      sub_area_total+=val;	                     	                      
-                     //ROS_DEBUG("SUB Region [%s] has [%3.3f] weight",it->second[k].name.c_str(),it->second[k].prob);
+                     ////ROS_DEBUG("SUB Region [%s] has [%3.3f] weight",it->second[k].name.c_str(),it->second[k].prob);
                  }                 
                  for (std::size_t k=0;k<it->second.size();k++) { 
                      if (sub_area_total>0.0)
                          it->second[k].prob=it->second[k].prob/sub_area_total;
                      else
                          it->second[k].prob=0;		                     
-                     //ROS_DEBUG("SUB Region [%s] has rel prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
+                     ////ROS_DEBUG("SUB Region [%s] has rel prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
                  }                                  
              }    
 //...................
@@ -436,11 +441,11 @@ namespace rfid_grid_map {
              std::map<std::string,std::vector<rfid_gridMap::type_area>>::iterator it = mapSubAreas.find(mapAreas[i].name);
              if (it != mapSubAreas.end()){
                  //std::vector<rfid_gridMap::type_area> subAreasVec=it->second;
-                 //ROS_DEBUG("Region [%s] has Prob. [%3.3f]",mapAreas[i].name.c_str(),mapAreas[i].prob);
+                 ////ROS_DEBUG("Region [%s] has Prob. [%3.3f]",mapAreas[i].name.c_str(),mapAreas[i].prob);
                  for (std::size_t k=0;k<it->second.size();k++) { 
                      if (it->second[k].prob>0.0)
                          it->second[k].prob=it->second[k].prob * mapAreas[i].prob;
-                     //ROS_DEBUG("SUB Region [%s] has ABS prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
+                     ////ROS_DEBUG("SUB Region [%s] has ABS prob. [%3.3f]",it->second[k].name.c_str(),it->second[k].prob);
                      sstream<<","<<it->second[k].name<<","<<it->second[k].prob;			 
                  }                                  
              }    
@@ -452,7 +457,7 @@ namespace rfid_grid_map {
         
         msg.data=sstream.str();
         prob_pub_.publish(msg);
-        //ROS_DEBUG("------------------------------------>  %d",__LINE__);
+        ////ROS_DEBUG("------------------------------------>  %d",__LINE__);
     }
     
     void rfid_gridMap::updateTransform()
@@ -477,7 +482,7 @@ namespace rfid_grid_map {
       grid_map_msgs::GridMap message;
       grid_map::GridMapRosConverter::toMessage(map_, message);
       gridMapPublisher_.publish(message);
-      //ROS_DEBUG("Grid map (timestamp %f) published.", message.info.header.stamp.toSec());
+      ////ROS_DEBUG("Grid map (timestamp %f) published.", message.info.header.stamp.toSec());
     }
 
 
@@ -503,12 +508,12 @@ void rfid_gridMap::updateLastDetectionPose(double x, double y){
 
 void rfid_gridMap::wasHere(type_area area)
 {            
-    //ROS_DEBUG("Point (%3.3f,%3.3f)", lastP.x(),lastP.y());
+    ////ROS_DEBUG("Point (%3.3f,%3.3f)", lastP.x(),lastP.y());
     if (area.polygon.isInside(lastP)){
 		lastRegion=area;
-        //ROS_DEBUG("We are in area %s", area.name.c_str());
+        ////ROS_DEBUG("We are in area %s", area.name.c_str());
     } else {
-        //ROS_DEBUG("We are NOT in area %s", area.name.c_str());
+        ////ROS_DEBUG("We are NOT in area %s", area.name.c_str());
     }
         
 }
@@ -521,19 +526,19 @@ void rfid_gridMap::mapCallback(const nav_msgs::OccupancyGrid& msg)
         isMapLoaded=true;
         mapDesc=msg.info;
         mapFrame=msg.header.frame_id;
-        ROS_DEBUG("Received a %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
-                msg.info.width,
-                msg.info.height,
-                msg.info.resolution,
-                msg.info.origin.position.x,
-                msg.info.origin.position.y);
+        //ROS_DEBUG("Received a %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
+        //        msg.info.width,
+        //        msg.info.height,
+        //        msg.info.resolution,
+        //        msg.info.origin.position.x,
+        //        msg.info.origin.position.y);
         } else {           
-            ROS_DEBUG("Received an INVALID!! %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
-                msg.info.width,
-                msg.info.height,
-                msg.info.resolution,
-                msg.info.origin.position.x,
-                msg.info.origin.position.y);
+            //ROS_DEBUG("Received an INVALID!! %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
+            //    msg.info.width,
+            //    msg.info.height,
+            //    msg.info.resolution,
+            //    msg.info.origin.position.x,
+            //    msg.info.origin.position.y);
         }
         
 }
@@ -587,7 +592,7 @@ void rfid_gridMap::drawSquare(double start_x,double start_y,double end_x,double 
 // based on demoCircleIterator
 void rfid_gridMap::drawCircle(double x, double y, double radius, double value)
 {
-  //ROS_INFO("Plotting circle at (%2.2f,%2.2f)",x,y);
+  ////////ROS_INFO("Plotting circle at (%2.2f,%2.2f)",x,y);
   
   Position center(x, y);
   
