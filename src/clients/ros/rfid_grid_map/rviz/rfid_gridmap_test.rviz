@@ -8,7 +8,6 @@ Panels:
         - /Grid1
         - /Map1
         - /TF1/Frames1
-        - /Map3
       Splitter Ratio: 0.470803
     Tree Height: 675
   - Class: rviz/Selection
@@ -76,19 +75,31 @@ Visualization Manager:
       Unreliable: false
       Value: false
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        base_link:
+          Value: true
+        kompai_laser:
+          Value: true
+        map:
+          Value: true
+        odom_combined:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        map:
+          odom_combined:
+            base_link:
+              kompai_laser:
+                {}
       Update Interval: 0
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -101,7 +112,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 0
@@ -118,16 +129,16 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /grid_390000010000000000000006/grid_map_visualization/occupancy_grid
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 0.9
       Class: rviz/Map
       Color Scheme: costmap
@@ -177,11 +188,11 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Map
       Topic: /grid_390000010000000000000015/grid_map_visualization/occupancy_grid
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: costmap
@@ -223,11 +234,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 92.3276
+      Scale: 103.127
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 1.02473
-      Y: 1.1287
+      X: 0.15719
+      Y: -0.314044
     Saved: ~
 Window Geometry:
   Displays:
@@ -245,5 +256,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1918
-  X: 1920
-  Y: 60
+  X: 0
+  Y: 46

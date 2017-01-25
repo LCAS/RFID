@@ -221,8 +221,7 @@ class rol_server():
         self.probHandlerList=dict()
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
-
-        self.minProb = float(rospy.get_param('~minProb', 0.01))
+        self.minProb = float(rospy.get_param('~minProb', 0.0))
 
         listOfTopics = rospy.get_published_topics()
         self.loadLocations()
@@ -283,7 +282,7 @@ class rol_server():
 # Main function.
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('rol_server', log_level=rospy.DEBUG)
+    rospy.init_node('rol_server')#, log_level=rospy.DEBUG)
 
     # Go to class functions that do all the heavy lifting. Do error checking.
     try:
