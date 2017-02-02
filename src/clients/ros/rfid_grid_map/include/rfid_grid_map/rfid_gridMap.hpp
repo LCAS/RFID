@@ -8,7 +8,8 @@
 
     
 #pragma once
-
+#include <time.h>       /* time_t, time, ctime */
+#include <math.h>
 #include <list>
 #include <cmath>
 #include <yaml-cpp/yaml.h>
@@ -80,6 +81,10 @@ class rfid_gridMap
       //! callback for rfid messages...
       void tagCallback(const rfid_node::TagReading::ConstPtr& msg);
     
+      void loadROSParams();
+      
+      void showROSParams();
+      
       //! periodic map updates
       void updateMapCallback(const ros::TimerEvent&);
     
@@ -90,6 +95,8 @@ class rfid_gridMap
       void publishMap();
       
       double countValuesInArea(Polygon pol);
+      
+      void getMapDimensions();
       
       void drawSquare(double start_x,double start_y,double end_x,double end_y,double value);
       
@@ -110,6 +117,7 @@ class rfid_gridMap
       void saveMapCallback(const ros::TimerEvent&);
       
       void mapCallback(const nav_msgs::OccupancyGrid& msg);
+      void temporalDecayCallback(const ros::TimerEvent&);
       
     private:
     
@@ -122,7 +130,8 @@ class rfid_gridMap
       //! ROS subscriber to rfid messages...
       ros::Subscriber sub_;
       //! Grid map data.
-      grid_map::GridMap map_;      
+      grid_map::GridMap map_;
+      ros::Subscriber map_sub_ ;      
       //! Grid map layer name (note: we could have more...)
       std::string layerName;
       
@@ -137,13 +146,29 @@ class rfid_gridMap
             
       //! publisher for probs
       ros::Publisher prob_pub_ ;
+      ros::Timer decayTimer;
+      double tagToDecayRate;
+      unsigned int numDetections;
+      //! publisher topic name for probs
+      std::string prob_pub_name;
+      
+      //! preload gridmaps from files
+      bool loadGrids;
        
       //! map Size (in meters)
       double size_x; 
       double size_y;
+      //! map resolution pixel/meter
+      double resolution;
+      //! 2d position of the grid map in the grid map frame [m].  
+      double orig_x=0;
+      double orig_y=0; 
+
       //! Grid map publisher.
       ros::Publisher gridMapPublisher_;
-
+      //! grid map publisher topic name
+      std::string grid_map_name;
+      
       tf::TransformListener listener_;
       tf::StampedTransform transform_;
 
@@ -151,21 +176,46 @@ class rfid_gridMap
       bool isMapLoaded;
       std::string save_route;
       double detectRadius;
+      double cone_range;
+      double cone_angle;
+      
+      double temporalDecayPeriod;
+      double temporalDecayFactor;
       
       nav_msgs::MapMetaData mapDesc;
       string mapFrame;
-
+      
+      //! Save gridmaps period [s]
+      double saveTime;
+      
+      //! saved gridmap file name
       std::string gridmap_image_file;
+      
+      //! saved ROS gridmap image format
       std::string rosEncoding;
-      //! regions description file 
-      YAML::Node config ;
       //! rfid tag id
       std::string tagID;
+      
+      //! tagged object name
+      std::string object_name;
       
       //! global frame id (for maps)
       std::string global_frame;
       //! robot frame id 
       std::string robot_frame;
+      
+      
+      //! update probabilities period [s]
+      double probUpdatePeriod;
+      
+      //! update map period [s]
+      double mapUpdatePeriod;
+      
+      double constrainAngle2PI(double x);
+      
+      double constrainAnglePI(double x);
+      
+      void nextTimeDecay();
       
       std::vector<rfid_gridMap::type_area> mapAreas;
       std::map<std::string,std::vector<rfid_gridMap::type_area>> mapSubAreas;  
