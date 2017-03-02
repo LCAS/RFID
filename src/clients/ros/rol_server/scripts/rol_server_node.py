@@ -13,7 +13,7 @@ class ProbHandler():
     def __init__(self,top,obj):
         self.object=obj
         self.topic=top
-        self.lastLoc=''
+        self.lastLoc=' '
         rospy.Subscriber(self.topic, String, self.probCallback)
 
     def probCallback(self,data):
@@ -23,10 +23,14 @@ class ProbHandler():
         self.locs=locs
 
     def getLastLoc(self):
+        sublocSeparator=' - '
+        if sublocSeparator in self.lastLoc:
+            temp=self.lastLoc.split(sublocSeparator)
+            self.lastLoc=temp[0]
+
         return self.lastLoc
 
     def getProbs(self):
-
         try:
             splitData=self.rawData.split(',')
             self.probs = splitData[3::2]
@@ -63,7 +67,7 @@ class rol_server():
         else:
             ans=self.createErrorResponse('Unknown action: '+ findObjectReq.action)
 
-        self.rol_pub.publish(ans.response)
+        self.rol_pub.publish(findObjectReq)
 
         return ans
 
@@ -79,7 +83,14 @@ class rol_server():
         elif payload == 'locations':
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
-            ans=self.createOkResponse(self.sublocationsList)
+            subLocResp=[]
+            for region in self.yDict:
+                if region.has_key('subregions'):
+                    for subR in region['subregions']:
+                        subLocResp.append(subR['name'])
+                else:
+                    subLocResp.append(region['name'])
+            ans = self.createOkResponse(subLocResp)
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
@@ -141,14 +152,25 @@ class rol_server():
         probDict=pH.getProbs()
         fullProbs = sorted(probDict.items(), key=operator.itemgetter(1), reverse=True)
 
-        lastL=pH.getLastLoc()
-        if (lastL != ''):
-            ans.append(lastL)
-            ans.append('-1')
         for z,p in fullProbs:
-            if z in self.locationsList:
-                ans.append(z)
-                ans.append(self.percentFormat(p))
+            #if z!=lastL:
+                if z in self.locationsList:
+                    if (float(p)>=(self.minProb/100.0)):
+                        ans.append(z)
+                        ans.append(self.percentFormat(p))
+                else:
+                    rospy.logdebug('Region is:   ' )
+
+
+        lastL=pH.getLastLoc()
+        if (lastL != ' '):
+            ans.append(lastL)
+            #ans.append('kitchen')
+        else:
+            ans.append(self.locationsList[0])
+            #ans.append('kitchen')
+        ans.append('-1')
+
         return ans
 
     def getAcProbs(self,obj):
@@ -162,31 +184,35 @@ class rol_server():
 
         bestRegion,bestProb = fullProbs[0]
 
-        rospy.logdebug('Region is:   ' + bestRegion)
-        rospy.logdebug('Probability: ' + str(bestProb))
+        #rospy.logdebug('Region is:   ' + bestRegion)
+        #rospy.logdebug('Probability: ' + str(bestProb))
 
         #get a probabilities dict from this location
         bestSublocationsDict=dict()
-        for reg in self.yDict['Regions']:
+        for reg in self.yDict:
             if reg.has_key('subregions'):
                 if reg['name'] == bestRegion:
                     for subR in reg['subregions']:
                         rospy.logdebug('Subregion is: '+subR['name'])
                         rospy.logdebug('Probability:  ' + probDict[subR['name']])
                         rospy.logdebug('Relative Pr:  ' + probDict[subR['name']])
-                        bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
-
+                        if (float(bestProb)>0.0):
+                           bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
+                        else:
+                           bestSublocationsDict[subR['name']]=str(0.0)
         #parse a list of relative probabilities
         if not bestSublocationsDict:
-            ans.append(bestRegion)
-            ans.append(self.percentFormat(bestProb))
-            #ans=','.join(ans)
+            if (float(bestProb) >= (self.minProb / 100.0)):
+                ans.append(bestRegion)
+                ans.append(self.percentFormat(bestProb))
+                #ans=','.join(ans)
         else:
             sortedList = sorted(bestSublocationsDict.items(), key=operator.itemgetter(1),reverse=True)
             for bestRegion,bestProb in sortedList:
-                ans.append(bestRegion)
-                ans.append(self.percentFormat(bestProb))
-                #ans=[i for tup in sortedList for i in tup]
+                if (float(bestProb) >= (self.minProb / 100.0)):
+                    ans.append(bestRegion)
+                    ans.append(self.percentFormat(bestProb))
+                    #ans=[i for tup in sortedList for i in tup]
 
 
         return ans
@@ -195,17 +221,16 @@ class rol_server():
         self.probHandlerList=dict()
         self.regions_file=''
         self.rolTopic=rospy.get_param('rolTopic','rol_requests')
+        self.minProb = float(rospy.get_param('~minProb', 0.0))
 
         listOfTopics = rospy.get_published_topics()
-
+        self.loadLocations()
+        
         for tup in listOfTopics:
             if ('probs' in tup[0]) and ('std_msgs/String' in tup[1]):
                 foundTopic=tup[0]
                 nodeName=foundTopic[0:-5]
-                if len(self.regions_file)==0:
-                    self.regions_file=rospy.get_param(nodeName + 'regions_file')
-                    self.loadLocations()
-
+                
                 objectName=rospy.get_param(nodeName+'object')
                 self.objectsList.append(objectName)
 
@@ -215,22 +240,16 @@ class rol_server():
 
     def probCallback(self,data):
         probsString=data.data
-
+                   
     #called by rossetup, to load locations list.
     def loadLocations(self):
-        self.yDict = dict()
-        with open(self.regions_file) as stream:
-            try:
-                self.yDict=(yaml.load(stream))
-            except yaml.YAMLError as exc:
-                print(exc)
-
-        for region in self.yDict['Regions']:
+        self.yDict = rospy.get_param('Regions')
+        #print self.yDict
+        for region in self.yDict:
             self.locationsList.append(region['name'])
             if region.has_key('subregions'):
                 for subR in region['subregions']:
                     self.sublocationsList.append(subR['name'])
-
 
     # Must have __init__(self) function for a class, similar to a C++ class constructor.
     def __init__(self):
@@ -249,7 +268,7 @@ class rol_server():
         self.rosSetup()
 
         # create publisher for service requests
-        self.rol_pub = rospy.Publisher(self.rolTopic, String, queue_size=10)
+        self.rol_pub = rospy.Publisher(self.rolTopic, findObjectRequest, queue_size=10)
 
 
         # start service callback
@@ -263,7 +282,7 @@ class rol_server():
 # Main function.
 if __name__ == '__main__':
     # Initialize the node and name it.
-    rospy.init_node('rol_server', log_level=rospy.DEBUG)
+    rospy.init_node('rol_server')#, log_level=rospy.DEBUG)
 
     # Go to class functions that do all the heavy lifting. Do error checking.
     try:

@@ -50,22 +50,22 @@ Visualization Manager:
       Plane Cell Count: 55
       Reference Frame: <Fixed Frame>
       Value: true
-    - Class: rviz/Axes
+    - Alpha: 0.3
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
       Enabled: true
+      Name: Map
+      Topic: /map
+      Unreliable: false
+      Value: true
+    - Class: rviz/Axes
+      Enabled: false
       Length: 0.1
       Name: Axes
       Radius: 0.01
       Reference Frame: <Fixed Frame>
-      Value: true
-    - Alpha: 0.7
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: true
-      Name: Map
-      Topic: /grid_390000010000000000000006/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 0.5
       Class: rviz/Polygon
       Color: 255; 255; 255
@@ -82,7 +82,7 @@ Visualization Manager:
         base_link:
           Value: true
         kompai_laser:
-          Value: false
+          Value: true
         map:
           Value: true
         odom_combined:
@@ -100,15 +100,6 @@ Visualization Manager:
                 {}
       Update Interval: 0
       Value: true
-    - Alpha: 0.7
-      Class: rviz/Map
-      Color Scheme: map
-      Draw Behind: false
-      Enabled: true
-      Name: Map
-      Topic: /map
-      Unreliable: false
-      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -121,7 +112,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 0
@@ -138,7 +129,79 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /grid_390000010000000000000006/grid_map_visualization/occupancy_grid
+      Unreliable: false
       Value: true
+    - Alpha: 0.9
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /grid_390000010000000000000007/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000009/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000010/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000012/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000013/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /grid_390000010000000000000015/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: true
+    - Alpha: 0.7
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: false
+      Name: Map
+      Topic: /grid_390000010000000000000020/grid_map_visualization/occupancy_grid
+      Unreliable: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -162,7 +225,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -0.000791212
+      Angle: 0.00920882
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
@@ -171,11 +234,11 @@ Visualization Manager:
         Value: false
       Name: Current View
       Near Clip Distance: 0.01
-      Scale: 85.446
+      Scale: 103.127
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 1.31861
-      Y: 1.56173
+      X: 0.15719
+      Y: -0.314044
     Saved: ~
 Window Geometry:
   Displays:
@@ -193,5 +256,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1918
-  X: 1920
-  Y: 60
+  X: 0
+  Y: 46

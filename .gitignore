@@ -1,0 +1,6 @@
+*~
+*.pyc
+.idea
+src/clients/ros/rfid_grid_map/save/FDG/*
+src/clients/ros/rfid_grid_map/save/LCAS/*
+src/clients/ros/rfid_grid_map/save/SMH/*

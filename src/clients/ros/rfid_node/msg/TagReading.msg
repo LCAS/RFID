@@ -3,7 +3,7 @@
 #
 # header      
 # ID          tag EPC code
-# txP         transmitted power from reader
+# txP         transmitted power from reader (100*dBm)
 # timestamp   reader timestamp
 # rssi        signal strength (dBm)
 # phase       wave phase  (degrees)
