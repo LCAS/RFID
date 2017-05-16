@@ -43,7 +43,7 @@
       <rosparam param="cone_range"             subst_value="True">"$(arg cone_range)"</rosparam> 
       <rosparam param="cone_angle"             subst_value="True">"$(arg cone_angle)"</rosparam>
       <rosparam param="temporalDecayPeriod"    subst_value="True">"$(arg temporalDecayPeriod)"</rosparam> 
-      <rosparam param="temporalDecayFactor"   subst_value="True">"$(arg temporalDecayFactor)"</rosparam> 
+      <rosparam param="temporalDecayFactor"    subst_value="True">"$(arg temporalDecayFactor)"</rosparam> 
       <rosparam param="tagToDecayRate"         subst_value="True">"$(arg tagToDecayRate)"</rosparam> 
   </node>
       
