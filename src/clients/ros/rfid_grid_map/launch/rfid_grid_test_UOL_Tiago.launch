@@ -1,0 +1,28 @@
+<launch>
+    
+  <!-- This launcher is a testing for the ROL on TIAGO -->
+  <!-- It includes visualization nodes (rviz-related) if necessary -->
+  <!-- Requires rfid_node running -->
+
+  <!-- Launch the grid map and visualization on grid.launch -->
+  <include file="$(find rfid_grid_map)/launch/grid.launch">
+    <!-- all vars that included.launch requires must be set -->
+    <arg name="tagID" value="390100010000000000000015" />
+    <arg name="object" value="lounge table" />
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
+    <arg name="loadGrids" value="false" />     
+    <arg name="with_visualizer"      value="false"/>   
+  </include>
+
+
+
+ <!-- Launch ROL Node 
+  <include file="$(find rol_server)/launch/rol_server_node.launch">
+	<arg name="minProb"   value="0.0" />
+  </include> 
+-->
+ <!-- Launch RViz with the demo configuration 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test.rviz" />
+-->
+
+</launch>
