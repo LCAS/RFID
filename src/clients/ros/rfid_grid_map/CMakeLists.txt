@@ -145,8 +145,15 @@ add_executable(
    src/rfid_grid_map_node.cpp
    src/rfid_gridMap.cpp
    )
+   
+## Declare a C++ executable
+add_executable(
+   rfid_grid_map_node2 
+   src/rfid_grid_map_node2.cpp
+   src/rfid_gridMap2.cpp
+   )
 
-add_dependencies(rfid_grid_map_node rfid_node_generate_messages_cpp)
+add_dependencies(rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -158,6 +165,11 @@ add_dependencies(rfid_grid_map_node rfid_node_generate_messages_cpp)
    ${catkin_LIBRARIES} yaml-cpp
  )
 
+## Specify libraries to link a library or executable target against
+ target_link_libraries(
+   rfid_grid_map_node2
+   ${catkin_LIBRARIES} yaml-cpp
+ )
 #############
 ## Install ##
 #############
