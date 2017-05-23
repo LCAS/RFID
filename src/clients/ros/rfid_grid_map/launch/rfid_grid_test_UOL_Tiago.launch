@@ -8,7 +8,17 @@
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <!-- all vars that included.launch requires must be set -->
     <arg name="tagID" value="390100010000000000000015" />
-    <arg name="object" value="lounge table" />
+    <arg name="object" value="keys" />
+    <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
+    <arg name="loadGrids" value="false" />     
+    <arg name="with_visualizer"      value="false"/>   
+  </include>
+
+  <!-- Launch the grid map and visualization on grid.launch -->
+  <include file="$(find rfid_grid_map)/launch/grid.launch">
+    <!-- all vars that included.launch requires must be set -->
+    <arg name="tagID" value="390100010000000000000019" />
+    <arg name="object" value="wallet" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
     <arg name="loadGrids" value="false" />     
     <arg name="with_visualizer"      value="false"/>   
