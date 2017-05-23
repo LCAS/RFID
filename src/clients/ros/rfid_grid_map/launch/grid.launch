@@ -21,12 +21,11 @@
   <arg name="temporalDecayFactor"  default="0.0005"/>
   <arg name="tagToDecayRate"       default="100"/>
   <arg name="with_visualizer"      default="true"/>
-
-  
+   
       
   <group ns="grid_$(arg tagID)">
   <!-- Launch rfid_grid_map: locate objects -->
-  <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen">
+  <node pkg="rfid_grid_map" type="rfid_grid_map_node2" name="rfid_grid_map_node" output="screen">
       <remap from="/rfid_grid_map/lastTag" to="/lastTag"/>	
       <rosparam param="global_frame">"/map"</rosparam>
       <rosparam param="tagID"                  subst_value="True">"$(arg tagID)"</rosparam>        

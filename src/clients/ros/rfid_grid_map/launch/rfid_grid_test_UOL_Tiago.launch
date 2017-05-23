@@ -11,7 +11,7 @@
     <arg name="object" value="lounge table" />
     <arg name="saveRoute" value="$(find rfid_grid_map)/save/LCAS/" />    
     <arg name="loadGrids" value="false" />     
-    <arg name="with_visualizer"      value="false"/>   
+    <arg name="with_visualizer"      value="true"/>   
   </include>
 
 
@@ -21,8 +21,7 @@
 	<arg name="minProb"   value="0.0" />
   </include> 
 -->
- <!-- Launch RViz with the demo configuration 
+ <!-- Launch RViz with the demo configuration -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test.rviz" />
--->
 
 </launch>
