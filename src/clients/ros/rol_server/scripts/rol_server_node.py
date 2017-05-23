@@ -189,29 +189,16 @@ class rol_server():
 
         #get a probabilities dict from this location
         bestSublocationsDict=dict()
-        #for reg in self.yDict:
-        #    if reg.has_key('subregions'):
-        #        if reg['name'] == bestRegion:
-        #            for subR in reg['subregions']:
-        #                rospy.logdebug('Subregion is: '+subR['name'])
-        #                rospy.logdebug('Probability:  ' + probDict[subR['name']])
-        #                rospy.logdebug('Relative Pr:  ' + probDict[subR['name']])
-        #                if (float(bestProb)>0.0):
-        #                   bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
-        #                else:
-        #                   bestSublocationsDict[subR['name']]=str(0.0)
-        for subloc in self.sublocationsList:
-                if subloc == bestRegion:
-                    for subR in reg['subregions']:
-                        rospy.logdebug('Subregion is: '+subR['name'])
-                        rospy.logdebug('Probability:  ' + probDict[subR['name']])
-                        rospy.logdebug('Relative Pr:  ' + probDict[subR['name']])
+        for subReg in self.sublocationsList:
+                if bestRegion in subReg:
+                        rospy.logdebug('Subregion is: '+ subReg)
+                        rospy.logdebug('Probability:  ' + probDict[subReg])
+                        rospy.logdebug('Relative Pr:  ' + probDict[subReg])
                         if (float(bestProb)>0.0):
-                           bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
+                           bestSublocationsDict[subReg]=str(float(probDict[subReg])/float(bestProb))
                         else:
-                           bestSublocationsDict[subR['name']]=str(0.0)
-                                   
-        
+                           bestSublocationsDict[subReg]=str(0.0)
+    
         #parse a list of relative probabilities
         if not bestSublocationsDict:
             if (float(bestProb) >= (self.minProb / 100.0)):

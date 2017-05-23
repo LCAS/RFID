@@ -87,21 +87,24 @@ namespace rfid_grid_map2 {
       ROS_DEBUG("Configuration params:");
       
       ROS_DEBUG("GRID MAP________________________");
-      ROS_DEBUG("size_x: %2.2f", size_x);
-      ROS_DEBUG("size_y: %2.2f", size_y);
-      ROS_DEBUG("orig_x: %2.2f", orig_x);
-      ROS_DEBUG("orig_y: %2.2f", orig_y);
-      ROS_DEBUG("resolution: %2.2f", resolution);
+      ROS_DEBUG("size_x: %2.2f m", size_x);
+      ROS_DEBUG("size_y: %2.2f m", size_y);
+      ROS_DEBUG("orig_x: %2.2f m", orig_x);
+      ROS_DEBUG("orig_y: %2.2f m", orig_y);
+      ROS_DEBUG("resolution: %2.2f m/pixel", resolution);
       ROS_DEBUG("layerName: \"%s\"", layerName.c_str());
+      ROS_DEBUG("map update period: %2.2f sec", mapUpdatePeriod);
+      
+      
       
       ROS_ASSERT_MSG(isMapLoaded,"Cant show ROS params without map loaded. ShowROSparams must be called AFTER mapCallback");      
-      ROS_DEBUG("mapDesc.width: %u", mapDesc.width);
-      ROS_DEBUG("mapDesc.height: %u", mapDesc.height);
+      ROS_DEBUG("mapDesc.width: %u cells", mapDesc.width);
+      ROS_DEBUG("mapDesc.height: %u cells", mapDesc.height);
 
       
       
       ROS_DEBUG("Confidence shape________________________");
-      ROS_DEBUG("detectRadius: %2.1f", detectRadius);    
+      ROS_DEBUG("detectRadius: %2.1f m", detectRadius);    
       ROS_DEBUG("wi: %3.3f", weight_inc);
       ROS_DEBUG("wd: %3.3f", weight_dec);
       ROS_DEBUG("cone_range: %3.3f", cone_range);
@@ -571,6 +574,7 @@ namespace rfid_grid_map2 {
 
     void rfid_gridMap2::updateLastDetectionPose(double x, double y){
         lastP=Position(x,y);
+         //ROS_DEBUG("Last robot pose (%3.3f,%3.3f)", lastP.x(),lastP.y());
     }
 
     void rfid_gridMap2::wasHere(type_area area){            
