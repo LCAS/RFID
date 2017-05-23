@@ -203,6 +203,19 @@ install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
   PATTERN ".svn" EXCLUDE)
 
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  PATTERN ".svn" EXCLUDE)
+  
+install(DIRECTORY images/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/images
+  PATTERN ".svn" EXCLUDE)  
+
+install(DIRECTORY rviz/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/rviz
+  PATTERN ".svn" EXCLUDE)
+  
+
 #############
 ## Testing ##
 #############

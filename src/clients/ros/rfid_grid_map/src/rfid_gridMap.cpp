@@ -390,7 +390,8 @@ namespace rfid_grid_map {
             ROS_ASSERT_MSG(points.getType() == XmlRpc::XmlRpcValue::TypeArray,"YAML Region file has wrong format. points is not an array ");
             
             for(int j=0; j<points.size(); ++j) {
-                        double px,py;
+                        double px=0;
+			double py=0;
                         if ( j % 2 == 0 ){
                             px=points[j];
                         }else {                        
@@ -417,7 +418,8 @@ namespace rfid_grid_map {
                     ROS_ASSERT_MSG(points.getType() == XmlRpc::XmlRpcValue::TypeArray,"YAML Region file has wrong format. points is not an array ");
 
                     for(int j=0; j<points.size(); ++j) {
-                        double px,py;
+                        double px=0;
+                        double py=0;
                                                 
                         if ( j % 2 == 0 ){
                             px=points[j];

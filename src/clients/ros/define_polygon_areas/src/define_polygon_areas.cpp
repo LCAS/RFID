@@ -162,7 +162,8 @@ namespace define_polygon_areas {
             //ROS_DEBUG("#%d",points.size());
             
             for(int j=0; j<points.size(); ++j) {
-                        double px,py;
+                        double px=0;
+                        double py=0;
                         //ROS_DEBUG("#%d",points[j].getType());                        
                                                 
                         if ( j % 2 == 0 ){
@@ -200,8 +201,8 @@ namespace define_polygon_areas {
                     for(int j=0; j<points.size(); ++j) {
                         //ROS_DEBUG("Point type %d",points[j].getType());
                         ROS_ASSERT(points[j].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-                        double px,py;
-                                                
+                        double px=0;
+                        double py=0;            
                         if ( j % 2 == 0 ){
                             px=points[j];
                         }else {                        
