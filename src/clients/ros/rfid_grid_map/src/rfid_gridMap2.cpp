@@ -382,7 +382,8 @@ namespace rfid_grid_map2 {
         std::string zoiPointName; 
         std::string zoiName;
         unsigned int zoiPoint_num;
-        double px,py;
+        double px=0;
+	double py=0;
         std::size_t slashPos;
         Position p;
         

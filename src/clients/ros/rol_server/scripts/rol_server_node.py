@@ -84,13 +84,13 @@ class rol_server():
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
             subLocResp=[]
-            for region in self.yDict:
-                if region.has_key('subregions'):
-                    for subR in region['subregions']:
-                        subLocResp.append(subR['name'])
-                else:
-                    subLocResp.append(region['name'])
-            ans = self.createOkResponse(subLocResp)
+            #for region in self.yDict:
+            #    if region.has_key('subregions'):
+            #        for subR in region['subregions']:
+            #            subLocResp.append(subR['name'])
+            #    else:
+            #        subLocResp.append(region['name'])
+            ans = self.createOkResponse(self.sublocationsList)
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
@@ -189,9 +189,19 @@ class rol_server():
 
         #get a probabilities dict from this location
         bestSublocationsDict=dict()
-        for reg in self.yDict:
-            if reg.has_key('subregions'):
-                if reg['name'] == bestRegion:
+        #for reg in self.yDict:
+        #    if reg.has_key('subregions'):
+        #        if reg['name'] == bestRegion:
+        #            for subR in reg['subregions']:
+        #                rospy.logdebug('Subregion is: '+subR['name'])
+        #                rospy.logdebug('Probability:  ' + probDict[subR['name']])
+        #                rospy.logdebug('Relative Pr:  ' + probDict[subR['name']])
+        #                if (float(bestProb)>0.0):
+        #                   bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
+        #                else:
+        #                   bestSublocationsDict[subR['name']]=str(0.0)
+        for subloc in self.sublocationsList:
+                if subloc == bestRegion:
                     for subR in reg['subregions']:
                         rospy.logdebug('Subregion is: '+subR['name'])
                         rospy.logdebug('Probability:  ' + probDict[subR['name']])
@@ -200,6 +210,8 @@ class rol_server():
                            bestSublocationsDict[subR['name']]=str(float(probDict[subR['name']])/float(bestProb))
                         else:
                            bestSublocationsDict[subR['name']]=str(0.0)
+                                   
+        
         #parse a list of relative probabilities
         if not bestSublocationsDict:
             if (float(bestProb) >= (self.minProb / 100.0)):
@@ -243,6 +255,17 @@ class rol_server():
                    
     #called by rossetup, to load locations list.
     def loadLocations(self):
+        self.yDict = rospy.get_param('/mmap/zoi/submap_0/')
+        for point in self.yDict:
+            regionTmp = self.yDict[point][1]
+            if not ('-' in regionTmp):            
+               if not (regionTmp in self.locationsList):  
+                   self.locationsList.append(regionTmp)
+            else:
+               if not (regionTmp in self.sublocationsList):
+                   self.sublocationsList.append(regionTmp)
+
+    def loadLocationsOLD(self):
         self.yDict = rospy.get_param('Regions')
         #print self.yDict
         for region in self.yDict:
