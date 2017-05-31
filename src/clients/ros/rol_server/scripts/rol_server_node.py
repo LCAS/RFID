@@ -23,7 +23,7 @@ class ProbHandler():
         self.locs=locs
 
     def getLastLoc(self):
-        sublocSeparator=' - '
+        sublocSeparator='_'
         if sublocSeparator in self.lastLoc:
             temp=self.lastLoc.split(sublocSeparator)
             self.lastLoc=temp[0]
@@ -245,7 +245,7 @@ class rol_server():
         self.yDict = rospy.get_param('/mmap/zoi/submap_0/')
         for point in self.yDict:
             regionTmp = self.yDict[point][1]
-            if not ('-' in regionTmp):            
+            if not ('_' in regionTmp):            
                if not (regionTmp in self.locationsList):  
                    self.locationsList.append(regionTmp)
             else:

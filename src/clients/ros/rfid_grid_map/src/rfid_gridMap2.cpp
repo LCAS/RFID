@@ -87,24 +87,21 @@ namespace rfid_grid_map2 {
       ROS_DEBUG("Configuration params:");
       
       ROS_DEBUG("GRID MAP________________________");
-      ROS_DEBUG("size_x: %2.2f m", size_x);
-      ROS_DEBUG("size_y: %2.2f m", size_y);
-      ROS_DEBUG("orig_x: %2.2f m", orig_x);
-      ROS_DEBUG("orig_y: %2.2f m", orig_y);
-      ROS_DEBUG("resolution: %2.2f m/pixel", resolution);
+      ROS_DEBUG("size_x: %2.2f", size_x);
+      ROS_DEBUG("size_y: %2.2f", size_y);
+      ROS_DEBUG("orig_x: %2.2f", orig_x);
+      ROS_DEBUG("orig_y: %2.2f", orig_y);
+      ROS_DEBUG("resolution: %2.2f", resolution);
       ROS_DEBUG("layerName: \"%s\"", layerName.c_str());
-      ROS_DEBUG("map update period: %2.2f sec", mapUpdatePeriod);
-      
-      
       
       ROS_ASSERT_MSG(isMapLoaded,"Cant show ROS params without map loaded. ShowROSparams must be called AFTER mapCallback");      
-      ROS_DEBUG("mapDesc.width: %u cells", mapDesc.width);
-      ROS_DEBUG("mapDesc.height: %u cells", mapDesc.height);
+      ROS_DEBUG("mapDesc.width: %u", mapDesc.width);
+      ROS_DEBUG("mapDesc.height: %u", mapDesc.height);
 
       
       
       ROS_DEBUG("Confidence shape________________________");
-      ROS_DEBUG("detectRadius: %2.1f m", detectRadius);    
+      ROS_DEBUG("detectRadius: %2.1f", detectRadius);    
       ROS_DEBUG("wi: %3.3f", weight_inc);
       ROS_DEBUG("wd: %3.3f", weight_dec);
       ROS_DEBUG("cone_range: %3.3f", cone_range);
@@ -375,7 +372,7 @@ namespace rfid_grid_map2 {
   
 /*
  *  Loads zois as poligons.
- *  A subzoi will be identified by having a '-' in the middle of its name: [zoiName]-[subZoiName]
+ *  A subzoi will be identified by having a '_' in the middle of its name: [zoiName]_[subZoiName]
  * */
   void rfid_gridMap2::loadZois(){
         XmlRpc::XmlRpcValue zoi_keys;
@@ -392,7 +389,12 @@ namespace rfid_grid_map2 {
         
         std::map<std::string,rfid_gridMap2::type_area>::iterator map_it;
 
-	    ROS_ASSERT_MSG(nodeHandle_.getParam(numSubMapParam, numSubmaps),"Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps] ");
+	    //ROS_ASSERT_MSG(nodeHandle_.getParam(numSubMapParam, numSubmaps),"Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps] ");
+        if (!nodeHandle_.getParam(numSubMapParam, numSubmaps))
+        {
+			numSubmaps=1;
+			ROS_ERROR("Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps]. Assuming 1 ");
+		}
         
 	    ROS_ASSERT_MSG(numSubmaps==1,"Number of submaps different from 1 [%d]. Aborting",numSubmaps);
 
@@ -417,7 +419,7 @@ namespace rfid_grid_map2 {
                 zoiPointName = itr->first;
                 //std::cout<< "point name: " << zoi_point_name<< "\n";
                 
-                // zoi point number is last thing after '-'
+                // zoi point number is last thing after '_'
                 slashPos = zoiPointName.find_last_of("_");
                 if (slashPos!=std::string::npos)
                 {                
@@ -454,7 +456,7 @@ namespace rfid_grid_map2 {
                 }
                 else
                 {// something is wrong with the zoiPoint name, does not have slash?
-                    ROS_ERROR("Ommiting zoi point name: It does not contain '-': [%s]", zoiPointName.c_str());
+                    ROS_ERROR("Ommiting zoi point name: It does not contain '_': [%s]", zoiPointName.c_str());
                 } 
             } 
             catch(XmlRpc::XmlRpcException e)
@@ -574,7 +576,6 @@ namespace rfid_grid_map2 {
 
     void rfid_gridMap2::updateLastDetectionPose(double x, double y){
         lastP=Position(x,y);
-         //ROS_DEBUG("Last robot pose (%3.3f,%3.3f)", lastP.x(),lastP.y());
     }
 
     void rfid_gridMap2::wasHere(type_area area){            
