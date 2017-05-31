@@ -21,7 +21,8 @@
   <arg name="temporalDecayFactor"  default="0.0005"/>
   <arg name="tagToDecayRate"       default="100"/>
   <arg name="with_visualizer"      default="true"/>
-   
+   <arg name="mapUpdatePeriod"     default="30.0"/>
+   <arg name="probUpdatePeriod"    default="20.0"/>
       
   <group ns="grid_$(arg tagID)">
   <!-- Launch rfid_grid_map: locate objects -->
