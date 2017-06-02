@@ -1,28 +1,62 @@
 mmap:
-  numberOfSubMaps: 1
-  zoi:
-    submap_0:
-      LongCorner_0: [submap_0, LongCorner, -3.954801559448242, -0.20180273056030273,
-        0.0]
-      LongCorner_1: [submap_0, LongCorner, -2.898325204849243, -7.690749168395996,
-        0.0]
-      LongCorner_2: [submap_0, LongCorner, -4.251701354980469, -8.004369735717773,
-        0.0]
-      LongCorner_3: [submap_0, LongCorner, -5.447518825531006, -0.6066596508026123,
-        0.0]
-      coffeeArea_0: [submap_0, coffeeArea, -2.7063097953796387, 2.5431649684906006,
-        0.0]
-      coffeeArea_1: [submap_0, coffeeArea, -0.44143617153167725, 2.0983505249023438,
-        0.0]
-      coffeeArea_2: [submap_0, coffeeArea, -0.929487943649292, 0.10436654090881348,
-        0.0]
-      coffeeArea_3: [submap_0, coffeeArea, -2.524810791015625, -0.004945993423461914,
-        0.0]
-      socialCorner_0: [submap_0, socialCorner, -2.6672255992889404, 2.577364206314087,
-        0.0]
-      socialCorner_1: [submap_0, socialCorner, -2.5957610607147217, 0.04612588882446289,
-        0.0]
-      socialCorner_2: [submap_0, socialCorner, -5.439462661743164, -0.57765793800354,
-        0.0]
-      socialCorner_3: [submap_0, socialCorner, -6.141228199005127, 3.50614070892334,
-        0.0]
+    numberOfSubMaps: 1
+    zoi:
+      submap_0:
+        bathroom_0: [submap_0, bathroom, -3.8347113132476807, -0.2060389518737793,
+          0.0]
+        bathroom_1: [submap_0, bathroom, -2.898325204849243, -7.690749168395996, 0.0]
+        bathroom_2: [submap_0, bathroom, -4.251701354980469, -8.004369735717773, 0.0]
+        bathroom_3: [submap_0, bathroom, -5.385232448577881, -0.4567626714706421,
+          0.0]
+        kitchen_0: [submap_0, kitchen, -2.7063097953796387, 2.5431649684906006,
+          0.0]
+        kitchen_1: [submap_0, kitchen, -0.44143617153167725, 2.0983505249023438,
+          0.0]
+        kitchen_2: [submap_0, kitchen, -0.929487943649292, 0.10436654090881348,
+          0.0]
+        kitchen_3: [submap_0, kitchen, -2.524810791015625, -0.004945993423461914,
+          0.0]
+        bathroom_corridor_0: [submap_0, bathroom_corridor, -3.880579948425293, -0.22230076789855957,
+          0.0]
+        bathroom_corridor_1: [submap_0, bathroom_corridor, -3.0247745513916016, -6.226971626281738,
+          0.0]
+        bathroom_corridor_2: [submap_0, bathroom_corridor, -4.2306132316589355, -6.416040420532227,
+          0.0]
+        bathroom_corridor_3: [submap_0, bathroom_corridor, -5.41001558303833, -0.5539106130599976,
+          0.0]
+        bathroom_door_0: [submap_0, bathroom_door, -3.0932605266571045, -6.1388349533081055,
+          0.0]
+        bathroom_door_1: [submap_0, bathroom_door, -2.855501413345337, -7.748822212219238,
+          0.0]
+        bathroom_door_2: [submap_0, bathroom_door, -4.290010452270508, -7.9378461837768555,
+          0.0]
+        bathroom_door_3: [submap_0, bathroom_door, -4.609930038452148, -6.375370979309082,
+          0.0]
+        livingroom_0: [submap_0, livingroom, -2.6672255992889404, 2.577364206314087,
+          0.0]
+        livingroom_1: [submap_0, livingroom, -2.5957610607147217, 0.04612588882446289,
+          0.0]
+        livingroom_2: [submap_0, livingroom, -5.36214017868042, -0.5008891820907593,
+          0.0]
+        livingroom_3: [submap_0, livingroom, -5.898018836975098, 3.511411666870117,
+          0.0]
+        livingroom_sofa_0: [submap_0, livingroom_sofa, -2.786146640777588, 2.6124279499053955,
+          0.0]
+        livingroom_sofa_1: [submap_0, livingroom_sofa, -2.704941749572754, 0.09351134300231934,
+          0.0]
+        livingroom_sofa_2: [submap_0, livingroom_sofa, -5.458754539489746, -0.45184993743896484,
+          0.0]
+        livingroom_sofa_3: [submap_0, livingroom_sofa, -5.757916450500488, 0.5401259660720825,
+          0.0]
+        livingroom_sofa_4: [submap_0, livingroom_sofa, -4.783565998077393, 0.776619553565979,
+          0.0]
+        livingroom_sofa_5: [submap_0, livingroom_sofa, -5.037765026092529, 3.2817025184631348,
+          0.0]
+        livingroom_table_0: [submap_0, livingroom_table, -5.095510005950928, 3.274346351623535,
+          0.0]
+        livingroom_table_1: [submap_0, livingroom_table, -4.684719562530518, 0.6866204738616943,
+          0.0]
+        livingroom_table_2: [submap_0, livingroom_table, -5.716797351837158, 0.5108208656311035,
+          0.0]
+        livingroom_table_3: [submap_0, livingroom_table, -5.903007507324219, 3.533040761947632,
+          0.0]

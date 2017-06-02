@@ -108,7 +108,7 @@ class rol_server():
         elif payload == 'locations':
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
-                ans=self.createOkResponse(self.createFlatList())
+            ans=self.createOkResponse(self.createFlatList())
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
