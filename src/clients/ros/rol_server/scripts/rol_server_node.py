@@ -71,6 +71,31 @@ class rol_server():
 
         return ans
 
+
+
+    def getRegion(self,subregion):
+        sublocSeparator='_'
+        ans=subregion
+        if sublocSeparator in subregion:
+            temp=subregion.split(sublocSeparator)
+            ans=temp[0] 
+        return ans
+
+
+
+    def createFlatList(self):
+        subLocResp=[]
+        subLocResp=self.locationsList
+
+        for sub in self.sublocationsList:
+            reg =  self.getRegion(sub) 
+            if reg in subLocResp:
+                subLocResp.remove(reg)
+            subLocResp.append(sub)
+        return subLocResp
+
+
+
     def performListAct(self,payload):
         '''
         Returns a list of objects, locations or sublocations available
@@ -83,14 +108,7 @@ class rol_server():
         elif payload == 'locations':
             ans=self.createOkResponse(self.locationsList)
         elif payload == 'sublocations':
-            subLocResp=[]
-            #for region in self.yDict:
-            #    if region.has_key('subregions'):
-            #        for subR in region['subregions']:
-            #            subLocResp.append(subR['name'])
-            #    else:
-            #        subLocResp.append(region['name'])
-            ans = self.createOkResponse(self.sublocationsList)
+                ans=self.createOkResponse(self.createFlatList())
         else:
             ans=self.createErrorResponse('Unknown payload for list action:'+ payload)
         return ans
