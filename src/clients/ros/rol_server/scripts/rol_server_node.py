@@ -64,6 +64,8 @@ class rol_server():
             ans=self.performFindAct(receivedPayload )
         elif receivedAction== 'accurate_find':
             ans=self.performAcFindAct(receivedPayload )
+        elif receivedAction== 'accurate_prob':
+            ans=self.performAcProbAct( receivedPayload )
         else:
             ans=self.createErrorResponse('Unknown action: '+ findObjectReq.action)
 
@@ -84,6 +86,9 @@ class rol_server():
 
 
     def createFlatList(self):
+        '''
+        Creates a list of sublocations and locations without sublocations
+        '''
         subLocResp=[]
         subLocResp=subLocResp+(self.locationsList)
 
@@ -119,8 +124,17 @@ class rol_server():
             ans = self.createOkResponse(probs)
         else:
             ans = self.createErrorResponse('Unknown object to accurately find:' + obj)
-
         return ans
+
+    def performAcProbAct(self, obj):
+        if obj in self.objectsList:
+            probs = self.getAllProbs(obj)
+            ans = self.createOkResponse(probs)
+        else:
+            ans = self.createErrorResponse('Unknown object to accurately find:' + obj)
+        return ans
+
+
 
     def performFindAct(self, obj):
 
@@ -234,6 +248,29 @@ class rol_server():
 
         return ans
 
+
+    def getAllProbs(self,obj):
+        ans=[]
+
+        # get list of locations to be reported
+        locations = self.createFlatList()
+        
+        # get prob dict
+        probDict = (self.probHandlerList[obj]).getProbs()
+
+        # sort by probability
+        fullProbs = sorted(probDict.items(), key=operator.itemgetter(1), reverse=True)
+
+        for location,prob in fullProbs:
+                if (float(prob) >= (self.minProb / 100.0)):
+                    if (location in locations):
+                        ans.append(location)
+                        ans.append(self.percentFormat(prob))
+                    
+
+        return ans
+
+   
     def rosSetup(self):
         self.probHandlerList=dict()
         self.regions_file=''
