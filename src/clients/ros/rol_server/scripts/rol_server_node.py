@@ -85,7 +85,7 @@ class rol_server():
 
     def createFlatList(self):
         subLocResp=[]
-        subLocResp=self.locationsList
+        subLocResp=subLocResp+(self.locationsList)
 
         for sub in self.sublocationsList:
             reg =  self.getRegion(sub) 
