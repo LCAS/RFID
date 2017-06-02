@@ -153,6 +153,16 @@ install(PROGRAMS
    scripts/rfid_reader_ros.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
+ 
+install(PROGRAMS
+   scripts/readExample.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
+ 
+install(PROGRAMS
+   scripts/renameExample.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS rfid_receive rfid_receive_node
