@@ -11,14 +11,14 @@ if __name__ == "__main__":
 
     if (len(sys.argv)!=4):
 	print 'Usage:'
-        print  '%s [oldEPC] [newEPC] /dev/rfid' % sys.argv[0]
+        print  '%s [rfid device] [oldEPC] [newEPC]' % sys.argv[0]
 	print 'E.G.:'
-        print  '%s 300833B2DDD9014100000000 39000001000000006b657973 /dev/rfid' % sys.argv[0]
+        print  '%s /dev/rfid 300833B2DDD9014100000000 39000001000000006b657973' % sys.argv[0]
 	sys.exit()
     
-    oldEpcData = sys.argv[1]
-    newEpcData = sys.argv[2]
-    readerDev  = sys.argv[3]
+    readerDev  = sys.argv[1]
+    oldEpcData = sys.argv[2]
+    newEpcData = sys.argv[3]
 
     if (len(oldEpcData)!=len(newEpcData)):
 	print  'EPC ids have different length '

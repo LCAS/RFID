@@ -11,9 +11,9 @@ if __name__ == "__main__":
 
     if (len(sys.argv)!=4):
 	print 'Usage:'
-        print  '%s [reader dev] [oldEPC] [newEPC] ' % sys.argv[0]
+        print  '%s [rfid device] [oldEPC] [newEPC]' % sys.argv[0]
 	print 'E.G.:'
-        print  '%s /dev/rfid 300833B2DDD9014100000000 39000001000000006b657973 ' % sys.argv[0]
+        print  '%s /dev/rfid 300833B2DDD9014100000000 39000001000000006b657973' % sys.argv[0]
 	sys.exit()
     
     readerDev  = sys.argv[1]

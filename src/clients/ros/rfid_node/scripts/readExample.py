@@ -2,6 +2,7 @@
 
 import rfid
 import time
+import sys
 
 #  message is a string containing 
 #           0:tagID:rssi:phase:frequency:timestampHigh:timestampLow
