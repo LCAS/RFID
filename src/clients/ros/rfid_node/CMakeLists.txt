@@ -163,6 +163,11 @@ install(PROGRAMS
    scripts/renameExample.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
+ 
+install(PROGRAMS
+   scripts/writeExample.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS rfid_receive rfid_receive_node
