@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     error = True
     # just write first tag you get!   
-    print "About to rename first tag to [%]" % newEpcData
+    print "About to rename first tag to [%s]" % newEpcData
     print "\n\n "
     while error:
            error=(rfid.writeTag(reader, newEpcData,12)!=0)
