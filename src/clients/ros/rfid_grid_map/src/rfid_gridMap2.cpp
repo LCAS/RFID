@@ -239,8 +239,7 @@ namespace rfid_grid_map2 {
         rfid_gridMap2::saveMapCallback(ev);
     }
     
-    void rfid_gridMap2::tagCallback(const rfid_node::TagReading::ConstPtr& msg){
-        
+    void rfid_gridMap2::tagCallback(const rfid_node::TagReading::ConstPtr& msg){       
         
             
             
@@ -293,6 +292,7 @@ namespace rfid_grid_map2 {
 			midProb = 0.5 * txLoss * weight_inc;
             highProb =      txLoss * weight_inc;
             
+            //ROS_DEBUG(".");
             //ROS_DEBUG("%3.5f: %3.5f, %3.5f, %3.5f",txLoss,lowProb,midProb,highProb);
             
             //weight_dec=0.02*(weight_inc+0.1);
@@ -466,11 +466,11 @@ namespace rfid_grid_map2 {
 
         }
         
-        ROS_DEBUG("Loaded [%lu] zones:", mapAreas.size());
-        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)		
-        { 
-            ROS_DEBUG("- [%s]: %lu points", mapIt->first.c_str(),mapIt->second.polygon.nVertices() );
-        }
+        //ROS_DEBUG("Loaded [%lu] zones:", mapAreas.size());
+        //for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)		
+        //{ 
+        //    ROS_DEBUG("- [%s]: %lu points", mapIt->first.c_str(),mapIt->second.polygon.nVertices() );
+        //}
         
       }
 
@@ -494,6 +494,8 @@ namespace rfid_grid_map2 {
              val=countValuesInArea(mapIt->second.polygon);
              mapIt->second.prob=val;
              total+=val;		 
+             
+             //ROS_DEBUG("- [%s]: %3.3f  ", mapIt->first.c_str(),val );
               
              // also check if robot is inside this region
              // use polygon method to check points inside
@@ -534,6 +536,8 @@ namespace rfid_grid_map2 {
         prob_pub_.publish(msg);
         
         
+        //ROS_DEBUG("- [total]: %3.3f ", total );
+              
             
     }
     
