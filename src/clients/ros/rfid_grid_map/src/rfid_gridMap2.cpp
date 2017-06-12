@@ -34,6 +34,8 @@ namespace rfid_grid_map2 {
       map_.setFrameId(global_frame);      
       map_.clearAll();
       
+      ROS_ERROR("0.- Grid map number of layers is: %lu", map_.getLayers().size());
+      
       if (loadGrids) {                
         // file to image...
         cv::Mat imageCV = cv::imread((save_route+gridmap_image_file), CV_LOAD_IMAGE_UNCHANGED );
@@ -54,7 +56,8 @@ namespace rfid_grid_map2 {
       
       lastRegion.name=std::string(" ");
       
-      gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(grid_map_name, 1, true);      
+      gridMapPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(grid_map_name, 1, true);     
+      ROS_ERROR("1.- Grid map number of layers is: %lu", map_.getLayers().size()); 
       publishMap();
       
       prob_pub_ = nodeHandle_.advertise<std_msgs::String>(prob_pub_name, 1000);
@@ -76,7 +79,7 @@ namespace rfid_grid_map2 {
       
       //ROS_DEBUG("Spin...");     
       
-            
+      ROS_ERROR("3.- Grid map number of layers is: %lu", map_.getLayers().size());      
       ros::spin(); 
        
     }
@@ -561,8 +564,11 @@ namespace rfid_grid_map2 {
       
       grid_map_msgs::GridMap message;
       grid_map::GridMapRosConverter::toMessage(map_, message);
+      ROS_ERROR("2.- Grid map number of layers is: %lu", map_.getLayers().size());
       gridMapPublisher_.publish(message);
-      ////ROS_DEBUG("Grid map (timestamp %f) published.", message.info.header.stamp.toSec());
+      ROS_ERROR("Grid map (timestamp %f) published.", message.info.header.stamp.toSec());
+      ROS_ERROR("Grid map message layer name is: %s", message.layers[0].c_str());
+      
     }
 
     double rfid_gridMap2::countValuesInArea(Polygon pol){ 
