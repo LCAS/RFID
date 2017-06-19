@@ -42,28 +42,37 @@ def rfidCallback(message):
 
 if __name__ == "__main__":
 
+    if (len(sys.argv)!=3):
+	print 'Usage:'
+        print  '%s [rfid device] [newEPC]' % sys.argv[0]
+	print 'E.G.:'
+        print  '%s /dev/rfid 300833B2DDD9014100000000' % sys.argv[0]
+	sys.exit()
+    
+    readerDev  = sys.argv[1]
+    newEpcData = sys.argv[2]
 
     rfid.init()
 
-    reader = rfid.startReader("tmr:///dev/ttyACM0", rfidCallback)
+    reader = rfid.startReader("tmr://%s" % readerDev, rfidCallback)
 
     #newEpcData='\x30\x08\x33\xB2\xDD\xD9\x01\x41\x00\x00\x00\x0A' 
-    if (len(sys.argv)==2 ):
-	newEpcData = sys.argv[1] 
-    else:
-        newEpcData='300833B2DDD901410000000A' 
+    #if (len(sys.argv)==2 ):
+	#newEpcData = sys.argv[1] 
+    #else:
+    #    newEpcData='300833B2DDD901410000000A' 
 
     #Stop from reading more tags
     rfid.stopReader(reader)
 
     error = True
     # just write first tag you get!   
-    print "about to send %"
-    print newEpcData
+    print "About to rename first tag to [%s]" % newEpcData
     print "\n\n "
     while error:
            error=(rfid.writeTag(reader, newEpcData,12)!=0)
+           print "."
 	
-    print "bye!"
+    print "Done. Bye!"
     rfid.close()
 	
