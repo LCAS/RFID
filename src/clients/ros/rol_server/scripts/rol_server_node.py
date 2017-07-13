@@ -69,7 +69,7 @@ class rol_server():
         else:
             ans=self.createErrorResponse('Unknown action: '+ findObjectReq.action)
 
-        self.rol_pub.publish(findObjectReq)
+        self.rol_pub.publish(receivedAction+":"+receivedPayload)
 
         return ans
 
@@ -333,7 +333,7 @@ class rol_server():
         self.rosSetup()
 
         # create publisher for service requests
-        self.rol_pub = rospy.Publisher(self.rolTopic, findObjectRequest, queue_size=10)
+        self.rol_pub = rospy.Publisher(self.rolTopic, String, queue_size=10)
 
 
         # start service callback
