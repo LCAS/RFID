@@ -153,7 +153,10 @@ add_executable(
    src/rfid_gridMap2.cpp
    )
 
-add_dependencies(rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messages_cpp)
+## Declare a C++ executable
+add_executable(viewZois src/viewZois.cpp)
+
+add_dependencies(viewZois  rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -170,6 +173,9 @@ add_dependencies(rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messa
    rfid_grid_map_node2
    ${catkin_LIBRARIES} yaml-cpp
  )
+ 
+
+target_link_libraries(viewZois ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
@@ -191,6 +197,11 @@ install(TARGETS rfid_grid_map_node2
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
+install(TARGETS viewZois
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
