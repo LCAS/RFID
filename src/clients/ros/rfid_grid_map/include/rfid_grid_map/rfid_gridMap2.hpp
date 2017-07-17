@@ -120,8 +120,13 @@ class rfid_gridMap2
       
       void mapCallback(const nav_msgs::OccupancyGrid& msg);
       void temporalDecayCallback(const ros::TimerEvent&);
-      
+      bool isUpdatePose();
+      bool isSubregion(std::string zoiName,std::string &parent);
     private:
+     double prev_x,prev_y,prev_h;
+     double min_d;
+     double min_a;
+
     
       Position lastP;
       type_area lastRegion;
@@ -221,7 +226,8 @@ class rfid_gridMap2
       
       // zois indexed by name
       std::map<std::string,rfid_gridMap2::type_area> mapAreas;
-
+      
+      
 }; // End of Class rfid_gridMap2
 
 } // end of  namespace rfid_grid_map

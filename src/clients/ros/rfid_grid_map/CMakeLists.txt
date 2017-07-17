@@ -154,9 +154,12 @@ add_executable(
    )
 
 ## Declare a C++ executable
-add_executable(viewZois src/viewZois.cpp)
+add_executable(
+   viewZois 
+   src/viewZois.cpp
+   )
 
-add_dependencies(viewZois  rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messages_cpp)
+#add_dependencies(viewZois rfid_grid_map_node2 rfid_grid_map_node rfid_node_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -174,8 +177,11 @@ add_dependencies(viewZois  rfid_grid_map_node2 rfid_grid_map_node rfid_node_gene
    ${catkin_LIBRARIES} yaml-cpp
  )
  
+ target_link_libraries(
+   viewZois 
+   ${catkin_LIBRARIES}
+ )
 
-target_link_libraries(viewZois ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
