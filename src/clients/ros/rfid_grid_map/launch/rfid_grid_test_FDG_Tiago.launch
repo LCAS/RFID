@@ -1,11 +1,35 @@
 <launch>
-    
-  <!-- This launcher is a testing for the ROL on TIAGO -->
-  <!-- It includes visualization nodes (rviz-related) if necessary -->
-  <!-- Requires rfid_node running -->
-  
-  
-  <!-- Launch bag file: data -->
+    <!-- This launcher replays the following scenario:
+            Recordings from 12th of July at FDG
+            
+            Used tags are:
+            
+            wallet and keyring "rectangular tags":
+                Inlay: DogBone Wet Inlay
+                IC: Impinj Monza R6
+              or maybe:
+                Inlay: Web Paper Tag
+                IC: NXP U-Code G2iL
+            remote and pillbox "squared tags" 
+                Inlay: Frog 3D Wet Inlay
+                IC: Impinj Monza 4D
+            (Note: I'm guessing models from Lucia's description)
+            
+            Locations should be:
+
+            remote - livingroom_sofa,
+            keys - livingroom_studio,
+            pillbox - livingroom_dining_table ,
+            wallet - kitchen
+            glasses - not used,
+
+            In Lucia's words: 
+
+            medicine -   table
+            keyring  -   studio
+            remote   -   near tv (near sofa)
+            wallet   -   kitchen
+   -->
   <param name="use_sim_time" value="true" />  
   
   <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(find rfid_grid_map)/test/fdg_tests3/TiagoRfidFDG_1.bag"/>
@@ -57,5 +81,6 @@
   </include> 
  <!-- Launch RViz with the demo configuration -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test_FDG.rviz" />
-
+ <!-- Launch viewZois: for display -->
+  <node pkg="rfid_grid_map" type="viewZois" name="viewZois_node" output="screen"/>
 </launch>
