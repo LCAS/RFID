@@ -73,14 +73,15 @@
        <arg name="with_visualizer"      value="true"/>    
     </include>  
    
-
-<node name="viewZois_node" pkg="rfid_grid_map" type="viewZois"  />
- <!-- Launch ROL Node --> 
+  <!-- Launch viewZois: for display -->
+  <node name="viewZois_node" pkg="rfid_grid_map" type="viewZois"  />
+ 
+  <!-- Launch ROL Node --> 
   <include file="$(find rol_server)/launch/rol_server_node.launch">
 	<arg name="minProb"   value="0.0" />
   </include> 
- <!-- Launch RViz with the demo configuration -->
+ 
+  <!-- Launch RViz with the demo configuration -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test_FDG.rviz" />
- <!-- Launch viewZois: for display -->
-  <node pkg="rfid_grid_map" type="viewZois" name="viewZois_node" output="screen"/>
+ 
 </launch>
