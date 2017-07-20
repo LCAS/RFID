@@ -131,7 +131,7 @@ class rol_server():
             probs = self.getAllProbs(obj)
             ans = self.createOkResponse(probs)
         else:
-            ans = self.createErrorResponse('Unknown object to accurately find:' + obj)
+            ans = self.createErrorResponse('Unknown object to accurately probs:' + obj)
         return ans
 
 

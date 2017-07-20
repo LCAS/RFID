@@ -278,7 +278,7 @@ namespace rfid_grid_map2 {
         //ROS_ERROR("Dist, ang incs. (%2.2f, %2.2f)",dist,ang);
         return ans;
     }
-   
+
     void rfid_gridMap2::tagCallback(const rfid_node::TagReading::ConstPtr& msg){       
         
             
@@ -356,8 +356,7 @@ namespace rfid_grid_map2 {
             
               
         } else {
-            //ROS_DEBUG("Robot pose (%2.2f, %2.2f) is almost not changing...",x,y);
-
+        //ROS_DEBUG("Robot pose (%2.2f, %2.2f) is almost not changing...",x,y);
         }
         
        }
@@ -591,9 +590,9 @@ namespace rfid_grid_map2 {
         
        // first element in published probs is latest region with invalid prob.   
        sstream<<lastRegion.name+",-1";
-        
         //ROS_DEBUG("Total weight: %3.3f  ", total );
         //ROS_DEBUG("Region probs:  " );
+      
         //then, each region with its probability
         //for (std::size_t i=0;i<mapAreas.size();i++)
        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)

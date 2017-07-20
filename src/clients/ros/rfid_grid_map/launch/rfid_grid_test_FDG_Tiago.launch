@@ -74,7 +74,7 @@
     </include>  
    
 
-
+<node name="viewZois_node" pkg="rfid_grid_map" type="viewZois"  />
  <!-- Launch ROL Node --> 
   <include file="$(find rol_server)/launch/rol_server_node.launch">
 	<arg name="minProb"   value="0.0" />

@@ -122,7 +122,6 @@ class rfid_gridMap2
       void temporalDecayCallback(const ros::TimerEvent&);
       bool isUpdatePose();
       bool isSubregion(std::string zoiName,std::string &parent);
-      
       void drawSimilarityShape(double cx,double cy, double rh, 
             double radius,double cone_range,  double cone_heading, 
             double lowProb, double midProb, double highProb, double rssi);
