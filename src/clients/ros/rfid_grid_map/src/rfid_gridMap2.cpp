@@ -392,8 +392,10 @@ namespace rfid_grid_map2 {
      }
      
     void rfid_gridMap2::temporalDecayCallback(const ros::TimerEvent&){
-     drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-temporalDecayFactor);
-     
+        if (isUpdatePose())//((x!=0.0)&&(y!=0.0))
+        {
+            drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-temporalDecayFactor);
+        }
      // schedule next decay event: so we can change period
     nextTimeDecay();                 
     
