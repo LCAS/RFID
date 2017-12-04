@@ -1,0 +1,36 @@
+numberOfSubMaps: 1
+zoi:
+  submap_0:
+    '367': [submap_0, bedroom_tv, -3.772324562072754, 1.8024903535842896, 0.0]
+    bedroom_0: [submap_0, bedroom, -0.8797814846038818, 3.953092336654663, 0.0]
+    bedroom_1: [submap_0, bedroom, 2.193493366241455, -0.05931270122528076, 0.0]
+    bedroom_2: [submap_0, bedroom, -0.8273253440856934, -2.2452523708343506, 0.0]
+    bedroom_3: [submap_0, bedroom, -3.869609832763672, 1.890380859375, 0.0]
+    bedroom_dressing_0: [submap_0, bedroom_dressing, 0.10813307762145996, 2.5439624786376953,
+      0.0]
+    bedroom_dressing_1: [submap_0, bedroom_dressing, 1.4794559478759766, 0.5971757173538208,
+      0.0]
+    bedroom_dressing_2: [submap_0, bedroom_dressing, -1.395647644996643, -1.53623366355896,
+      0.0]
+    bedroom_dressing_3: [submap_0, bedroom_dressing, -2.885678291320801, 0.35128211975097656,
+      0.0]
+    bedroom_sofa_0: [submap_0, bedroom_sofa, 1.5942511558532715, 0.4026820659637451,
+      0.0]
+    bedroom_sofa_1: [submap_0, bedroom_sofa, 2.3004510402679443, -0.3100396394729614,
+      0.0]
+    bedroom_sofa_2: [submap_0, bedroom_sofa, -0.8826115131378174, -2.377345085144043,
+      0.0]
+    bedroom_sofa_3: [submap_0, bedroom_sofa, -1.581434726715088, -1.4577192068099976,
+      0.0]
+    bedroom_tv_0: [submap_0, bedroom_tv, -0.8063375949859619, 4.106367111206055, 0.0]
+    bedroom_tv_1: [submap_0, bedroom_tv, 0.032166123390197754, 2.646205186843872,
+      0.0]
+    bedroom_tv_3: [submap_0, bedroom_tv, -2.7893524169921875, 0.5167218446731567,
+      0.0]
+    livingroom_0: [submap_0, livingroom, -4.6148176193237305, 1.5790915489196777,
+      0.0]
+    livingroom_1: [submap_0, livingroom, -2.6148176193237305, -0.42090845108032215,
+      0.0]
+    livingroom_2: [submap_0, livingroom, -7.831571578979492, -4.15399169921875, 0.0]
+    livingroom_3: [submap_0, livingroom, -9.046156883239746, -2.2786738872528076,
+      0.0]

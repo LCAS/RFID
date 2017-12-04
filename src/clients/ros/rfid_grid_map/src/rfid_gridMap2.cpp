@@ -13,7 +13,10 @@ namespace rfid_grid_map2 {
     
     
     rfid_gridMap2::rfid_gridMap2(ros::NodeHandle& n)
-    : nodeHandle_(n)
+    : nodeHandle_(n),
+    // hardcoding layer Name as 'type' and creating a gridmap with that name. Could be improved...
+    layerName("type"),
+    map_(vector<string>({std::string("type")}))
     {
 
       loadROSParams();
@@ -26,7 +29,6 @@ namespace rfid_grid_map2 {
       
       getMapDimensions();
       //these parameters are hardcoded... 
-      layerName="type";
       rosEncoding="mono16";
       lowerValue=0.0;
       upperValue=10.0;
@@ -35,12 +37,9 @@ namespace rfid_grid_map2 {
       size_x=mapDesc.width*resolution;
       size_y=mapDesc.height*resolution;
 
-      map_= GridMap(vector<string>({layerName}));
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
       map_.setFrameId(global_frame);      
       map_.clearAll();
-      
-      //ROS_ERROR("0.- Grid map number of layers is: %lu", map_.getLayers().size());
       
       if (loadGrids) {                
         // file to image...
@@ -148,6 +147,7 @@ namespace rfid_grid_map2 {
             }else{
                 mapCallback(*mapPointer);    
             }
+
 
             if (!isMapLoaded){
                 // Try getting map properties from service...
@@ -446,7 +446,6 @@ namespace rfid_grid_map2 {
         
         // this should be a list of tuples like this:
         //            zoiName_pointNumber : { submapName, zoiName, posX, posY  }
-        //
         //  Zoi name follows format:
         //             zoi name-zoi subarea
         // subareas are parts of bigger zois, they must have same 'zoi name' before the slash.
@@ -659,6 +658,7 @@ namespace rfid_grid_map2 {
     double rfid_gridMap2::countValuesInArea(Polygon pol){ 
       double total=0.0;
       
+      
       for (grid_map::PolygonIterator iterator(map_, pol); !iterator.isPastEnd(); ++iterator) {     
             if (!isnan(map_.at(layerName, *iterator)))
             {
@@ -669,6 +669,7 @@ namespace rfid_grid_map2 {
             }
       }
       
+
       return total;
     }
 
@@ -714,9 +715,10 @@ namespace rfid_grid_map2 {
         }
     }
 
-    void rfid_gridMap2::drawPolygon(const grid_map::Polygon poly, double value){      
+    void rfid_gridMap2::drawPolygon(const grid_map::Polygon poly, double value){
+	        
       for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {     
-            map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
+		    map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
             if (isnan(map_.at(layerName, *iterator)))
             {
                 map_.at(layerName, *iterator) =  value;
@@ -725,8 +727,9 @@ namespace rfid_grid_map2 {
             map_.at(layerName, *iterator) =  lowerValue;
         if (map_.at(layerName, *iterator)>upperValue)
             map_.at(layerName, *iterator) = upperValue;       
-    */
+       */
       }
+      
     }
 
     void rfid_gridMap2::drawSquare(double start_x,double start_y, double end_x,double end_y,double value){
@@ -743,6 +746,7 @@ namespace rfid_grid_map2 {
         poly.addVertex(p);
         
         for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {
+			
             map_.at(layerName, *iterator) =  value + map_.at(layerName, *iterator);              
             if (isnan(map_.at(layerName, *iterator)))
             {
@@ -756,6 +760,7 @@ namespace rfid_grid_map2 {
                 map_.at(layerName, *iterator) = upperValue;
             */
         }
+        
     }
 
     // based on demoCircleIterator
@@ -777,6 +782,7 @@ namespace rfid_grid_map2 {
         if (map_.at(layerName, *iterator)>upperValue)
             map_.at(layerName, *iterator) = upperValue;*/
       }
+      
     }
 
     void rfid_gridMap2::drawSimilarityShape(double cx,double cy, double rh, 
@@ -798,6 +804,7 @@ namespace rfid_grid_map2 {
       Position center(sx, sy);
     
       //inside this circle we have high and mid probs
+      
       for (grid_map::CircleIterator iterator(map_, center, radius);
           !iterator.isPastEnd(); ++iterator) {
         
@@ -857,6 +864,7 @@ namespace rfid_grid_map2 {
       Position center(sx, sy);
     
       //inside this circle we have high and mid probs
+      
       for (grid_map::CircleIterator iterator(map_, center, radius);
           !iterator.isPastEnd(); ++iterator) {
         
