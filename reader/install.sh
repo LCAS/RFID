@@ -19,10 +19,15 @@ echo "Adding User to correct groups"
 sudo usermod -a -G dialout $USER
 
 read -p "Make sure the RFID reader is unplugged and then press enter" dummy
+sleep 1
+
 unplugged_u="$(ls /dev | grep "ttyUSB")"
 unplugged_a="$(ls /dev | grep "ttyACM")"
 
 read -p "Now plug the RFID reader in and then press enter" dummy
+echo "Waiting for device to be detected for first time..."
+sleep 5
+
 plugged_u="$(ls /dev | grep "ttyUSB")"
 plugged_a="$(ls /dev | grep "ttyACM")"
 
@@ -34,10 +39,10 @@ array_a=(${fileList_a// / })
 
 for element in "${array_u[@]}"
 do
-	if [[ $element == "ttyUSB"* ]]
-	then
-		file="$element"
-	fi
+    if [[ $element == "ttyUSB"* ]]
+    then
+        file="$element"
+    fi
 done
 
 if [ -z "$file" ]
@@ -46,7 +51,7 @@ then
    do
       if [[ $element == "ttyACM"* ]]
       then
-	file="$element"
+    file="$element"
       fi
    done
 fi
