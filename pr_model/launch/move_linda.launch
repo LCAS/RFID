@@ -1,0 +1,19 @@
+<launch>
+    
+  <!-- 
+  Once record_linda.launch is running, this will record data in a rosbag
+  
+  Besides the rosbag we will need:  map files (png and yaml) 
+  Worried about reproducing poses later? use robot_pose_publisher like we did in record_linda.
+  -->
+
+  <arg name="txPower100dBm" value="2000"/>
+  <arg name="bagURI" value="$(find pr_model)/tests/linda/$(arg txPower100dBm)-Linda-FAB-LAB.bag"/>
+  <arg name="topicList" value="/scan /tf /lastTag"/>
+ 
+  <node pkg="rosbag" type="record" name="rosbag_node" output="screen" args=" -O $(arg bagURI) $(arg topicList)" />
+  
+  <node pkg="pr_model" type="rotate_topo_nodes.py" name="linda_dances" output="screen"/>
+           
+</launch>
+

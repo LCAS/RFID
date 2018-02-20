@@ -1,0 +1,36 @@
+<launch>
+    
+  <!-- This launcher is a testing for the whole ROL system -->
+  <!-- It includes visualization nodes (rviz-related) -->
+  <!-- Uses a bag file to simulate robot and a big set of tags-->
+
+  <!-- Launch bag file: data -->
+  <arg name="mapFile" default="$(find pr_model)/tests/long/WW_GF_2015_02_22_cropped.yaml"/>
+  <arg name="robotPose" default="x: 0.28, y:  -0.55"/>
+  <arg name="robotOrie" default="x: 0.0, y: 0.0, z: 0.706, w: 0.707"/>
+  
+  <param name="modelDataFile" value="$(find pr_model)/tests/30db/20db.csv"/>
+  
+  <param name="use_sim_time" value="true" />
+    
+  <!--  Tag position referred to map coordinates -->     
+  <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster07" args=" 2.82 -0.64 0 0 0 0 1 map rfid/tags/300833B2DDD9014000000007 100" />
+  <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster09" args=" 1.48  5.28 0 0 0 0 1 map rfid/tags/300833B2DDD9014000000009 100" />
+  <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster11" args=" 3.82 -1.24 0 0 0 0 1 map rfid/tags/300833B2DDD9014000000011 100" />
+  <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster14" args="-0.34  1.63 0 0 0 0 1 map rfid/tags/300833B2DDD9014000000014 100" />
+  
+  <!--  Static map. Needed for amcl  -->     
+  <node pkg="map_server" type="map_server" name="lcas_map" output="screen" args="$(arg mapFile)"/>
+
+  <!--  AMCL with configuration for LCAS  -->     
+  <include file="$(find pr_model)/launch/amcl_diff.launch" />  
+  
+  <!--  Initial robot pose in this bag. Used by amcl as seed  -->     
+  <node pkg="rostopic" type="rostopic" name="arbitrary_name" args="pub /initialpose geometry_msgs/PoseWithCovarianceStamped '{ header: { frame_id: '/map' }, pose: { pose: { position: { $(arg robotPose) }, orientation: { $(arg robotOrie) } }, covariance: [ 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942 ] } }' -1" output="screen"/>
+
+  <!--  Just for visualization purposes  -->     
+  <node pkg="rviz" type="rviz" output="screen" name="rviz_node" args="-d $(find pr_model)/tests/long/amcl.rviz"/>   
+
+    
+        
+</launch>

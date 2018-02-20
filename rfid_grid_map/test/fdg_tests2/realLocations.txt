@@ -1,0 +1,13 @@
+wallet: living room, sofa
+wallet was ok
+
+keys: living room, study
+keys was completely wrong (study instead of dininig) 
+
+pillbox: kicthen
+pillbox was 'close' 
+
+remote: living room, sofa
+
+glasses: living room, dining table
+glasses are also quite far remote was 'close'

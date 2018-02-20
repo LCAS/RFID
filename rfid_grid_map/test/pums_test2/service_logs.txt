@@ -1,0 +1,96 @@
+# Notes:
+
+# Bedroom tv has only three points... but sorts of work.
+#........................................................................
+
+# General status:
+
+rosservice call /rol_server "action: 'list'
+payload: 'locations'"
+#response: livingroom,bedroom
+
+rosservice call /rol_server "action: 'list'
+payload: 'sublocations'"
+#response: livingroom,bedroom_tv,bedroom_dressing,bedroom_sofa
+
+rosservice call /rol_server "action: 'list'
+payload: 'objects'" 
+#response: wallet,glasses,pillbox,keys,remote
+
+#........................................................................
+rosservice call /rol_server "action: 'find'
+payload: 'wallet'" 
+#response: bedroom,91.88,livingroom,8.12,bedroom,-1
+
+rosservice call /rol_server "action: 'accurate_find'
+payload: 'wallet'" 
+#response: bedroom_tv,58.72,bedroom_dressing,41.28,bedroom_sofa,0.00
+
+rosservice call /rol_server "action: 'accurate_prob'
+payload: 'wallet'" 
+#response: bedroom_tv,53.95,bedroom_dressing,37.93,livingroom,8.12,bedroom_sofa,0.00
+
+#ground truth: bedroom_tv
+#status: correct
+#........................................................................
+
+rosservice call /rol_server "action: 'find'
+payload: 'glasses'" 
+#response: bedroom,100.00,livingroom,0.00,bedroom,-1
+
+rosservice call /rol_server "action: 'accurate_find'
+payload: 'glasses'" 
+#response: bedroom_dressing,54.22,bedroom_sofa,45.67,bedroom_tv,0.11
+
+rosservice call /rol_server "action: 'accurate_prob'
+payload: 'glasses'"
+#response: bedroom_dressing,54.22,bedroom_sofa,45.67,bedroom_tv,0.11,livingroom,0.00
+
+#ground truth: bedroom_sofa
+#status: wrong! is second option...
+#........................................................................
+
+rosservice call /rol_server "action: 'find'
+payload: 'pillbox'" 
+#response: bedroom,100.00,livingroom,0.00,bedroom,-1
+
+rosservice call /rol_server "action: 'accurate_find'
+payload: 'pillbox'" 
+#response: bedroom_dressing,61.32,bedroom_tv,38.13,bedroom_sofa,0.55
+
+rosservice call /rol_server "action: 'accurate_prob'
+payload: 'pillbox'"
+#response: bedroom_dressing,61.32,bedroom_tv,38.13,bedroom_sofa,0.55,livingroom,0.00
+
+#ground truth: bedroom_dressing
+#status: correct
+#........................................................................
+
+rosservice call /rol_server "action: 'find'
+payload: 'keys'" 
+
+rosservice call /rol_server "action: 'accurate_find'
+payload: 'keys'" 
+
+rosservice call /rol_server "action: 'accurate_prob'
+payload: 'keys'"
+
+#ground truth: bedroom_dressing
+#status: never detected....
+#........................................................................
+
+rosservice call /rol_server "action: 'find'
+payload: 'remote'" 
+# response: livingroom,100.00,bedroom,0.00,livingroom,-1
+
+rosservice call /rol_server "action: 'accurate_find'
+payload: 'remote'" 
+# response: livingroom,100.00
+
+rosservice call /rol_server "action: 'accurate_prob'
+payload: 'remote'"
+# response: livingroom,100.00
+
+#ground truth: livingroom
+#status: correct
+#........................................................................

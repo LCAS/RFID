@@ -1,0 +1,18 @@
+  <!-- 
+        Plays recorded data on alfie. We use amcl to correct odometry drifts
+  -->
+  
+<launch>  
+    
+  <arg name="bagFile" default="$(find pr_model)/tests/30db/alfie_rfid_30dB_wanders_long.bag"/>
+  <param name="modelDataFile" value="$(find pr_model)/tests/30db/30db_model.csv"/>
+  
+  
+  <!--  Our bag  -r X refers to replay speed -->
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r 1"/>    
+  
+  <!--  Start Sensor Model Node -->
+  <node pkg="pr_model" type="locator_node.py" name="locat" output="screen" />
+  
+</launch>
+      

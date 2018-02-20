@@ -1,0 +1,30 @@
+
+
+Hi
+
+I'm checking errors reported by PUMS about the object tracking service. I replayed a rosbag they sent me and checked with HMi as well.  My bet is that it's working but they don't move the robot enough. However, I'd like to check with you that all is ok. What I did to check with hmi was:
+- Launch my rfid bag:
+
+ roslaunch rfid_grid_map rfid_grid_test_PUMS.launch
+
+- Wait 1'30" to let the robot move around.
+
+- Launch hmi interface:
+
+roslaunch ~/catkin_ws/src/ENRICHME/codes/enrichme_hbba/hmi_bridge/launch/hmi_bridge_tiago.launch 
+
+Go to Find object screen
+
+Select remote
+
+System answered
+
+Did you find it
+
+No
+
+I saw it elsewhere
+
+System answered
+Service was replying underneath:
+
