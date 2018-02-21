@@ -112,60 +112,65 @@ def constrainAngle(x):
         x = x + 2.0*np.pi
     return (x - np.pi)
 
-    
-# params
-fileURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/30db/30db.csv'
-modelURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/30db/30db_model.csv'
+# Main function.
+if __name__ == '__main__':    
+    # params
+    if len(sys.argv)==1:
+        #fileURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/long/long_1tag.csv'
+        fileURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/30db/30db.csv'
+        print 'WARNING! using default dataFile!!!'
+    else:
+        fileURI = sys.argv[1]
+  
+    modelURI = fileURI[0:-4]+'_model.csv'
+    print 'dataFile: '+fileURI
+    print 'modelFile: '+modelURI
 
-#fileURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/long/long_1tag.csv'
-#modelURI = '/home/manolofc/catkin_ws/src/RFID/pr_model/tests/30db/long_1tag_model.csv'
+    selectedTag = '300833B2DDD9014000000014'
+    numSamples_x = 20
+    numSamples_y = 20
+    numSamples_a = 8
+
+    # load data from csv
+    # colnames 'Time','ID','rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm', 'phase_deg'
+    readings = pd.read_csv(fileURI)
+
+    # filter to get tag 14 (best one afaik)
+    #readings14 = readings[readings['ID'] == selectedTag].copy()
+
+    # discretize x,y,a values to for our 4-dimensional grid (f is already discrete)
+    readings['rel_x_m'] = getDiscreteCol('rel_x_m',readings)
+    readings['rel_y_m'] = getDiscreteCol('rel_y_m',readings)
+    readings['rel_yaw_rad'] = getDiscreteCol('rel_yaw_rad',readings)
+
+    # on each element of each dimension: calculate 2D gausian in terms of rssi AND phase 
+    xv = getLinspace('rel_x_m',readings,numSamples_x)
+    yv = getLinspace('rel_y_m',readings,numSamples_y)
+    av = getLinspace('rel_yaw_rad',readings,numSamples_a)
+    fv = np.sort(np.unique(readings['freq_khz']))
+
+    entryList=[]
+    for index_x in range(1,numSamples_x):
+        for index_y in range(1,numSamples_y):
+            for index_a in range(1,numSamples_a):
+                for index_f in range(1,len(fv)):
+                    # this one increases cell size to fill in with data, but maybe it's better not to do that
+                    #(xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureTwoEntries(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
+                    (xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureOneEntry(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
+                    # x,v,a,f returned by ensureTwo are the real. These are the model ones
+                    xi = xv[index_x]
+                    yi = yv[index_y]
+                    ai = av[index_a]
+                    fi = fv[index_f]
+
+                    entry = (xi,yi,ai,fi,rssi_m,phase_m,COV[0,0],COV[0,1],COV[1,0],COV[1,1])
+                    entryList.append(entry)
 
 
-selectedTag = '300833B2DDD9014000000014'
-numSamples_x = 20
-numSamples_y = 20
-numSamples_a = 8
+    labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11']
+    daModel = pd.DataFrame.from_records(entryList, columns=labels)
 
-# load data from csv
-# colnames 'Time','ID','rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm', 'phase_deg'
-readings = pd.read_csv(fileURI)
-
-# filter to get tag 14 (best one afaik)
-#readings14 = readings[readings['ID'] == selectedTag].copy()
-
-# discretize x,y,a values to for our 4-dimensional grid (f is already discrete)
-readings['rel_x_m'] = getDiscreteCol('rel_x_m',readings)
-readings['rel_y_m'] = getDiscreteCol('rel_y_m',readings)
-readings['rel_yaw_rad'] = getDiscreteCol('rel_yaw_rad',readings)
-
-# on each element of each dimension: calculate 2D gausian in terms of rssi AND phase 
-xv = getLinspace('rel_x_m',readings,numSamples_x)
-yv = getLinspace('rel_y_m',readings,numSamples_y)
-av = getLinspace('rel_yaw_rad',readings,numSamples_a)
-fv = np.sort(np.unique(readings['freq_khz']))
-
-entryList=[]
-for index_x in range(1,numSamples_x):
-    for index_y in range(1,numSamples_y):
-        for index_a in range(1,numSamples_a):
-            for index_f in range(1,len(fv)):
-                # this one increases cell size to fill in with data, but maybe it's better not to do that
-                #(xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureTwoEntries(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
-                (xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureOneEntry(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
-                # x,v,a,f returned by ensureTwo are the real. These are the model ones
-                xi = xv[index_x]
-                yi = yv[index_y]
-                ai = av[index_a]
-                fi = fv[index_f]
-
-                entry = (xi,yi,ai,fi,rssi_m,phase_m,COV[0,0],COV[0,1],COV[1,0],COV[1,1])
-                entryList.append(entry)
-
-
-labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11']
-daModel = pd.DataFrame.from_records(entryList, columns=labels)
-
-print("Saving model to csv")
-daModel.to_csv(modelURI, index=False)
+    print("Saving model to csv")
+    daModel.to_csv(modelURI, index=False)
 
 
