@@ -9,7 +9,11 @@
 
   <arg name="txPower100dBm" value="2000"/>
   <arg name="bagURI" value="$(find pr_model)/tests/linda/$(arg txPower100dBm)-Linda-FAB-LAB.bag"/>
-  <arg name="topicList" value="/scan /tf /lastTag"/>
+  
+  <!-- 
+  maybe in the future is better to record all poses ...
+  -->
+  <arg name="topicList" value="/scan /tf /tf_static /lastTag"/>
  
   <node pkg="rosbag" type="record" name="rosbag_node" output="screen" args=" -O $(arg bagURI) $(arg topicList)" />
   

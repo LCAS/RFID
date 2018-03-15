@@ -32,12 +32,12 @@ class topol_nav_client(object):
             # incremental
             i = points % self.numWayPoints
             rounds = points / self.numWayPoints
-            points = rounds + 1
+            points = points + 1
 
             targ = 'WayPoint'+str(i)
             
-            print "Requesting Navigation to %s in round %s" %(targ,str(rounds))
-        
+            print 'Travel num. ' + str(points) + ' Requesting Navigation to ' + targ + ' in round ' + str(rounds) 
+                
             navgoal.target = targ
             #navgoal.origin = orig
         
@@ -51,8 +51,9 @@ class topol_nav_client(object):
             ps = self.client.get_result()  # A FibonacciResult
             print ps
             
-            #rotate on position
-            self.rotateHere()
+            if ps.success:
+               #rotate on position
+               self.rotateHere()
     
     def rotateHere(self):
             vel_msg = Twist()
@@ -67,7 +68,7 @@ class topol_nav_client(object):
 
             # wait to turn
             t = 2.0 * math.pi / vel_msg.angular.z
-            print 'At %s: rotating for %s secs' % (targ,str(t/10.0))                        
+            print 'Rotating for %s secs' % (str(3*t))                        
             for i in range(0,30):
                 print '.'
                 rospy.sleep(t/10.0)

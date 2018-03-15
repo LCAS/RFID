@@ -7,6 +7,8 @@ import pybayes, pybayes.pdfs, pybayes.filters
 import rospy
 import tf
 from std_msgs.msg import String
+from tf.transformations import *
+
 
 '''
 Check  https://github.com/tridge/pyUblox/blob/master/pr_particle.py
@@ -77,7 +79,7 @@ class myFpFFilter():
 
 
     def updateRobotPose(self):
-        robloc = None
+        
         try:
             when = rospy.Time()
             # relative position of the tag respect to the antenna
@@ -86,10 +88,10 @@ class myFpFFilter():
             rob_x = rob_pose[0]
             rob_y = rob_pose[1]
             (rob_rol, rob_pitch, rob_yaw) = tf.transformations.euler_from_quaternion(rob_quat)
-            robloc = [rob_x,rob_y,rob_yaw]
+            self.robLoc = np.array([rob_x,rob_y,rob_yaw])
+            
         except tf.Exception:
                 rospy.logerr("Can't get robot position. Skipping")
-        return np.array(robloc)
 
 
     def variance(self):
@@ -222,14 +224,19 @@ class myFpFFilter():
         Needs to be redone! mean at old state'''
 
         # TODO! xtp is previous tag pose. Current tag pose should be xt = xtp + (xrobot-xrobotp)
-        robLoc = self.updateRobotPose()
-        if robLoc != None:
-            incRob = robLoc - self.prevRobLoc
-            self.prevRobLoc = robLoc
+        self.updateRobotPose()
+        if hasattr(self,'robLoc'):
+            incRob = self.robLoc - self.prevRobLoc
+            if abs(incRob[0])+abs(incRob[1])+abs(incRob[2])>0.01:
+                print 'Tag is at: ' + str(xtp[0])+ ', ' + str(xtp[1])+ ', ' + str(xtp[2])+ ' from robot ' 
+                print 'robot was at: ' + str(self.prevRobLoc[0])+ ', ' + str(self.prevRobLoc[1])+ ', ' + str(self.prevRobLoc[2])
+                print 'Now       at: ' + str(self.robLoc[0])+ ', ' + str(self.robLoc[1])+ ', ' + str(self.robLoc[2]) 
+            
+            self.prevRobLoc = self.robLoc
         else:
             incRob = np.array([0, 0, 0])
 
-        mu = xtp - incRob
+        mu = self.turnAndTranslate(xtp,incRob)
 
         #if (self.cont % self.maxcont) == 0:
         #    print(
@@ -239,13 +246,41 @@ class myFpFFilter():
 
         return np.array(mu)
 
+    def turnAndTranslate(self,p0,t):
+        # translation is robot increment in position and angle
+        (tx,ty,ta)=t
+        
+        # initial tag position x,y is first two elements  
+        #Vectors are: x  y  z   w==1
+        p = [p0[0], p0[1], 0, 1.0]
+
+        #(+) moves axis away ...
+        inc_x = tx
+        inc_y = ty
+
+        #(+) turns clockwise
+        inc_a = -ta
+
+        # first turns and then translates
+        M0 = compose_matrix( angles=[0, 0, inc_a], translate=[inc_x, inc_y, 0])
+
+        p2 = M0.dot(p)
+
+        return (p2[0],p2[1],p0[2]+ta)
+        
+        
+        
+        
+        
+        
+
     def update_model_R_f(self,xtp):
         '''Return covariance of Gaussian PDF for state xt given x(t-1).
         How random we consider this?'''
 
         # TODO! this is a randomly chosen number....
-        state_cov = 10
-        cov =np.diag([state_cov, state_cov, state_cov/10])
+        state_cov = 0.5
+        cov =np.diag([state_cov, state_cov, state_cov/10.0])
 
         #if (self.cont % self.maxcont) == 0:
         #    print("State update cov type: (%s) of (%s)\n\t- Dimmensions (%s)\n" % (

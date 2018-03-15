@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
+"""
+
+
+"""
+
 import numpy as np
 import pandas as pd
 import math
 from numpy.linalg import inv
+import sys
 
 def getElements(v,indexH,indexL,defaultLow,defaultHigh):
     if (indexH<len(v))&(indexH>=0):
@@ -59,7 +65,11 @@ def ensureTwoEntries(readings, index_x, index_y, index_a, index_f, xv, yv, av, f
 
 def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv):
     offset = 0
-    isOk = False
+    rssi_m = -90
+    phase_m = 0
+    count = 0
+    COV = np.diag([1, 1])
+        
     (xi,xi_prev) = getElements(xv,index_x+offset,index_x-offset-1,-np.inf,np.inf)
     (yi,yi_prev) = getElements(yv,index_y+offset,index_y-offset-1,-np.inf,np.inf)
     (ai,ai_prev) = getElements(av,index_a+offset,index_a-offset-1,-np.pi,np.pi)
@@ -69,15 +79,19 @@ def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv)
                       (readings['rel_y_m'] <= yi) & (readings['rel_y_m'] > yi_prev) &
                       (readings['rel_yaw_rad'] <= ai) & (readings['rel_yaw_rad'] > ai_prev) &
                       (readings['freq_khz'] <= fi) & (readings['freq_khz'] > fi_prev)]
-
-    if (subSet.size != 0) & (subSet['rssi_dbm'].size > 1):
-        #Ok, enough data to even have covariance...
-
+    count = subSet.size
+    #print count
+    #enough data to have averages
+    if (count != 0) & (subSet['rssi_dbm'].size > 0):
+        count = subSet['rssi_dbm'].size
         rssi_i = subSet['rssi_dbm']
         phase_i = subSet['phase_deg']
         rssi_m = rssi_i.mean()
         phase_m = phase_i.mean()
 
+    # enough data to have covariances
+    if (count != 0) & (subSet['rssi_dbm'].size > 1):
+        count = subSet['rssi_dbm'].size
         # compute covariance matrix and determinant
         X = np.stack((rssi_i, phase_i), axis=0)
         COV = np.cov(X)
@@ -87,16 +101,12 @@ def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv)
             # we don't want  definide negative covariance matrixes ...
             try:
                 invC = inv(COV)
-                isOk = True
-                print offset
             except:
-                pass
-    if not isOk:
-        rssi_m = -90
-        phase_m = 0
-        COV = np.diag([1, 1])
+                COV = np.diag([1, 1])
+        else:
+            COV = np.diag([1, 1])
 
-    return (xi, yi, ai, fi,rssi_m,phase_m,COV)
+    return (xi, yi, ai, fi,rssi_m,phase_m,COV,count)
 
 
 def getDiscreteCol(colName,df):
@@ -129,8 +139,8 @@ if __name__ == '__main__':
     selectedTag = '300833B2DDD9014000000014'
     numSamples_x = 20
     numSamples_y = 20
-    numSamples_a = 8
-
+    numSamples_a = 20
+    
     # load data from csv
     # colnames 'Time','ID','rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm', 'phase_deg'
     readings = pd.read_csv(fileURI)
@@ -156,18 +166,18 @@ if __name__ == '__main__':
                 for index_f in range(1,len(fv)):
                     # this one increases cell size to fill in with data, but maybe it's better not to do that
                     #(xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureTwoEntries(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
-                    (xi, yi, ai, fi, rssi_m, phase_m, COV) = ensureOneEntry(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
+                    (xi, yi, ai, fi, rssi_m, phase_m, COV,count) = ensureOneEntry(readings,index_x,index_y,index_a,index_f,xv,yv,av,fv)
                     # x,v,a,f returned by ensureTwo are the real. These are the model ones
                     xi = xv[index_x]
                     yi = yv[index_y]
                     ai = av[index_a]
                     fi = fv[index_f]
-
-                    entry = (xi,yi,ai,fi,rssi_m,phase_m,COV[0,0],COV[0,1],COV[1,0],COV[1,1])
+                    
+                    entry = (xi,yi,ai,fi,rssi_m,phase_m,COV[0,0],COV[0,1],COV[1,0],COV[1,1],count)
                     entryList.append(entry)
+                    print '.'
 
-
-    labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11']
+    labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11','count']
     daModel = pd.DataFrame.from_records(entryList, columns=labels)
 
     print("Saving model to csv")
