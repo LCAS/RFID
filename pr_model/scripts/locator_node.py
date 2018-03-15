@@ -13,6 +13,7 @@ from rfid_node.msg import TagReading
 
 import pandas as pd
 import numpy as np
+from scipy import stats
 
 import frequencyModel
 
@@ -32,7 +33,7 @@ class loca():
         #self.tagID = '300833B2DDD9014000000014'
         self.tagID = '390100010000000000000001'
         # num of particles
-        n = 50
+        n = 5
 
         self.pubRate = 2 #seconds
         # TODO initial state guess for tag
@@ -194,7 +195,8 @@ class loca():
             
             # USE ONLY ONE
             if f_index == 0: 
-                print  'received: '+str(data.rssi)+' db, '+str(data.phase)+' rad, '+str(data.frequency)+' khz '               
+                print  'received: '+str(data.rssi)+' db, '+str(data.phase)+' deg, '+str(data.frequency)+' khz '     
+                
                 # perform bayes rule on new observation on corresponding filter
                 try:
                     self.pfilt[f_index].addObservation(yt)

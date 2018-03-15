@@ -60,15 +60,15 @@ if __name__ == '__main__':
         for ai in ranges_a:
             subSet = readings[(readings['rel_yaw_rad'] == ai) & (readings['freq_khz'] == fi)]
             countI = subSet['count'].sum()
-            print countI
+            #print countI
             if countI>maxCount:
                 maxCount = countI
                 aiF = ai
                 fiF = fi
     subSet = readings[(readings['rel_yaw_rad'] == aiF) & (readings['freq_khz'] == fiF)]
-    print aiF*180.0/np.pi 
-    print fiF
-    print maxCount
+   # print aiF*180.0/np.pi 
+    #print fiF
+   # print maxCount
 
 
     (ranges_x,gridSize_x,gridResolution_x) = getGridData(subSet['rel_x_m'])

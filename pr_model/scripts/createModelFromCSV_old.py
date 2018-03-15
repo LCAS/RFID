@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-
+Something is wrong with this:
+total sum of entries is bigger than original file...
 
 """
 
@@ -80,10 +81,9 @@ def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv)
                       (readings['rel_yaw_rad'] <= ai) & (readings['rel_yaw_rad'] > ai_prev) &
                       (readings['freq_khz'] <= fi) & (readings['freq_khz'] > fi_prev)]
     count = subSet.size
-    #print count
+    print count
     #enough data to have averages
     if (count != 0) & (subSet['rssi_dbm'].size > 0):
-        count = subSet['rssi_dbm'].size
         rssi_i = subSet['rssi_dbm']
         phase_i = subSet['phase_deg']
         rssi_m = rssi_i.mean()
@@ -91,7 +91,6 @@ def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv)
 
     # enough data to have covariances
     if (count != 0) & (subSet['rssi_dbm'].size > 1):
-        count = subSet['rssi_dbm'].size
         # compute covariance matrix and determinant
         X = np.stack((rssi_i, phase_i), axis=0)
         COV = np.cov(X)
@@ -136,10 +135,10 @@ if __name__ == '__main__':
     print 'dataFile: '+fileURI
     print 'modelFile: '+modelURI
 
-    #selectedTag = '300833B2DDD9014000000014'
+    selectedTag = '300833B2DDD9014000000014'
     numSamples_x = 20
     numSamples_y = 20
-    numSamples_a = 20
+    numSamples_a = 8
     
     # load data from csv
     # colnames 'Time','ID','rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm', 'phase_deg'
@@ -177,7 +176,7 @@ if __name__ == '__main__':
                     entryList.append(entry)
                     print '.'
 
-    labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11','count']
+    labels = ['rel_x_m', 'rel_y_m', 'rel_yaw_rad', 'freq_khz', 'rssi_dbm_m', 'phase_deg_m','COV00','COV01','COV10','COV11','entries']
     daModel = pd.DataFrame.from_records(entryList, columns=labels)
 
     print("Saving model to csv")

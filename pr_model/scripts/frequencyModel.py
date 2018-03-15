@@ -108,12 +108,12 @@ class myFpFFilter():
 
         self.pf.bayes(yt)
 
-    def getRanges(self,v0,ranges):
+    def getRanges(self,v0,ranges,llimit=-np.inf,hlimit=np.inf):
         if v0<ranges.min():
            vi         = ranges.min()
-           vi_prev = -np.inf
+           vi_prev = llimit
         if v0>ranges.max():
-           vi         = np.inf
+           vi         = hlimit
            vi_prev = ranges.max()-0.1
         else:
             i = np.argmax(ranges>v0)
@@ -121,15 +121,18 @@ class myFpFFilter():
             if i!=0:
                 vi_prev = ranges[i-1]
             else:
-                vi_prev = -np.inf
+                vi_prev = llimit
         return (vi,vi_prev)
 
     def getModelData(self,xt):
         (x0, y0, a0) = xt
+        a0 = ( a0 + np.pi) % (2 * np.pi ) - np.pi
+
+        
 
         (xi, xi_prev) = self.getRanges( x0, self.x_ranges)
         (yi, yi_prev) = self.getRanges( y0, self.y_ranges)
-        (ai, ai_prev) = self.getRanges( a0, self.a_ranges)
+        (ai, ai_prev) = self.getRanges( a0, self.a_ranges,-np.pi,np.pi)
 
         subSet = self.pdData[(self.pdData['rel_x_m'] <= xi) & (self.pdData['rel_x_m'] > xi_prev) &
                              (self.pdData['rel_y_m'] <= yi) & (self.pdData['rel_y_m'] > yi_prev) &
@@ -138,6 +141,16 @@ class myFpFFilter():
             rospy.logerr('Non unique match in model...')
             subSet=subSet.head(1)
 
+
+        if False:        
+            print '\nPoint:'
+            print 'p (' + str(x0) +', ' + str(y0) +', ' + str(a0)+')' 
+        
+        if False:#subSet['count'].iloc[0]==0:
+            print '\nmodel has no data for point assigned to interval:'
+            print 'pi_prev (' + str(xi_prev) +', ' + str(yi_prev) +', ' + str(ai_prev)+')' 
+            print 'pi (' + str(xi) +', ' + str(yi) +', ' + str(ai)+')'  
+            
         return subSet
 
     def modelDataMean(self, xt):
@@ -145,6 +158,12 @@ class myFpFFilter():
         rssi = subSet['rssi_dbm_m'].iloc[0]
         phi = subSet['phase_deg_m'].iloc[0]
         yt = [rssi, phi]
+        
+        if False:
+            print '\nHas data:'
+            print 'rssi (' + str(rssi)+')'
+            print 'phi (' + str(phi) +')\n\n\n'
+
         return yt
 
     def modelDataCov(self, xt):
@@ -197,7 +216,7 @@ class myFpFFilter():
             Mean is at the ideal measurement'''
 
         yt = self.modelDataMean(xt)
-        mu = np.array(yt)
+        mu = np.array(yt )
 
         #if (self.cont % self.maxcont) == 0:
         #    print(
@@ -227,10 +246,10 @@ class myFpFFilter():
         self.updateRobotPose()
         if hasattr(self,'robLoc'):
             incRob = self.robLoc - self.prevRobLoc
-            if abs(incRob[0])+abs(incRob[1])+abs(incRob[2])>0.01:
-                print 'Tag is at: ' + str(xtp[0])+ ', ' + str(xtp[1])+ ', ' + str(xtp[2])+ ' from robot ' 
-                print 'robot was at: ' + str(self.prevRobLoc[0])+ ', ' + str(self.prevRobLoc[1])+ ', ' + str(self.prevRobLoc[2])
-                print 'Now       at: ' + str(self.robLoc[0])+ ', ' + str(self.robLoc[1])+ ', ' + str(self.robLoc[2]) 
+            #if True:#abs(incRob[0])+abs(incRob[1])+abs(incRob[2])>0.01:
+            #    print 'Tag is at: ' + str(xtp[0])+ ', ' + str(xtp[1])+ ', ' + str(xtp[2])+ ' from robot ' 
+            #    print 'robot was at: ' + str(self.prevRobLoc[0])+ ', ' + str(self.prevRobLoc[1])+ ', ' + str(self.prevRobLoc[2])
+            #    print 'Now       at: ' + str(self.robLoc[0])+ ', ' + str(self.robLoc[1])+ ', ' + str(self.robLoc[2]) 
             
             self.prevRobLoc = self.robLoc
         else:

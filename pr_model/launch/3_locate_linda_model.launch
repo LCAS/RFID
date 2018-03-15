@@ -4,7 +4,7 @@
   
 <launch>  
     
-  <arg name="bagFile" default="$(find pr_model)/tests/linda/2000-Linda-FAB-LAB.bag"/>
+  <arg name="bagFile" default="$(find pr_model)/tests/linda/2000-Linda-FAB-LAB-Static.bag"/>
   <param name="modelDataFile" value="$(find pr_model)/tests/linda/20db-linda-fab-lab_model.csv"/>
     <arg name="mapFile" default="$(find pr_model)/tests/linda/fab-lab-rfid.yaml"/>
 
@@ -32,8 +32,8 @@
   <!--  Our bag  -r X refers to replay speed -->
   <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r 1"/>    
   
-  <!--  Start Sensor Model Node -->
+  <!--  Start Sensor Model Node
   <node pkg="pr_model" type="locator_node.py" name="locat" output="screen" />
-  
+   -->
 </launch>
       

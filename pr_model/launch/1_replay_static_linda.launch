@@ -1,0 +1,28 @@
+<launch>
+    
+  <!-- It includes visualization nodes (rviz-related) -->
+  <!-- Uses a bag file to simulate robot and a big set of tags-->
+
+  <!-- Launch bag file: data -->
+  <arg name="mapFile" default="$(find pr_model)/tests/linda/fab-lab-rfid.yaml"/>
+  <arg name="robot_tf" default="odom"/>
+  <arg name="world_tf" value="map"/>
+  <arg name="bagFile" default="$(find pr_model)/tests/linda/2000-Linda-FAB-LAB-Static.bag"/>
+ 
+  <!--  Our bag  -r X refers to replay speed -->
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r 1"/>    
+ 
+  <param name="use_sim_time" value="true" />
+   
+  <!--  Static map.  -->     
+  <node pkg="map_server" type="map_server" name="lcas_map" output="screen" args="$(arg mapFile)"/>
+
+  <!--  Just for visualization purposes  -->     
+  <node pkg="rviz" type="rviz" output="screen" name="rviz_node" args="-d $(find pr_model)/tests/linda/linda.rviz"/>   
+
+ 
+  
+
+</launch>
+      
+
