@@ -6,6 +6,7 @@
 #include <rfid_node/TagReading.h>
 #include <rfid_sensor_layer/RFIDSensorLayerConfig.h>
 #include <dynamic_reconfigure/server.h>
+#include "pr_model/get_prob.h"
 
 namespace rfid_sensor_layer
 {
@@ -36,7 +37,7 @@ private:
   double sensor_model(double x_rel, double y_rel, double ang_rel, rfid_node::TagReading& data);
   
   void update_cell(double origin_x, double origin_y, double origin_tetha, 
-				rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y);
+                rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y);
                 
   void reset();
 
@@ -61,6 +62,7 @@ private:
   unsigned int buffered_readings_;
   std::vector<ros::Subscriber> rfid_subs_;
   double min_x_, min_y_, max_x_, max_y_;
+  ros::ServiceClient sensor_m_client;
 
   dynamic_reconfigure::Server<rfid_sensor_layer::RFIDSensorLayerConfig> *dsrv_;
 };

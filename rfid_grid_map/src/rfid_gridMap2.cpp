@@ -255,7 +255,7 @@ namespace rfid_grid_map2 {
         double dist;
         double ang;
         double roll, pitch, yaw;   
-        tf::Quaternion q; 	
+        tf::Quaternion q;   
         
         x=transform_.getOrigin().x();
         y=transform_.getOrigin().y();
@@ -315,21 +315,21 @@ namespace rfid_grid_map2 {
             // count as a good one
             numDetections+=1;
             
-            tf::Quaternion 	q=transform_.getRotation();
+            tf::Quaternion  q=transform_.getRotation();
             tf::Matrix3x3 m(q);
             m.getRPY(roll, pitch, yaw);
             rh=yaw;
 
             txPower=msg->txP/100.0;        
             txLoss=std::pow( 10.0 , 11+(msg->rssi -30-txPower) /10.0   ); // 9+ is for received power in nanoWatts
-		
-			txLoss= (100 - msg->rssi) /100.0;
-			if (txLoss<0.0){
-				txLoss=0.0;
-			}
+        
+            txLoss= (100 - msg->rssi) /100.0;
+            if (txLoss<0.0){
+                txLoss=0.0;
+            }
             
             lowProb  =       txLoss * weight_dec;
-			midProb  = 0.5 * txLoss * weight_inc;
+            midProb  = 0.5 * txLoss * weight_inc;
             highProb =       txLoss * weight_inc;
             
             //ROS_DEBUG(".");
@@ -425,20 +425,20 @@ namespace rfid_grid_map2 {
         std::string zoiName;
         unsigned int zoiPoint_num;
         double px=0;
-	    double py=0;
+        double py=0;
         std::size_t slashPos;
         Position p;
         
         std::map<std::string,rfid_gridMap2::type_area>::iterator map_it;
 
-	    //ROS_ASSERT_MSG(nodeHandle_.getParam(numSubMapParam, numSubmaps),"Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps] ");
+        //ROS_ASSERT_MSG(nodeHandle_.getParam(numSubMapParam, numSubmaps),"Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps] ");
         if (!nodeHandle_.getParam(numSubMapParam, numSubmaps))
         {
-			numSubmaps=1;
-			ROS_ERROR("Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps]. Assuming 1 ");
-		}
+            numSubmaps=1;
+            ROS_ERROR("Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps]. Assuming 1 ");
+        }
         
-	    ROS_ASSERT_MSG(numSubmaps==1,"Number of submaps different from 1 [%d]. Aborting",numSubmaps);
+        ROS_ASSERT_MSG(numSubmaps==1,"Number of submaps different from 1 [%d]. Aborting",numSubmaps);
 
         ROS_ASSERT_MSG(nodeHandle_.getParam(submapParam,zoi_keys),"Can't get zoi rosparam [/mmap/zoi/submap_0/] ");
     
@@ -510,7 +510,7 @@ namespace rfid_grid_map2 {
         }
         
         //ROS_DEBUG("Loaded [%lu] zones:", mapAreas.size());
-        //for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)		
+        //for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)     
         //{ 
         //    ROS_DEBUG("- [%s]: %lu points", mapIt->first.c_str(),mapIt->second.polygon.nVertices() );
         //}
@@ -519,7 +519,7 @@ namespace rfid_grid_map2 {
       
     bool rfid_gridMap2::isSubregion(std::string zoiName,std::string &parent){
         std::string posibleParent;
-        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)		
+        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)       
         { 
             posibleParent = mapIt->first;
             std::size_t found = zoiName.find(posibleParent);
@@ -534,13 +534,13 @@ namespace rfid_grid_map2 {
     }
 
     void rfid_gridMap2::updateProbs(const ros::TimerEvent&){
-		double total=0;
+        double total=0;
 
-		double val=0;
-		std::stringstream sstream;
-		int i;
-		std::string father;
-		total=0;
+        double val=0;
+        std::stringstream sstream;
+        int i;
+        std::string father;
+        total=0;
         
         // subzois indexed by zoi name
         std::map<std::string,double>::iterator reg_it;
@@ -551,7 +551,7 @@ namespace rfid_grid_map2 {
         
         //ROS_DEBUG("Region weights:  " );
         //count weigh in each region
-        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)		
+        for (std::map<std::string,rfid_gridMap2::type_area>::iterator mapIt=mapAreas.begin(); mapIt!=mapAreas.end(); ++mapIt)       
         { 
              val=countValuesInArea(mapIt->second.polygon);
              mapIt->second.prob=val;
@@ -560,8 +560,8 @@ namespace rfid_grid_map2 {
              if (!isSubregion(mapIt->first,father))
              {
                 total+=val;
-                //ROS_DEBUG("- [%s]: %3.3f  ", mapIt->first.c_str(),val );	
-                	 
+                //ROS_DEBUG("- [%s]: %3.3f  ", mapIt->first.c_str(),val );  
+                     
              //if it's a subregion, cumulated weight goes to its sublist
              } 
              else 
@@ -587,7 +587,7 @@ namespace rfid_grid_map2 {
                  lastRegion=mapIt->second;
                  min_d=d;
             }
-		}
+        }
         
        // first element in published probs is latest region with invalid prob.   
        sstream<<lastRegion.name+",-1";
@@ -610,12 +610,12 @@ namespace rfid_grid_map2 {
                     mapIt->second.prob*= mapAreas[father].prob;
                 }
             }else{
-                mapIt->second.prob=0;			
+                mapIt->second.prob=0;           
             }
             //ROS_DEBUG("- [%s]: %3.3f  ", mapIt->first.c_str(),mapIt->second.prob );
-            sstream<<","<<mapIt->second.name<<","<<mapIt->second.prob;			 
+            sstream<<","<<mapIt->second.name<<","<<mapIt->second.prob;           
             
-        }		
+        }       
         
         // Publish stream of probs.
         std_msgs::String msg;        
@@ -716,9 +716,9 @@ namespace rfid_grid_map2 {
     }
 
     void rfid_gridMap2::drawPolygon(const grid_map::Polygon poly, double value){
-	        
+            
       for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {     
-		    map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
+            map_.at(layerName, *iterator) =  value +map_.at(layerName, *iterator);              
             if (isnan(map_.at(layerName, *iterator)))
             {
                 map_.at(layerName, *iterator) =  value;
@@ -746,7 +746,7 @@ namespace rfid_grid_map2 {
         poly.addVertex(p);
         
         for (grid_map::PolygonIterator iterator(map_, poly); !iterator.isPastEnd(); ++iterator) {
-			
+            
             map_.at(layerName, *iterator) =  value + map_.at(layerName, *iterator);              
             if (isnan(map_.at(layerName, *iterator)))
             {
@@ -917,3 +917,37 @@ namespace rfid_grid_map2 {
 
     
 } // end of namespace rfid_grid_map
+
+/*
+void RFIDSensorLayer::update_cell(double origin_x, double origin_y, double origin_tetha, 
+                rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y)
+{
+  unsigned int x, y;
+  if(worldToMap(updatePos_x, updatePos_y, x, y)){
+
+    double dx = updatePos_x-origin_x;
+    double dy = updatePos_y-origin_y;
+    double theta = atan2(dy, dx) - origin_tetha;
+    theta = angles::normalize_angle(theta);
+
+    //sensor prob: how likely to get (rssi,phase) at (relx,rely,rela)
+    double sensor = sensor_model(dx,dy,theta,rfid_message);
+
+    //prior prob: how likely absolute position cell (x,y) to be occupied given the cost.
+    double prior = to_prob(getCost(x,y));
+    
+    // probability
+    double prob_occ = sensor * prior;
+    double prob_norigin_tetha = (1 - sensor) * (1 - prior);
+    
+    // likelyhood
+    double new_prob = prob_occ/(prob_occ+prob_norigin_tetha);
+
+    unsigned char c = to_cost(new_prob);
+    setCost(x,y,c);
+  }
+}
+*/
+
+
+

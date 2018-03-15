@@ -48,11 +48,13 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    queryModel.srv
+   get_prob.srv
  )
 
+## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs
+  std_msgs  # and/or other packages containing depended messages
 )
 
 
@@ -75,8 +77,15 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
- ) 
+) 
+
+
+## Mark cpp header files for installation
+install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+   PATTERN ".svn" EXCLUDE
+ )
 

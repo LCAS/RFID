@@ -10,7 +10,7 @@
   <arg name="robotOrie" default="x: 0.0, y: 0.0, z: 0.706, w: 0.707"/>
     <arg name="robot_tf" default="odom_combined"/>
   <arg name="world_tf" value="map"/>
-  <param name="modelDataFile" value="$(find pr_model)/tests/30db/20db.csv"/>
+  <param name="modelDataFile" value="$(find pr_model)/tests/30db/30db.csv"/>
   
   <param name="use_sim_time" value="true" />
     

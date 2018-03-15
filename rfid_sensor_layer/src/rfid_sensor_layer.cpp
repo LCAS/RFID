@@ -71,6 +71,11 @@ void RFIDSensorLayer::onInitialize()
       ROS_INFO("RFIDSensorLayer: subscribed to topic %s", rfid_subs_.back().getTopic().c_str());
     }
   }
+  
+  //mfc: service client for sensor model
+  ROS_INFO("RFIDSensorLayer: connecting to sensor_model service");
+  sensor_m_client = nh.serviceClient<pr_model::get_prob> ("pr_model_get_prob");
+
 
   dsrv_ = new dynamic_reconfigure::Server<rfid_sensor_layer::RFIDSensorLayerConfig>(nh);
   dynamic_reconfigure::Server<rfid_sensor_layer::RFIDSensorLayerConfig>::CallbackType cb = boost::bind(
@@ -79,19 +84,30 @@ void RFIDSensorLayer::onInitialize()
   global_frame_ = layered_costmap_->getGlobalFrameID();
 }
 
-// TODO unimplemented! this method should return a probability of getting reading 'data' at a relative distance and bearing.
+// Why decoupling this? in order to admit dynamic sensor models.
 double RFIDSensorLayer::sensor_model(double x_rel, double y_rel, double ang_rel, rfid_node::TagReading& data)
 {
-    double priorProb=1;
+    double prob=0;
+    pr_model::get_probRequest prob_request;
+    prob_request.state.push_back(x_rel);
+    prob_request.state.push_back(y_rel);
+    prob_request.state.push_back(ang_rel);
+    prob_request.state.push_back(data.frequency);
+    prob_request.observ.push_back(data.rssi);
+    prob_request.observ.push_back(data.phase);
+
+    pr_model::get_probResponse prob_response;
+    
+    // Make the service calls             
+    // Service should return a probability of getting reading 'data' at a relative distance and bearing
+    bool isDone = sensor_m_client.call<pr_model::get_probRequest, pr_model::get_probResponse > (prob_request, prob_response);
+    if (isDone) {
+        prob = prob_response.prob;
+    } else {
+     ROS_ERROR("Error calling sensor model service. Can't retrieve probability");
+    }
      
-    double d2 = (x_rel*x_rel+y_rel*y_rel);   
-    if (d2!=0)
-        priorProb=1/d2;
-    
-    priorProb*=(M_PI/2-abs(ang_rel))/(3*M_PI/2);
-    
-    
-        return  priorProb;
+    return prob;
 }
 
 void RFIDSensorLayer::reconfigureCB(rfid_sensor_layer::RFIDSensorLayerConfig &config, uint32_t level)
@@ -142,16 +158,17 @@ void RFIDSensorLayer::processRFIDMsg(rfid_node::TagReading& rfid_message)
   updateCostmap(rfid_message);
 }
 
-// TODO unimplemented! this method should determine the boundings and make updating
 void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
 {
-  double max_angle_ = ant_angle_/2; //TODO check...
-  double max_dist_ = max_range_; //TODO this is max RFID reading distance...
+  // We will update an squared region around the reading (0,0) in 
+  // the range (-xrange,-yrange) and (xrange,yrange)
+
+  double xInc = max_range_; //This is max RFID reading distance...
+  double yInc = max_range_; 
 
   geometry_msgs::PointStamped in;
   geometry_msgs::PointStamped out;
 
-  // TODO rfid TagReading does not contain headers... we should add them!!
   in.header.stamp = rfid_message.header.stamp;
   in.header.frame_id = rfid_message.header.frame_id;
 
@@ -163,22 +180,10 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
      return;
   }
 
-  //get robot position 
+  //get reading position: origin of rfid coordinates 
   tf_->transformPoint (global_frame_, in, out);
   double ox = out.point.x;
   double oy = out.point.y;
-
-  //get rfid range...
-  in.point.x = max_dist_ ;
-  tf_->transformPoint(global_frame_, in, out);
-  double tx = out.point.x;
-  double ty = out.point.y;
-
-  // calculate target props
-  double dx = tx-ox;
-  double dy = ty-oy;
-  double theta = atan2(dy,dx);
-  double d = sqrt(dx*dx+dy*dy);
 
   // Integer Bounds of Update
   int bx0, by0, bx1, by1;
@@ -189,19 +194,12 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
   by1 = by0;
   touch(ox, oy, &min_x_, &min_y_, &max_x_, &max_y_);
 
-  // Update Map with Target Point
-  unsigned int aa, ab;
-  if(worldToMap(tx, ty, aa, ab)){
-    setCost(aa, ab, 233);
-    touch(tx, ty, &min_x_, &min_y_, &max_x_, &max_y_);
-  }
-
   double mx, my;
   int a, b;
 
-  // Update left side of sonar cone
-  mx = ox + cos(theta-max_angle_) * d * 1.2;
-  my = oy + sin(theta-max_angle_) * d * 1.2;
+  // Update bounds ot include (-xrange,-yrange)
+  mx = ox - xInc;
+  my = oy - xInc;
   worldToMapNoBounds(mx, my, a, b);
   bx0 = std::min(bx0, a);
   bx1 = std::max(bx1, a);
@@ -209,10 +207,9 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
   by1 = std::max(by1, b);
   touch(mx, my, &min_x_, &min_y_, &max_x_, &max_y_);
 
-  // Update right side of sonar cone
-  mx = ox + cos(theta+max_angle_) * d * 1.2;
-  my = oy + sin(theta+max_angle_) * d * 1.2;
-
+  // Update bounds ot include (xrange,yrange)
+  mx = ox + xInc;
+  my = oy + xInc;
   worldToMapNoBounds(mx, my, a, b);
   bx0 = std::min(bx0, a);
   bx1 = std::max(bx1, a);
@@ -226,10 +223,14 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
   bx1 = std::min((int)size_x_, bx1);
   by1 = std::min((int)size_y_, by1);
 
+
+  double tetha;
+  
   for(unsigned int x=bx0; x<=(unsigned int)bx1; x++){
     for(unsigned int y=by0; y<=(unsigned int)by1; y++){
       double wx, wy;
       mapToWorld(x,y,wx,wy);
+      
       update_cell(ox, oy, theta, rfid_message, wx, wy);
     }
   }
@@ -239,7 +240,7 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
 }
 
 void RFIDSensorLayer::update_cell(double origin_x, double origin_y, double origin_tetha, 
-				rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y)
+                rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y)
 {
   unsigned int x, y;
   if(worldToMap(updatePos_x, updatePos_y, x, y)){
