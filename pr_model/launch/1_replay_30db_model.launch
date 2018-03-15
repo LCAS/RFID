@@ -8,8 +8,9 @@
   <arg name="mapFile" default="$(find pr_model)/tests/long/WW_GF_2015_02_22_cropped.yaml"/>
   <arg name="robotPose" default="x: 0.28, y:  -0.55"/>
   <arg name="robotOrie" default="x: 0.0, y: 0.0, z: 0.706, w: 0.707"/>
-  
-  <param name="modelDataFile" value="$(find pr_model)/tests/30db/20db.csv"/>
+    <arg name="robot_tf" default="odom_combined"/>
+  <arg name="world_tf" value="map"/>
+  <param name="modelDataFile" value="$(find pr_model)/tests/30db/30db.csv"/>
   
   <param name="use_sim_time" value="true" />
     
