@@ -34,9 +34,10 @@ private:
   void updateCostmap();
   void updateCostmap(rfid_node::TagReading& rfid_message);
 
-  double sensor_model(double x_rel, double y_rel, double ang_rel, rfid_node::TagReading& data);
+  double sensor_model(double x_rel, double y_rel, //double ang_rel, 
+    rfid_node::TagReading& data);
   
-  void update_cell(double origin_x, double origin_y, double origin_tetha, 
+  void update_cell(double origin_x, double origin_y, //double origin_tetha, 
                 rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y);
                 
   void reset();

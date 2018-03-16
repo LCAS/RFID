@@ -12,6 +12,9 @@ Panels:
         - /TAG Poses1/Pose6
         - /TAG Poses1/Pose7
         - /TAG Poses1/Pose8
+        - /RSSI1
+        - /Marker1
+        - /Map2
       Splitter Ratio: 0.716730058
     Tree Height: 697
   - Class: rviz/Selection
@@ -32,7 +35,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -101,28 +104,14 @@ Visualization Manager:
         All Enabled: false
         base_footprint:
           Value: true
-        base_halo:
-          Value: false
-        base_laser_link:
-          Value: false
-        base_link:
-          Value: false
         head_base_frame:
           Value: false
         head_frame:
           Value: false
         head_swivel_frame:
           Value: false
-        head_xtion_depth_frame:
-          Value: false
-        head_xtion_depth_optical_frame:
-          Value: false
-        head_xtion_link:
-          Value: false
-        head_xtion_rgb_frame:
-          Value: false
-        head_xtion_rgb_optical_frame:
-          Value: false
+        lastTagFr:
+          Value: true
         left_eye_base_frame:
           Value: false
         left_eye_frame:
@@ -134,8 +123,6 @@ Visualization Manager:
         odom:
           Value: true
         ptu_hinge:
-          Value: false
-        ptu_mount:
           Value: false
         ptu_pan_motor:
           Value: false
@@ -172,33 +159,8 @@ Visualization Manager:
         map:
           odom:
             base_footprint:
-              base_link:
-                base_halo:
-                  {}
-                base_laser_link:
-                  {}
-                head_base_frame:
-                  head_swivel_frame:
-                    head_frame:
-                      left_eye_base_frame:
-                        left_eye_swivel_frame:
-                          left_eye_frame:
-                            {}
-                      right_eye_base_frame:
-                        right_eye_swivel_frame:
-                          right_eye_frame:
-                            {}
-                ptu_pan_motor:
-                  ptu_tilt_motor:
-                    ptu_hinge:
-                      ptu_mount:
-                        head_xtion_link:
-                          head_xtion_depth_frame:
-                            head_xtion_depth_optical_frame:
-                              {}
-                          head_xtion_rgb_frame:
-                            head_xtion_rgb_optical_frame:
-                              {}
+              lastTagFr:
+                {}
           rfid/tags/390100010000000000000001:
             {}
           rfid/tags/390100010000000000000002:
@@ -377,144 +339,26 @@ Visualization Manager:
       Marker Topic: /markers_topic
       Name: RSSI
       Namespaces:
-        RFID: true
-        RFID/390100010000000000000001/902750: true
-        RFID/390100010000000000000001/903250: true
-        RFID/390100010000000000000001/903750: true
-        RFID/390100010000000000000001/904250: true
-        RFID/390100010000000000000001/904750: true
-        RFID/390100010000000000000001/905250: true
-        RFID/390100010000000000000001/905750: true
-        RFID/390100010000000000000001/906250: true
-        RFID/390100010000000000000001/906750: true
-        RFID/390100010000000000000001/907250: true
-        RFID/390100010000000000000001/907750: true
-        RFID/390100010000000000000001/908250: true
-        RFID/390100010000000000000001/908750: true
-        RFID/390100010000000000000001/909250: true
-        RFID/390100010000000000000001/909750: true
-        RFID/390100010000000000000001/910250: true
-        RFID/390100010000000000000001/910750: true
-        RFID/390100010000000000000001/911250: true
-        RFID/390100010000000000000001/911750: true
-        RFID/390100010000000000000001/912250: true
-        RFID/390100010000000000000001/912750: true
-        RFID/390100010000000000000001/913250: true
-        RFID/390100010000000000000001/913750: true
-        RFID/390100010000000000000001/914250: true
-        RFID/390100010000000000000001/914750: true
-        RFID/390100010000000000000001/915250: true
-        RFID/390100010000000000000001/915750: true
-        RFID/390100010000000000000001/916250: true
-        RFID/390100010000000000000001/916750: true
-        RFID/390100010000000000000001/917250: true
-        RFID/390100010000000000000001/917750: true
-        RFID/390100010000000000000001/918250: true
-        RFID/390100010000000000000001/918750: true
-        RFID/390100010000000000000001/919250: true
-        RFID/390100010000000000000001/919750: true
-        RFID/390100010000000000000001/920250: true
-        RFID/390100010000000000000001/920750: true
-        RFID/390100010000000000000001/921250: true
-        RFID/390100010000000000000001/921750: true
-        RFID/390100010000000000000001/922250: true
-        RFID/390100010000000000000001/922750: true
-        RFID/390100010000000000000001/923250: true
-        RFID/390100010000000000000001/923750: true
-        RFID/390100010000000000000001/924250: true
-        RFID/390100010000000000000001/924750: true
-        RFID/390100010000000000000001/925250: true
-        RFID/390100010000000000000001/925750: true
-        RFID/390100010000000000000001/926250: true
-        RFID/390100010000000000000001/926750: true
-        RFID/390100010000000000000001/927250: true
-        RFID/390100010000000000000002/902750: true
-        RFID/390100010000000000000002/903250: true
-        RFID/390100010000000000000002/903750: true
-        RFID/390100010000000000000002/904250: true
-        RFID/390100010000000000000002/904750: true
-        RFID/390100010000000000000002/905250: true
-        RFID/390100010000000000000002/905750: true
-        RFID/390100010000000000000002/906250: true
-        RFID/390100010000000000000002/906750: true
-        RFID/390100010000000000000002/907250: true
-        RFID/390100010000000000000002/907750: true
-        RFID/390100010000000000000002/908250: true
-        RFID/390100010000000000000002/908750: true
-        RFID/390100010000000000000002/909250: true
-        RFID/390100010000000000000002/909750: true
-        RFID/390100010000000000000002/910250: true
-        RFID/390100010000000000000002/910750: true
-        RFID/390100010000000000000002/911250: true
-        RFID/390100010000000000000002/911750: true
-        RFID/390100010000000000000002/912250: true
-        RFID/390100010000000000000002/912750: true
-        RFID/390100010000000000000002/913250: true
-        RFID/390100010000000000000002/913750: true
-        RFID/390100010000000000000002/914250: true
-        RFID/390100010000000000000002/914750: true
-        RFID/390100010000000000000002/915250: true
-        RFID/390100010000000000000002/915750: true
-        RFID/390100010000000000000002/916250: true
-        RFID/390100010000000000000002/916750: true
-        RFID/390100010000000000000002/917250: true
-        RFID/390100010000000000000002/917750: true
-        RFID/390100010000000000000002/918250: true
-        RFID/390100010000000000000002/918750: true
-        RFID/390100010000000000000002/919250: true
-        RFID/390100010000000000000002/919750: true
-        RFID/390100010000000000000002/920250: true
-        RFID/390100010000000000000002/920750: true
-        RFID/390100010000000000000002/921250: true
-        RFID/390100010000000000000002/921750: true
-        RFID/390100010000000000000002/922250: true
-        RFID/390100010000000000000002/922750: true
-        RFID/390100010000000000000002/923250: true
-        RFID/390100010000000000000002/923750: false
-        RFID/390100010000000000000002/924250: true
-        RFID/390100010000000000000002/924750: true
-        RFID/390100010000000000000002/925250: true
-        RFID/390100010000000000000002/925750: true
-        RFID/390100010000000000000002/926250: true
-        RFID/390100010000000000000002/926750: true
-        RFID/390100010000000000000002/927250: true
-        RFID/390100010000000000000003/902750: true
-        RFID/390100010000000000000003/903250: true
-        RFID/390100010000000000000003/903750: true
-        RFID/390100010000000000000003/904250: true
-        RFID/390100010000000000000003/904750: true
-        RFID/390100010000000000000003/905250: true
-        RFID/390100010000000000000003/905750: true
-        RFID/390100010000000000000003/906250: true
-        RFID/390100010000000000000003/906750: true
-        RFID/390100010000000000000003/907250: true
-        RFID/390100010000000000000003/907750: true
-        RFID/390100010000000000000003/908250: true
-        RFID/390100010000000000000003/908750: true
-        RFID/390100010000000000000003/909250: true
-        RFID/390100010000000000000003/909750: true
-        RFID/390100010000000000000003/910250: true
-        RFID/390100010000000000000003/910750: true
-        RFID/390100010000000000000006/903250: true
-        RFID/390100010000000000000006/903750: true
-        RFID/390100010000000000000006/904250: true
-        RFID/390100010000000000000006/904750: true
-        RFID/390100010000000000000006/905250: true
-        RFID/390100010000000000000006/905750: true
-        RFID/390100010000000000000006/906250: true
-        RFID/390100010000000000000006/906750: true
-        RFID/390100010000000000000006/907250: true
-        RFID/390100010000000000000006/907750: true
-        RFID/390100010000000000000006/908250: true
-        RFID/390100010000000000000006/908750: true
-        RFID/390100010000000000000006/909250: true
-        RFID/390100010000000000000006/909750: true
-        RFID/390100010000000000000006/910250: true
-        RFID/390100010000000000000006/910750: true
-        RFID/390100010000000000000006/911250: true
-        RFID/390100010000000000000006/911750: true
-        RFID/390100010000000000000006/912250: true
+        {}
       Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_marker
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Alpha: 0.699999988
+      Class: rviz/Map
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /costmap_node/costmap/costmap
+      Unreliable: false
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -550,7 +394,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 70.582077
+      Scale: 73.9977951
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: -0.0106675383

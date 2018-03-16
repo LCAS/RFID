@@ -74,7 +74,7 @@ void RFIDSensorLayer::onInitialize()
   
   //mfc: service client for sensor model
   ROS_INFO("RFIDSensorLayer: connecting to sensor_model service");
-  sensor_m_client = nh.serviceClient<pr_model::get_prob> ("pr_model_get_prob");
+  sensor_m_client = nh.serviceClient<pr_model::get_prob> ("/model_server");
 
 
   dsrv_ = new dynamic_reconfigure::Server<rfid_sensor_layer::RFIDSensorLayerConfig>(nh);
@@ -85,13 +85,14 @@ void RFIDSensorLayer::onInitialize()
 }
 
 // Why decoupling this? in order to admit dynamic sensor models.
-double RFIDSensorLayer::sensor_model(double x_rel, double y_rel, double ang_rel, rfid_node::TagReading& data)
+double RFIDSensorLayer::sensor_model(double x_rel, double y_rel, //double ang_rel, 
+	rfid_node::TagReading& data)
 {
     double prob=0;
     pr_model::get_probRequest prob_request;
     prob_request.state.push_back(x_rel);
     prob_request.state.push_back(y_rel);
-    prob_request.state.push_back(ang_rel);
+    //prob_request.state.push_back(ang_rel);
     prob_request.state.push_back(data.frequency);
     prob_request.observ.push_back(data.rssi);
     prob_request.observ.push_back(data.phase);
@@ -231,7 +232,8 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
       double wx, wy;
       mapToWorld(x,y,wx,wy);
       
-      update_cell(ox, oy, theta, rfid_message, wx, wy);
+      update_cell(ox, oy, //theta, 
+      	rfid_message, wx, wy);
     }
   }
 
@@ -239,7 +241,7 @@ void RFIDSensorLayer::updateCostmap(rfid_node::TagReading& rfid_message)
   last_reading_time_ = ros::Time::now();
 }
 
-void RFIDSensorLayer::update_cell(double origin_x, double origin_y, double origin_tetha, 
+void RFIDSensorLayer::update_cell(double origin_x, double origin_y, //double origin_tetha, 
                 rfid_node::TagReading& rfid_message, double updatePos_x, double updatePos_y)
 {
   unsigned int x, y;
@@ -247,10 +249,11 @@ void RFIDSensorLayer::update_cell(double origin_x, double origin_y, double origi
 
     double dx = updatePos_x-origin_x;
     double dy = updatePos_y-origin_y;
-    double theta = atan2(dy, dx) - origin_tetha;
-    theta = angles::normalize_angle(theta);
+    //double theta = atan2(dy, dx) - origin_tetha;
+    //theta = angles::normalize_angle(theta);
 
-    double sensor = sensor_model(dx,dy,theta,rfid_message);
+    double sensor = sensor_model(dx,dy,//theta,
+    	rfid_message);
 
     double prior = to_prob(getCost(x,y));
     double prob_occ = sensor * prior;
@@ -259,6 +262,14 @@ void RFIDSensorLayer::update_cell(double origin_x, double origin_y, double origi
 
       unsigned char c = to_cost(new_prob);
       setCost(x,y,c);
+
+
+    ROS_INFO("Cell prob %3.3f", sensor);
+    ROS_INFO("prior %3.3f", prior);
+    ROS_INFO("new_prob %3.3f", new_prob);
+    ROS_INFO("c %u", c);
+
+
   }
 }
 

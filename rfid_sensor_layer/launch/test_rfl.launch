@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+  <!-- 
+  This file is based on costmap_2d/launch/example.launch
+
+
+  NOTE: You'll need to bring up something that publishes rfid data (see rfid_node)
+  something that publishes a map (see map_server), and something to
+  visualize a costmap (see nav_view), to see things work.
+  Also, on a real robot, you'd want to set the "use_sim_time" parameter to false, or just not set it.
+  -->
+
+
+<launch>
+
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- Publishes the voxel grid to rviz for display -->
+  <node pkg="costmap_2d" type="costmap_2d_markers" name="voxel_visualizer">
+    <remap from="voxel_grid" to="costmap/voxel_grid"/>
+  </node>
+
+
+  <node pkg="tf" type="static_transform_publisher" name="rf_broadcaster" args="0 0 0 0 0 0 1 base_footprint    lastTagFr  100"/>
+
+  <!-- Run the costmap node -->
+  <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" output="screen">
+    <rosparam file="$(find rfid_sensor_layer)/config/test_params.yaml" command="load" ns="costmap" />
+   </node>
+
+</launch>

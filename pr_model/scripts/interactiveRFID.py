@@ -183,7 +183,9 @@ class RFIDDrawerNode():
         self.rssi_db = str(data.rssi)
         self.phase_deg = str(data.phase)
         self.freq_khz = str(data.frequency)
-        self.plotMarker(self.pose,self.rssi_db,self.tid,self.freq_khz)
+        
+        if hasattr(self,"pose"):
+            self.plotMarker(self.pose,self.rssi_db,self.tid,self.freq_khz)
 
     def poseCallback(self,msg):
         self.pose = msg               

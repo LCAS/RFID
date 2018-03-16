@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+'''
+rosservice call /model_server '{state: [1.4,0.0,912250.0], observ: [-60.0,100.0]}'
+'''
+
 import rospy
 import math
 import pandas as pd
@@ -49,7 +53,7 @@ class modelServerNode():
             print '\nPoint:'
             print 'p (' + str(x0) +', ' + str(y0) +', ' + str(f0)+')' 
         
-        if len(subSet)==0:
+        if False:#len(subSet)==0:
             print '\nmodel has no data for point assigned to interval:'
             print 'pi_prev (' + str(xi_prev) +', ' + str(yi_prev) +', ' + str(f0)+')' 
             print 'pi (' + str(xi) +', ' + str(yi) +', ' + str(f0)+')'  
@@ -65,10 +69,10 @@ class modelServerNode():
         phase_m0 = 0
         COV0 = np.diag([10, 10])
 
-        if (count == 0):
-            rssi_m = rssi_m0
-            phase_m = phase_m0
-            COV = COV0
+
+        rssi_m = rssi_m0
+        phase_m = phase_m0
+        COV = COV0
 
         #enough data to have averages
         if (count != 0) & (subSet['rssi_dbm'].size > 0):
@@ -77,6 +81,7 @@ class modelServerNode():
             phase_i = subSet['phase_deg']
             rssi_m = rssi_i.mean()
             phase_m = phase_i.mean()
+
 
         # enough data to have covariances
         if (count != 0) & (subSet['rssi_dbm'].size > 1):
@@ -96,6 +101,9 @@ class modelServerNode():
             else:
                 COV = COV0
                 rospy.logerr("Negative covariance")
+
+
+
 
         return ([rssi_m,phase_m],COV)
 
@@ -127,23 +135,22 @@ class modelServerNode():
         ans = get_probResponse()
         
         # I receive xrel,yrel,db,ph. s=[xrel,yrel,f]  o=[db,ph]  
-        s = get_probReq.s
-        o = get_probReq.o
+        s = get_probReq.state
+        o = get_probReq.observ
         
         # pr should be E[o-m]
-        pr  = self.getProb(s,o)
+        ans.prob  = self.getProb(s,o)
 
-        try:        
-            lpr =  math.log(pr) 
-        except ValueError:
-            lpr = -400
-        try:
-            nlpr =  math.log(1 - pr) 
-        except ValueError:
-            nlpr = -400
+        # try:        
+        #     lpr =  math.log(pr) 
+        # except ValueError:
+        #     lpr = -400
+        # try:
+        #     nlpr =  math.log(1 - pr) 
+        # except ValueError:
+        #     nlpr = -400
 
-        # log likehood should be llh = log (pr) - log (1-pr)
-        ans.llh = (lpr - nlpr)
+        # ans.llh = (lpr - nlpr)
 
         return ans
 
