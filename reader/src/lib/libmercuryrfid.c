@@ -133,24 +133,29 @@ void tagCallback(TMR_Reader *readerr, const TMR_TagReadData *t, void *cookie)
 int readOnce(int readerId,int timeoutMili, int *numTags, char * tagData )
 {   
       int error;
-      tagData = "";
       TMR_TagReadData trd;
       char tagID[128];		         
       TMR_Status laststatus =TMR_SUCCESS;
 
+
+
       error=checkError(TMR_read( readers[readerId], timeoutMili, numTags) , "reading once");
-      
+  //    printf("Detected %i tags\n", *numTags);
 
       if (numTags>0){
-        //CHEEEEK!!!!
-        tagData = malloc( 256*sizeof(char)* (*numTags) );      
+// asume python provides memory
+//        tagData = malloc( 256 * sizeof(char) * (*numTags) );
+//        printf("address is:%p\n",tagData);
 	while ( TMR_hasMoreTags(readers[readerId])==TMR_SUCCESS ){
 	 	laststatus = TMR_getNextTag(readers[readerId], &trd);
 		if (laststatus==TMR_SUCCESS){
 			TMR_bytesToHex(trd.tag.epc, trd.tag.epcByteCount, tagID);
-			sprintf(tagData, "%s%i:%s:%d:%i:%i:%u:%u\n", tagData,readerId, tagID, trd.rssi, trd.phase, trd.frequency, trd.timestampHigh, trd.timestampLow);	
+			sprintf(tagData, "%s%i:%s:%d:%i:%i:%u:%u;", tagData,readerId, tagID, trd.rssi, trd.phase, trd.frequency, trd.timestampHigh, trd.timestampLow);	
+                        //printf(".");
 		} //if
 	} //while
+//        printf("Tag data is: \n%s\n", tagData);
+
       } //if
 
 return error;

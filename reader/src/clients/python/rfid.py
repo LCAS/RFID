@@ -5,10 +5,42 @@ import ctypes
 import time
 import threading
 import Queue
+#from ctypes import *
 
 lib = ""
 callbackList = {}
 callbackHandler = ""
+
+
+def readOnce(readerID, timeoutMili,expectedReads):
+    global lib
+
+    numTags = ctypes.c_int(0)
+
+#    tagData = ctypes.c_char_p('\000'*256*8*expectedReads)
+#    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), ctypes.addressof(tagData) )
+#    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), ctypes.byref(tagData) )
+#    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), tagData )
+
+    tagData = ctypes.create_string_buffer(b'\000'*256*8*expectedReads)
+#    print '1,,,,,,,'
+#    print repr(tagData)
+#    print '.......'
+
+#    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), ctypes.addressof(tagData) )
+#    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), ctypes.byref(tagData) )
+    lib.readOnce(readerID, timeoutMili, ctypes.byref(numTags), tagData )
+
+#    print 'xxxxxxx'
+#    print numTags.value
+#    print 'pointer repr'
+#    print repr(tagData)
+#    print 'returning pointer value'
+    return repr(tagData.value)
+
+
+
+
 
 def callbackHandlerFunction(char_ptr):
 
@@ -70,19 +102,6 @@ def startReader(deviceURI, callbackFunction):
     time.sleep(5)
 
     return readerID
-
-def readOnce(readerID, timeoutMili):
-    global lib
-
-    numTags = c_int()
-    f = c_float()
-    tagData = create_string_buffer('\000')
-
-    lib.readOnce(readerID, timeoutMili, byref(numTags), tagData )
-
-    return repr(tagData.value)
-
-
 
 
 def stopReader(readerID):
