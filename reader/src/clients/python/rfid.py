@@ -71,6 +71,20 @@ def startReader(deviceURI, callbackFunction):
 
     return readerID
 
+def readOnce(readerID, timeoutMili):
+    global lib
+
+    numTags = c_int()
+    f = c_float()
+    tagData = create_string_buffer('\000')
+
+    lib.readOnce(readerID, timeoutMili, byref(numTags), tagData )
+
+    return repr(tagData.value)
+
+
+
+
 def stopReader(readerID):
 
     global lib
