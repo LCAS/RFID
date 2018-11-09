@@ -114,6 +114,7 @@
   <node pkg="pr_model" type="interactiveRFID.py" name="plotDetections" output="screen" />
   
   <!--  Start Sensor Model Node  -->
-  <node pkg="pr_model" type="parseRecordingWithPoses.py" name="testnode" output="screen" />
+  <!-- node pkg="pr_model" type="parseRecordingWithPoses.py" name="testnode" output="screen" / -->
+  <node pkg="pr_model" type="createRFIDcsv.py" name="testnode" output="screen" />
 </launch>
       

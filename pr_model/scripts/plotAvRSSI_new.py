@@ -93,11 +93,10 @@ if __name__ == '__main__':
     title=''
 
     avRssi = np.array(subSet['rssi_dbm_m']).reshape(width, height)
+   # avRssi = np.array(subSet['phase_deg_m']).reshape(width, height)
     detections = np.array(subSet['count']).reshape(width, height)
 
     avRssi = avRssi.astype(float)
-
-    #avRssi[detections == 0] = -99
 
 
     reescaledRSSI = scipy.ndimage.filters.gaussian_filter(avRssi, sigma=sig, mode='reflect')
@@ -105,6 +104,11 @@ if __name__ == '__main__':
     reescaledRSSI = np.rot90(np.flipud(reescaledRSSI), 3)
     #reescaledRSSI = avRssi
 
+
+    d2 = (detections + np.flipud(detections)) / 2
+    d2 = np.rot90(np.flipud(d2), 3)
+    reescaledRSSI[d2 == 0] = -99     
+    
     showAxis=True
     #fig, ax = plt.subplots(nrows=1, ncols=1)
 
@@ -123,9 +127,8 @@ if __name__ == '__main__':
     ax.plot(-0, -0, "w>", markersize=8, label='Robot Pose')
     #ax.legend(loc='upper center', shadow=True)
 
-
-
     cf = ax.pcolormesh(X, Y, total, cmap=plt.get_cmap('bone'),edgecolor='grey',linewidth=0.01)
+        
     #                      norm=colors.LogNorm(vmin=1, vmax=realMax - realMin + 1),
     #                      cmap=cmap,shading='none')
     cbar=plt.colorbar(cf, cax=ax2)#,ticks=[0, -8, -16, -24, -32, -40, -48, -56, -64])

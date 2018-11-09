@@ -7,19 +7,22 @@ find_package(catkin REQUIRED COMPONENTS
   costmap_2d
   sensor_msgs
   rfid_node
-  pluginlib)
+  pluginlib
+  pr_model)
 
 generate_dynamic_reconfigure_options(cfg/RFIDSensorLayer.cfg)
 
 catkin_package(
-CATKIN_DEPENDS sensor_msgs rfid_node
+CATKIN_DEPENDS sensor_msgs rfid_node pr_model
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME} src/rfid_sensor_layer.cpp)
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
-add_dependencies(${PROJECT_NAME} rfid_node_generate_messages_cpp)
+#add_dependencies(${PROJECT_NAME} rfid_node_generate_messages_cpp)
+
+
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 

@@ -7,6 +7,7 @@
   <arg name="bagFile" default="$(find pr_model)/tests/linda/2000-Linda-FAB-LAB-Static.bag"/>
   <param name="modelDataFile" value="$(find pr_model)/tests/linda/20db-linda-fab-lab_model.csv"/>
     <arg name="mapFile" default="$(find pr_model)/tests/linda/fab-lab-rfid.yaml"/>
+  <param name="use_sim_time" value="true" />
 
     <!--  I didn't add topic tf_static to the bag, so I have to recreate it manually ... --> 
  <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s00" args="0.08 0.05 0.02 0.0 0.0 0.0 1.0 head_frame left_eye_base_frame 100" />
@@ -32,8 +33,9 @@
   <!--  Our bag  -r X refers to replay speed -->
   <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r 1"/>    
   
-  <!--  Start Sensor Model Node
+  <!--  Start Sensor Model Node-->
+
   <node pkg="pr_model" type="locator_node.py" name="locat" output="screen" />
-   -->
-</launch>
+
+ </launch>
       

@@ -33,8 +33,8 @@ class loca():
         #self.tagID = '300833B2DDD9014000000014'
         self.tagID = '390100010000000000000001'
         # num of particles
-        n = 5
-
+        n = 50
+        self.txp_dbm = 20
         self.pubRate = 2 #seconds
         # TODO initial state guess for tag
         x0 = 2
@@ -64,11 +64,11 @@ class loca():
         
     
         # USE ONLY ONE
-        self.freqVector =np.array([self.freqVector[0]])
+        #self.freqVector =np.array([self.freqVector[0]])
 
         for fi in self.freqVector:
             statistics_f = models[models['freq_khz'] == fi].copy()
-            pfilti = frequencyModel.myFpFFilter(n, statistics_f, mean0, cov0)
+            pfilti = frequencyModel.myFpFFilter(n, statistics_f, mean0, cov0,fi,self.txp_dbm)
             self.pfilt.append(pfilti)
 
         rospy.Subscriber('/rfid/rfid_detect', String, self.tagCallback, queue_size=10000)
@@ -90,6 +90,7 @@ class loca():
     # publish particles status
     def particle_timerCallback(self, data):        
         # publish it as poseArray
+        #print  'cloud update! '
         msg = PoseArray()
         msg.header.frame_id = 'base_link'
         msg.header.stamp = rospy.Time.now()
@@ -194,7 +195,8 @@ class loca():
             f_index = self.getIndex(self.freqVector.tolist(),f)
             
             # USE ONLY ONE
-            if f_index == 0: 
+            #if f_index == 0: 
+            if True: 
                 print  'received: '+str(data.rssi)+' db, '+str(data.phase)+' deg, '+str(data.frequency)+' khz '     
                 
                 # perform bayes rule on new observation on corresponding filter
@@ -212,7 +214,7 @@ class loca():
 # Main function.
 if __name__ == '__main__':
         rospy.init_node('locator_node')
-        print 'USING ONLY 1 FREQ!'
+       # print 'USING ONLY 1 FREQ!'
         # Go to class functions that do all the heavy lifting. Do error checking.
         try:
             goGo=loca()

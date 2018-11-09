@@ -50,7 +50,7 @@ p_yt_xt = pybayes.pdfs.GaussCPdf
 class myFpFFilter():
 
     # Must have __init__(self) function for a class, similar to a C++ class constructor.
-    def __init__(self,n, pdStatistics,_mean0,_cov0):
+    def __init__(self,n, pdStatistics,_mean0,_cov0,freq_khz,txp_dbm):
         # for the update model
         mean0 = _mean0
         cov0 = _cov0
@@ -77,6 +77,48 @@ class myFpFFilter():
         self.robotTFName='base_link'
         self.mapTFName = 'map'
 
+        self.txp_dbm = txp_dbm
+        self.waveLen = 299792458.0 /(1000.0*freq_khz)
+        self.waveLenFactor = 20.0*np.log10(self.waveLen)
+
+        self.gainDict={
+            '-90':  -20,
+            '-85':  -17.56756757,
+            '-80':  -12.16216216,
+            '-75':  -11.62162162,
+            '-70':  -10,
+            '-65':  -8.648648649,
+            '-60':  -8.108108108,
+            '-55':  -6.216216216,
+            '-50':  -5.405405405,
+            '-45':  -4.594594595,
+            '-40':  -2.972972973,
+            '-35':  -2.432432432,
+            '-30':  -2.162162162,
+            '-25':  -1.891891892,
+            '-20':  -1.621621622,
+            '-15':  -0.8108108108,
+            '-10':  -0.5405405405,
+            '-5':   -0.2702702703,
+            '0':    0,
+            '5':    -0.2702702703,
+            '10':   -0.5405405405,
+            '15':   -0.8108108108,
+            '20':   -1.621621622,
+            '25':   -1.891891892,
+            '30':   -2.162162162,
+            '35':   -2.432432432,
+            '40':   -2.972972973,
+            '45':   -4.594594595,
+            '50':   -5.405405405,
+            '55':   -6.216216216,
+            '60':   -8.108108108,
+            '65':   -8.648648649,
+            '70':   -10,
+            '75':   -11.62162162,
+            '80':   -12.16216216,
+            '85':   -17.56756757,
+            '90':   -20}
 
     def updateRobotPose(self):
         
@@ -102,9 +144,8 @@ class myFpFFilter():
         
     def addObservation(self, yt):
         yt = np.array(yt)
-
-        #print("Received observation: " + str(yt))
-        #print("Observation Data type: (%s) of (%s)\n\t- Dimmensions (%s)" % (type(yt), type(yt[0]), str(yt.shape)))
+        print("Received observation: " + str(yt))
+        print("Observation Data type: (%s) of (%s)\n\t- Dimmensions (%s)" % (type(yt), type(yt[0]), str(yt.shape)))
 
         self.pf.bayes(yt)
 
@@ -142,23 +183,69 @@ class myFpFFilter():
             subSet=subSet.head(1)
 
 
-        if False:        
+        if subSet['count'].iloc[0]==0:            
             print '\nPoint:'
             print 'p (' + str(x0) +', ' + str(y0) +', ' + str(a0)+')' 
-        
-        if False:#subSet['count'].iloc[0]==0:
             print '\nmodel has no data for point assigned to interval:'
-            print 'pi_prev (' + str(xi_prev) +', ' + str(yi_prev) +', ' + str(ai_prev)+')' 
+            #print 'pi_prev (' + str(xi_prev) +', ' + str(yi_prev) +', ' + str(ai_prev)+')' 
             print 'pi (' + str(xi) +', ' + str(yi) +', ' + str(ai)+')'  
             
         return subSet
 
+    def dist(self,xt):
+        (x0, y0, a0) = xt
+        
+        # avoid log(0)
+        if x0==y0==0:
+            x0=x0+0.0001
+
+        return np.sqrt((x0*x0)+(y0*y0))
+
+    def antennasGain(self,xt):
+        (x0, y0, a0) = xt
+        
+        adeg0 = a0*180.0/np.pi
+        adegRound= int(5 * np.round(adeg0/5))
+        
+        try:
+            totalGain = self.gainDict[str(adegRound)]-30
+        except KeyError:
+            totalGain = -50
+
+        return totalGain
+
+    # atenuation due to propagation in free space
+    def distFactor(self,d):
+        return 20.0*np.log10(4.0*np.pi*d)
+
+
+    # if we dont have data, use equations ...
+    def friisEq(self, xt,d):
+        rxp_dbm = self.txp_dbm + self.antennasGain(xt) +  self.waveLenFactor - self.distFactor(d)
+        return rxp_dbm
+
+    def propagatedWaveDelay(self,d):
+        phi = ( 4.0 * np.pi * d / self.waveLen ) % (2.0*np.pi)
+        return phi
+
     def modelDataMean(self, xt):
         subSet = self.getModelData(xt)
-        rssi = subSet['rssi_dbm_m'].iloc[0]
-        phi = subSet['phase_deg_m'].iloc[0]
+
+        if subSet['count'].iloc[0]!=0:
+            rssi = subSet['rssi_dbm_m'].iloc[0]
+            phi = subSet['phase_deg_m'].iloc[0]
+        else:
+
+            d = self.dist(xt)
+            rssi = self.friisEq(xt,d)
+            phi = self.propagatedWaveDelay(d)
+
+            print 'd='+str(d)
+            print 'estimating: rssi='+str(rssi)
+            print '             phi='+str(phi)
+
         yt = [rssi, phi]
-        
+
         if False:
             print '\nHas data:'
             print 'rssi (' + str(rssi)+')'
@@ -168,10 +255,18 @@ class myFpFFilter():
 
     def modelDataCov(self, xt):
         subSet = self.getModelData(xt)
-        c00 = subSet['COV00'].iloc[0]
-        c01 = subSet['COV01'].iloc[0]
-        c10 = subSet['COV10'].iloc[0]
-        c11 = subSet['COV11'].iloc[0]
+
+        if subSet['count'].iloc[0]!=0:
+            c00 = subSet['COV00'].iloc[0]
+            c01 = subSet['COV01'].iloc[0]
+            c10 = subSet['COV10'].iloc[0]
+            c11 = subSet['COV11'].iloc[0]
+        else:
+            c00 = 1
+            c01 = 0.1
+            c10 = 0.1
+            c11 = 1
+
         COV =  [[c00, c01], [c10, c11]]
         return COV
 

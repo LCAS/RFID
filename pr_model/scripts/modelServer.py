@@ -96,10 +96,14 @@ class modelServerNode():
                 try:
                     invC = np.linalg.inv(COV)
                 except:
-                    COV = COV0
+                    COV[0,0] =np.power( rssi_i.var(),2)
+                    COV[1,1] =np.power( phase_i.var(),2)
+                    COV[1,0] = COV[0,1] = rssi_i.var() *  phase_i.var() * 0.9
                     rospy.logerr("Singular covariance")
             else:
-                COV = COV0
+                COV[0,0] =np.power( rssi_i.var(),2)
+                COV[1,1] =np.power( phase_i.var(),2)
+                COV[1,0] = COV[0,1] = rssi_i.var() *  phase_i.var() * 0.9
                 rospy.logerr("Negative covariance")
 
 
@@ -107,8 +111,45 @@ class modelServerNode():
 
         return ([rssi_m,phase_m],COV)
 
-
     def getProb(self,state,obs):
+        # I read from my model mean m and cov c for state s
+        (mean,cov) = self.getModelDataStats(state)
+
+
+        m = np.array(mean)
+        o = np.array(obs)
+        
+        C =np.matrix(cov)
+
+        # compute logarithm of normalization constant (can be cached somehow in future)
+        n =  1
+        n2Pi = np.power( (2.0*np.pi),n)        
+        detC = np.sqrt(C[0,0])
+
+        den = np.power(n2Pi * detC, 0.5 )
+
+        dif = m[0] - o[0]
+        num = dif * dif /  (2 *C[0,0])
+        anum = np.exp(num)
+        prob = anum/den
+
+        if m[1]>0:
+            print 'm '+str(m)
+            print 'o '+str(o)
+            print 'C '+str(C)
+
+            print 'den '+str(den)
+            print 'dif '+str(dif)
+            print 'anum '+str(anum)
+            print 'prob '+str(prob)
+            print '.................'
+        else:
+            print 'x'
+            prob = 0.5
+        return prob
+
+
+    def getProb2D(self,state,obs):
         # I read from my model mean m and cov c for state s
         (mean,cov) = self.getModelDataStats(state)
 
@@ -125,11 +166,27 @@ class modelServerNode():
         den = np.power(n2Pi * detC, 0.5 )
 
         dif = m - o
-        num = np.dot(np.linalg.inv(C), dif)
-        num =  -0.5 * np.dot( num,dif)
-        num = num[0,0]
-        num = np.exp(num)
-        return num/den
+        difC = np.dot( dif.T, np.linalg.inv(C))
+        n =  -0.5 * np.dot( difC,dif)
+        num = n[0,0]
+        anum = np.exp(num)
+        prob = anum/den
+
+        if m[1]>0:
+            print 'm '+str(m)
+            print 'o '+str(o)
+            print 'C '+str(C)
+
+            print 'den '+str(den)
+            print 'dif '+str(dif)
+            print 'difC '+str(difC)
+            print 'n '+str(n)
+            print 'anum '+str(anum)
+            print 'prob '+str(prob)
+            print '.................'
+        else:
+            print 'x'
+        return prob
 
     def getLikehood(self,get_probReq):
         ans = get_probResponse()

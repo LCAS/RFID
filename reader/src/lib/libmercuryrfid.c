@@ -150,7 +150,7 @@ int readOnce(int readerId,int timeoutMili, int *numTags, char * tagData )
 	 	laststatus = TMR_getNextTag(readers[readerId], &trd);
 		if (laststatus==TMR_SUCCESS){
 			TMR_bytesToHex(trd.tag.epc, trd.tag.epcByteCount, tagID);
-			sprintf(tagData, "%s%i:%s:%d:%i:%i:%u:%u;", tagData,readerId, tagID, trd.rssi, trd.phase, trd.frequency, trd.timestampHigh, trd.timestampLow);	
+			sprintf(tagData, "%s%i:%s:%d:%i:%i:%u:%u:%d;", tagData,readerId, tagID, trd.rssi, trd.phase, trd.frequency, trd.timestampHigh, trd.timestampLow,trd.readCount);	
                         //printf(".");
 		} //if
 	} //while

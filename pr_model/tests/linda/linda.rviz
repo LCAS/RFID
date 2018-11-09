@@ -35,7 +35,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -104,13 +104,27 @@ Visualization Manager:
         All Enabled: false
         base_footprint:
           Value: true
+        base_halo:
+          Value: true
+        base_laser_link:
+          Value: true
+        base_link:
+          Value: true
         head_base_frame:
           Value: false
         head_frame:
           Value: false
         head_swivel_frame:
           Value: false
-        lastTagFr:
+        head_xtion_depth_frame:
+          Value: true
+        head_xtion_depth_optical_frame:
+          Value: true
+        head_xtion_link:
+          Value: true
+        head_xtion_rgb_frame:
+          Value: true
+        head_xtion_rgb_optical_frame:
           Value: true
         left_eye_base_frame:
           Value: false
@@ -124,6 +138,8 @@ Visualization Manager:
           Value: true
         ptu_hinge:
           Value: false
+        ptu_mount:
+          Value: true
         ptu_pan_motor:
           Value: false
         ptu_tilt_motor:
@@ -159,8 +175,33 @@ Visualization Manager:
         map:
           odom:
             base_footprint:
-              lastTagFr:
-                {}
+              base_link:
+                base_halo:
+                  {}
+                base_laser_link:
+                  {}
+                head_base_frame:
+                  head_swivel_frame:
+                    head_frame:
+                      left_eye_base_frame:
+                        left_eye_swivel_frame:
+                          left_eye_frame:
+                            {}
+                      right_eye_base_frame:
+                        right_eye_swivel_frame:
+                          right_eye_frame:
+                            {}
+                ptu_pan_motor:
+                  ptu_tilt_motor:
+                    ptu_hinge:
+                      ptu_mount:
+                        head_xtion_link:
+                          head_xtion_depth_frame:
+                            head_xtion_depth_optical_frame:
+                              {}
+                          head_xtion_rgb_frame:
+                            head_xtion_rgb_optical_frame:
+                              {}
           rfid/tags/390100010000000000000001:
             {}
           rfid/tags/390100010000000000000002:
