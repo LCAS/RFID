@@ -13,11 +13,12 @@ zoi:
     bedroom_sofa_1: [submap_0, bedroom_sofa, 2.3004510402679443, -0.3100396394729614,      0.0]
     bedroom_sofa_2: [submap_0, bedroom_sofa, -0.8826115131378174, -2.377345085144043,      0.0]
     bedroom_sofa_3: [submap_0, bedroom_sofa, -1.581434726715088, -1.4577192068099976,      0.0]
-    bedroom_tv_0: [submap_0, bedroom_tv, -0.8063375949859619, 4.106367111206055, 0.0]
-    bedroom_tv_1: [submap_0, bedroom_tv, 0.032166123390197754, 2.646205186843872,      0.0]
-    bedroom_tv_2: [submap_0, bedroom_tv, -3.772324562072754, 1.8024903535842896, 0.0]
-    bedroom_tv_3: [submap_0, bedroom_tv, -2.7893524169921875, 0.5167218446731567,      0.0]
+    bedroom_tv_0: [submap_0, bedroom_tv, -0.8063375949859619, 4.106367111206055, 0.0] # up right
+    bedroom_tv_1: [submap_0, bedroom_tv, -3.772324562072754, 1.8024903535842896, 0.0] # up left
+    bedroom_tv_2: [submap_0, bedroom_tv, -2.7893524169921875, 0.5167218446731567,      0.0] # bottom left
+    bedroom_tv_3: [submap_0, bedroom_tv, 0.032166123390197754, 2.646205186843872,      0.0] # bottom right
     livingroom_0: [submap_0, livingroom, -4.6148176193237305, 1.5790915489196777,      0.0]
     livingroom_1: [submap_0, livingroom, -2.6148176193237305, -0.42090845108032215,      0.0]
     livingroom_2: [submap_0, livingroom, -7.831571578979492, -4.15399169921875, 0.0]
     livingroom_3: [submap_0, livingroom, -9.046156883239746, -2.2786738872528076,      0.0]
+
