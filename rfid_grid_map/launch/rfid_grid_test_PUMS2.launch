@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <launch>
     
   <!-- This launcher is a testing for the whole ROL system -->
@@ -68,11 +67,19 @@
   <include file="$(find rol_server)/launch/rol_server_node.launch">
 	<arg name="minProb"   value="0.0" />
   </include> 
+
+  <node name="crawler" pkg="rol_server" type="prob_crawler.py">
+    <rosparam command="load" file="$(find rfid_grid_map)/launch/things.yaml"/>
+    <param name="saveRoute" value="$(find rfid_grid_map)/test/pums_test2/tagMaps/"/>    
+    <param name="fileNamePrefix" value="PUMS_" />    
+  </node>
   
+
+
  <!-- Launch RViz with the demo configuration -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rfid_grid_map)/rviz/rfid_gridmap_test_PUMS.rviz" />
 
   <!-- Displays regions as polygons in rviz -->
-  <node name="viewer" pkg="find rfid_grid_map" type="viewZois"/>
+  <node name="viewer" pkg="rfid_grid_map" type="viewZois"/>
 
 </launch>
