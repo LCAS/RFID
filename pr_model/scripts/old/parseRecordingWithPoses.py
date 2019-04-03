@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
 '''
+DEPRECATED! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Use parseRosbagsNoPlay instead!
+'''
+
+
+
+
+'''
 To be used with replay_long_model.launch
 Stores into csv the rfid readings from Alfie with groundtruth locations
 

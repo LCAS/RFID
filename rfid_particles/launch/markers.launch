@@ -1,0 +1,18 @@
+<launch>
+  <!-- Use whycon to provide tag ground-truth -->
+
+  <include file="$(find strands_bringup)/launch/strands_cameras.launch">
+      <arg name="head_camera" value="true"/>
+      <arg name="chest_camera" value="false"/>
+  </include>
+
+  <node pkg="circle_detection" type="circle_finder" name="tag_circle_finder" output="screen">
+      <remap from="/camera/image_rect_color" to="/head_xtion/rgb/image_rect_color"/>
+      <remap from="/camera/camera_info" to="/head_xtion/rgb/camera_info"/>
+      <param name="circle_diameter" value="0.048"/>
+      <param name="identify" value="True"/>
+  </node>
+
+</launch>
+ 
+ 

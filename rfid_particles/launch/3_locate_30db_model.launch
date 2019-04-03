@@ -1,0 +1,22 @@
+  <!--
+        Plays recorded bag file and performs localisation with it
+  -->
+
+<launch>
+
+  <arg name="bagFile" default="$(find pr_model)/tests/30db/alfie_rfid_30dB_wanders_long.bag"/>
+  <arg name="modelDataFile" default="$(find pr_model)/tests/long/long_1tag.csv"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="replay_factor" default="1"/>
+
+  <param name="modelDataFile" value="$(arg modelDataFile)"/>
+  <param name="use_sim_time" value="$(arg use_sim_time)"/>
+
+  <!--  Our bag  -r X refers to replay speed -->
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r $(arg replay_factor)" if="$(arg use_sim_time)"/>
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" $(arg bagFile) -q -r $(arg replay_factor)" unless="$(arg use_sim_time)"/>
+
+  <!--  Start Sensor Model Node -->
+  <node pkg="pr_model" type="locator_node.py" name="locat" output="screen" />
+
+</launch>

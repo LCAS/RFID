@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-"""
-Something is wrong with this:
-total sum of entries is bigger than original file...
+'''
+DEPRECATED! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Use parseRosbagsNoPlay instead!
+'''
 
-"""
 
 import numpy as np
 import pandas as pd

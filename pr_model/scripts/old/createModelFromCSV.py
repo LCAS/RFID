@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-"""
+'''
+DEPRECATED! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Use parseRosbagsNoPlay instead!
+'''
 
-
-"""
 
 import numpy as np
 import pandas as pd
@@ -108,13 +109,11 @@ def ensureOneEntry(readings, index_x, index_y, index_a, index_f, xv, yv, av, fv)
 
     return (xi, yi, ai, fi,rssi_m,phase_m,COV,count)
 
-
 def getDiscreteCol(colName,df):
     return (df[colName]*100).astype('int')/100.0
 
 def getLinspace(colName,df,samples):
     return np.linspace(df[colName].min(), df[colName].max(), num=samples)
-
 
 def constrainAngle(x):
     x = math.fmod(x + np.pi,2.0*np.pi)
