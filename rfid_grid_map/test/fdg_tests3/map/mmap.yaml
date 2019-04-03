@@ -1,0 +1,63 @@
+numberOfSubMaps: 1
+poi:
+  submap_0:
+    base: [submap_0, base, -0.36907196044921875, -0.0425800085067749, -2.017013181708878]
+    seek_sofa: [submap_0, seek_sofa, -0.40758848190307617, 1.0181469917297363, 0.0]
+zoi:
+  submap_0:
+    093: [submap_0, livingroom, 3.215496063232422, 5.734507083892822, 0.0]
+    '261': [submap_0, kitchen, 5.054046630859375, 4.910799980163574, 0.0]
+    '606': [submap_0, livingroom, 2.7974348068237305, 0.614568829536438, 0.0]
+    '879': [submap_0, kitchen, 5.908232688903809, 4.629702091217041, 0.0]
+    kitchen_0: [submap_0, kitchen, 6.0334672927856445, 3.1048247814178467, 0.0]
+    kitchen_1: [submap_0, kitchen, 3.868380069732666, 2.102186679840088, 0.0]
+    kitchen_2: [submap_0, kitchen, 4.126514911651611, 1.4566872119903564, 0.0]
+    kitchen_3: [submap_0, kitchen, 2.9868083000183105, 0.9363882541656494, 0.0]
+    kitchen_4: [submap_0, kitchen, 3.0754642486572266, 4.714677810668945, 0.0]
+    kitchen_5: [submap_0, kitchen, 3.9406464099884033, 5.2050700187683105, 0.0]
+    livingroom_0: [submap_0, livingroom, 3.7759883403778076, -0.6960909366607666,
+      0.0]
+    livingroom_2: [submap_0, livingroom, 3.4234259128570557, -0.9947799444198608,
+      0.0]
+    livingroom_3: [submap_0, livingroom, 3.9262685775756836, -1.881385326385498, 0.0]
+    livingroom_4: [submap_0, livingroom, 2.1723666191101074, -3.0913219451904297,
+      0.0]
+    livingroom_5: [submap_0, livingroom, -2.2981526851654053, 0.5671690702438354,
+      0.0]
+    livingroom_6: [submap_0, livingroom, 0.49181705713272095, 6.90942907333374, 0.0]
+    livingroom_dining_table_0: [submap_0, livingroom_dining_table, 0.5158594846725464,
+      6.838754653930664, 0.0]
+    livingroom_dining_table_1: [submap_0, livingroom_dining_table, 3.024681329727173,
+      5.6540117263793945, 0.0]
+    livingroom_dining_table_2: [submap_0, livingroom_dining_table, 2.9854683876037598,
+      3.49417781829834, 0.0]
+    livingroom_dining_table_3: [submap_0, livingroom_dining_table, -0.5822761058807373,
+      4.220195293426514, 0.0]
+    livingroom_sofa_0: [submap_0, livingroom_sofa, -0.5610965490341187, 4.351325988769531,
+      0.0]
+    livingroom_sofa_1: [submap_0, livingroom_sofa, 2.776043653488159, 3.610055446624756,
+      0.0]
+    livingroom_sofa_2: [submap_0, livingroom_sofa, 2.9000282287597656, 0.7467783093452454,
+      0.0]
+    livingroom_sofa_4: [submap_0, livingroom_sofa, -1.2408162355422974, 2.677450180053711,
+      0.0]
+    livingroom_study_0: [submap_0, livingroom_study, 2.6762819290161133, 0.7329967021942139,
+      0.0]
+    livingroom_study_1: [submap_0, livingroom_study, 3.741499900817871, -0.7199428081512451,
+      0.0]
+    livingroom_study_2: [submap_0, livingroom_study, 3.8518335819244385, -1.7891383171081543,
+      0.0]
+    livingroom_study_3: [submap_0, livingroom_study, 2.3227953910827637, -2.7250499725341797,
+      0.0]
+    livingroom_study_4: [submap_0, livingroom_study, 2.091609239578247, -2.9087295532226562,
+      0.0]
+    livingroom_study_5: [submap_0, livingroom_study, 0.6072256565093994, -1.5712151527404785,
+      0.0]
+    livingroom_window_0: [submap_0, livingroom_window, -1.2095078229904175, 2.5110976696014404,
+      0.0]
+    livingroom_window_1: [submap_0, livingroom_window, 2.5512049198150635, 0.7484109997749329,
+      0.0]
+    livingroom_window_2: [submap_0, livingroom_window, 0.5099278688430786, -1.5333502292633057,
+      0.0]
+    livingroom_window_3: [submap_0, livingroom_window, -2.1531176567077637, 0.657413899898529,
+      0.0]
