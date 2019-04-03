@@ -1,0 +1,123 @@
+<!-- 
+        Plays recorded data on alfie. We use amcl to correct odometry drifts
+  -->
+  
+<launch>  
+    
+  <arg name="bagFile" default="$(find pr_model)/tests/linda/2000-Linda-FAB-LAB.bag"/>
+  <param name="modelDataFile" value="$(find pr_model)/tests/linda/20db-linda-fab-lab-v2.csv"/>
+  <arg name="robot_tf" default="base_link"/>
+  <arg name="world_tf" value="map"/>
+  
+  <!--  Our bag  -r X refers to replay speed -->
+  <node pkg="rosbag" type="play" name="player" output="screen" args=" --clock $(arg bagFile) -q -r 10"/>    
+  
+  
+  <!--  I didn't add topic tf_static to the bag, so I have to recreate it manually ... --> 
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s00" args="0.08 0.05 0.02 0.0 0.0 0.0 1.0 head_frame left_eye_base_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s01" args=" 0.0 0.0 0.021 0.0 0.0 0.0 1.0 base_footprint base_link 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s02" args=" 0.0 0.0 0.0 0.0 0.0 0.0 1.0 base_link base_halo 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s03" args=" 0.1094 0.0 0.3848 0.0 0.0 0.0 1.0 base_link base_laser_link 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s04" args=" -0.075 0.0 1.32 0.0 0.0 0.0 1.0 base_link head_base_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s05" args=" 0.08 -0.05 0.02 0.0 0.0 0.0 1.0 head_frame right_eye_base_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s06" args=" 0.0 0.045 0.0 0.0 0.0 0.0 1.0 head_xtion_link head_xtion_depth_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s07" args=" 0.0 0.02 0.0 0.0 0.0 0.0 1.0 head_xtion_link head_xtion_rgb_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s08" args=" 0.0 0.0 0.0 0.5 -0.5 0.5 -0.5 head_xtion_depth_frame head_xtion_depth_optical_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s09" args=" 0.0 0.0 0.0 0.5 -0.5 0.5 -0.5 head_xtion_rgb_frame head_xtion_rgb_optical_frame 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s10" args=" 0.015 0.0 0.03 0.0 0.0 0.0 1.0 ptu_mount head_xtion_link 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s11" args=" 0.0 0.0 0.039116 0.0 0.0 0.0 1.0 ptu_hinge ptu_mount 100" />
+ <node pkg="tf" type="static_transform_publisher" name="tag_broadcaster_s12" args=" -0.075 0.0 1.5183 0.0 0.0 0.0 1.0 base_link ptu_pan_motor 100" />
+
+
+  
+  <node pkg="robot_pose_publisher" type="robot_pose_publisher" name="robot_popu" output="screen">
+      <param name="base_frame" value="$(arg robot_tf)"/>
+      <param name="map_frame" value="$(arg world_tf)"/>
+
+      <param name="is_stamped" value="true"/>
+      <remap from="robot_pose" to="/poses/robot"/>
+  </node>
+  
+  <!--  Tag positions and TF both relative to robot and global  --> 
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000001"/>
+      <arg name="tag_num" value="1"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000002"/>
+      <arg name="tag_num" value="2"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000003"/>
+      <arg name="tag_num" value="3"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000004"/>
+      <arg name="tag_num" value="4"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000005"/>
+      <arg name="tag_num" value="5"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000006"/>
+      <arg name="tag_num" value="6"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000007"/>
+      <arg name="tag_num" value="7"/>
+      <arg name="onlyPose" value="True"/>
+  </include>
+  
+  <include file="$(find pr_model)/launch/tagData.launch">
+      <arg name="robot_tf" value="$(arg robot_tf)"/>
+      <arg name="world_tf" value="$(arg world_tf)"/>
+      
+      <arg name="tagID" value="390100010000000000000008"/>
+      <arg name="tag_num" value="8"/>
+      <arg name="onlyPose" value="True"/>
+  </include> 
+  
+  <node pkg="pr_model" type="interactiveRFID.py" name="plotDetections" output="screen" />
+  
+  <!--  Start Sensor Model Node  -->
+  <!-- node pkg="pr_model" type="parseRecordingKLS.py" name="testnode" output="screen" / 
+  <node pkg="pr_model" type="createRFIDcsvKLS.py" name="testnode" output="screen"> 
+      <param name="csvDataFile" value="$(find pr_model)/tests/linda/20db-linda-fab-lab-KLS.csv"/>
+  </node>
+  -->
+</launch>
+      
