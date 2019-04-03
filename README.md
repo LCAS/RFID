@@ -1,38 +1,44 @@
-# LibMercuryRFID
-Library for interacting with the Mercury API RFID Library from Python
+# RFID repository
+Codes for interacting an RFID reader with ROS.
 
-# Installation
+## reader
 
-Run ./install.sh to install
+Library for interacting with the Mercury API RFID Library from Python.
 
-Run ./uninstall.sh to uninstall
-
-# Test the reader
-
-Run the python code rfid_test.py to check that everything is working
-
-#Building from source
-
+### Installation
 The code is built from source from the install shell script. Alternatively the makefile can be used, but these will not be installed, instead placed in the lib folder.
 
 The shared object Mercury Library file can be compiled by
-downloading the source from the ThingMagic website, and compiling with 
-these commands. A compiled version is already provided in this directory, 
+downloading the source from the ThingMagic website, and compiling with
+these commands. A compiled version is already provided in this directory,
 in accordance with the ThingMagic License.
 
+Run `install.sh`  to install
 
-# RFID ROS packages
+Run `uninstall.sh`  to install
 
--RFID_Node
-ROS package for RFID reader and tag operations:
+### Test the reader
+
+Run the python code `rfid_test.py` to check that everything is working
+
+
+## RFID ROS packages
+
+### rfid_node
+ROS interface for RFID reader and tag operations:
 Handles messages for tags' data
-Performs inventoring
 Handles reader parameters (power,frequency band...)
 
--RFID_sensor_layer
-Generates a probabilistic location costmap for ROS.
-Sensor model is still to be completed
+### rfid_grid_map
+Generates a probabilistic location costmap for each tags.
 
--RFID_grid_map
-Similar to previous one but with better representation capabilities and 
-update.
+### rol_server
+Creates a service to query rfid_grid_map and obtain location probabilities of tagged objects
+
+### deprecated  
+Packages no longer used
+- `define_areas`
+Creates rectangular regions for `rfid_grid_map`. Superseed by   `define_polygon_areas`
+
+- `define_polygon_areas`
+Creates arbitrary shape regions for `rfid_grid_map`. Tiago region definition should provide this info now.
