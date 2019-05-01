@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+ <!--
+
+      Spawns a rfid equipped thorvald in ncfm facilities.
+-->
+
+<launch>
+  <!-- PARAMS .............................................................. -->
+  <arg name="use_sim_time" default="false"/>
+  <arg name="gazeboGui" default="true"/>
+  <arg name="rvizGui" default="true"/>
+  <!-- this file is also included in base_simulation. copied by simplicity  -->
+  <arg name="world_name" default="$(find gazebo_rfid_node)/worlds/ncfm_model_no_actors.world"/>
+  <arg name="rviz_config_file" default="$(find gazebo_rfid_node)/rviz/gazebo_thorvald_rfid.rviz"/>
+
+  <arg name="robot_name" default="thorvald_001" />
+  <arg name="robot_model" default="$(find rasberry_bringup)/config/robot_007.yaml"/>
+  <arg name="robot_pose_x" default="0.0"/>
+  <arg name="robot_pose_y" default="0.0"/>
+  <arg name="robot_pose_roll" default="0.0"/>
+  <arg name="robot_pose_pitch" default="0.0"/>
+  <arg name="robot_pose_yaw" default="0.0"/>
+
+  <!--
+  This is an approximation:
+        We consider RFID reader to be a "wireless reader" .
+        It has no control over transmitted power.
+  -->
+  <arg name="model_extras" value="$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro" />
+  <arg name="reader_min_frequency" default="800.0"/>
+  <arg name="reader_max_frequency" default="920.0"/>
+  <arg name="reader_gain" default="1"/>
+  <arg name="reader_sensitivity" default="-90.0"/>
+
+  <!--
+  This is an approximation:
+        We consider each tag to be a "wireless transmitter" .
+        Each tag works at a fixed frequency.
+  -->
+  <arg name="tag_id" default="042" />
+  <arg name="tag_x" default="1.0"/>
+  <arg name="tag_y" default="0.0"/>
+  <arg name="tag_z" default="1.5"/>
+  <arg name="tag_roll" default="0.0"/>
+  <arg name="tag_pitch" default="0.0"/>
+  <arg name="tag_yaw" default="0.0"/>
+  <arg name="tag_frequency" default="860.0"/>
+  <arg name="tag_power" default="-30.0"/>
+  <arg name="tag_gain" default="1"/>
+
+  <!-- create gazebo world ................................................. -->
+ <include file="$(find gazebo_ros)/launch/empty_world.launch">
+   <arg name="world_name" value="$(arg world_name)"/>
+   <arg name="paused" value="false"/>
+   <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+   <arg name="gui" value="$(arg gazeboGui)"/>
+   <arg name="recording" value="false"/>
+   <arg name="debug" value="false"/>
+ </include>
+
+  <!-- Spawn thorvald Bond ................................................. -->
+
+  <!-- Thovald II bringup -->
+  <include file="$(find thorvald_bringup)/launch/thorvald_example.launch">
+    <arg name="robot_model" value="$(arg robot_model)"/>
+    <arg name="model_extras" value="$(arg model_extras)"/>
+    <arg name="simple_sim" value="True"/>
+  </include>
+
+  <node pkg="gazebo_ros" type="spawn_model" name="spawner" args="-urdf -param /robot_description -model $(arg robot_name)  -x $(arg robot_pose_x) -y $(arg robot_pose_y) -z 0  -R $(arg  robot_pose_roll)  -P $(arg robot_pose_pitch)  -Y $(arg robot_pose_yaw) -min_frequency $(arg reader_min_frequency) -max_frequency $(arg reader_max_frequency) -gain $(arg reader_gain) -sensitivity $(arg reader_sensitivity)"/>
+
+  <!-- Add rfid tags ....................................................... -->
+  <param name="tag_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag_id)' frequency:='$(arg tag_frequency)' power:='$(arg tag_power)' gain:='$(arg tag_gain)'" />
+
+  <node pkg="gazebo_ros" type="spawn_model" name="tag_spawner" args="-urdf -param /tag_description -model tag_$(arg tag_id)  -x $(arg tag_x) -y $(arg tag_y) -z $(arg tag_z)  -R $(arg  tag_roll)  -P $(arg tag_pitch)  -Y $(arg tag_yaw)"/>
+
+  <!-- GAZEBO-ROS bridge ................................................... -->
+  <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim" >
+       <param name="ros_rfid_topic_name" value="/lastTag"/>
+       <param name="ros_rfid_frame_id" value="lastTag"/>
+       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/$(arg robot_name)/base_link/_head_reader_sensor/transceiver"/>
+     </node>
+
+     <!-- Navigation .......................................................... -->
+
+
+  <!-- Visualization ....................................................... -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config_file)" if="$(arg rvizGui)"/>
+
+</launch>
