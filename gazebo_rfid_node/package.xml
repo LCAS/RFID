@@ -16,12 +16,36 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rfid_node</build_depend>
-  <build_depend>gazebo</build_depend>
+  <build_depend>gazebo8</build_depend>
   <build_depend>roscpp</build_depend>
+
+
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>rasberry_move_base</build_depend>
+  <build_depend>thorvald_base </build_depend>
+  <build_depend>rasberry_bringup</build_depend>
+  <build_depend>thorvald_description</build_depend>
+  <build_depend>gazebo_worlds_oru</build_depend>
+  <build_depend>fake_localization</build_depend>
+  <build_depend>map_server</build_depend>
+  <build_depend>robot_pose_publisher</build_depend>
+  <build_depend>move_base</build_depend>
+
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>rasberry_move_base</run_depend>
+  <run_depend>thorvald_base </run_depend>
+  <run_depend>rasberry_bringup</run_depend>
+  <run_depend>thorvald_description</run_depend>
+  <run_depend>gazebo_worlds_oru</run_depend>
+  <run_depend>fake_localization</run_depend>
+  <run_depend>map_server</run_depend>
+  <run_depend>robot_pose_publisher</run_depend>
+  <run_depend>move_base</run_depend>
+
 
   <run_depend>roscpp</run_depend>
   <run_depend>rfid_node</run_depend>
-  <run_depend>gazebo</run_depend>
+  <run_depend>gazebo8</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
 
