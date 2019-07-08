@@ -7,8 +7,10 @@
 <launch>
   <!-- PARAMS .............................................................. -->
   <arg name="use_sim_time" default="true"/>
+  <param name ="/use_sim_time" value="$(arg use_sim_time)"/>
 
-
+  <env name="ROSCONSOLE_CONFIG_FILE"
+    value="$(find gazebo_rfid_node)/config/custom_rosconsole.conf"/>
 
   <arg name="gazeboGui" default="true"/>
   <arg name="rvizGui" default="true"/>
@@ -108,11 +110,14 @@
   </node>
 
   <!-- map server(s) -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)"/>
+
   <!-- Also used in move base... -->
-  <node name="no_go_map_server" pkg="map_server" type="map_server" args="$(arg map)">
-       <remap from="map" to="/no_go_map"/>
-  </node>
+  <group ns="no_go">
+      <node name="no_go_map_server" pkg="map_server" type="map_server" args="$(arg map)">
+           <remap from="map" to="/no_go_map"/>
+      </node>
+</group>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)"/>
 
   <!-- robot_pose_publisher -->
   <node pkg="robot_pose_publisher" type="robot_pose_publisher" name="robot_pose_publisher" respawn="true">
