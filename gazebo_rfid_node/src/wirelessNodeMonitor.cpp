@@ -87,6 +87,7 @@ int main(int _argc, char** _argv)
   // Check if the topic to subscribe is present within the list, and
   // create the subscriber only later
   bool topic_found = false;
+  bool one_error = false;
   while (topic_found == false)
   {
     std::list<std::string> topics_list =
@@ -101,11 +102,16 @@ int main(int _argc, char** _argv)
       }
     }
     ROS_ERROR("[%s] Topic [%s] not found. Waiting 1 sec. for it to be available",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
+    one_error= true;
     ros::Duration(1).sleep();
   }
 
   gazebo::transport::SubscriberPtr sub =
       node->Subscribe(gazebo_wireless_node_topic_name, rfid_callback);
+
+  if (one_error){
+        ROS_ERROR("[%s] Topic [%s] was finally found",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
+  }
 
   ros::spin();
 
