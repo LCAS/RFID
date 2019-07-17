@@ -34,8 +34,8 @@ namespace rfid_grid_map2 {
       upperValue=10.0;
 
       // map Size (m.)
-      size_x=mapDesc.width*resolution;
-      size_y=mapDesc.height*resolution;
+      size_x=mapDesc.width*mapDesc.resolution;
+      size_y=mapDesc.height*mapDesc.resolution;
 
       map_.setGeometry(Length(size_x, size_y), resolution, Position(orig_x, orig_y));
       map_.setFrameId(global_frame);
@@ -707,13 +707,13 @@ namespace rfid_grid_map2 {
                 isMapLoaded=true;
                 mapDesc=msg.info;
                 mapFrame=msg.header.frame_id;
-                /*ROS_DEBUG("Received a %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
+                ROS_DEBUG("Received a %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
                         msg.info.width,
                         msg.info.height,
                         msg.info.resolution,
                         msg.info.origin.position.x,
                         msg.info.origin.position.y);
-                */
+
             } else {
                 ROS_ERROR("Received an INVALID!! %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
                         msg.info.width,
