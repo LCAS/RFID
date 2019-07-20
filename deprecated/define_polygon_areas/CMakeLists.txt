@@ -113,8 +113,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES define_polygon_areas
-  CATKIN_DEPENDS yaml-cpp #cv_bridge geometry_msgs grid_map_cv grid_map_loader grid_map_msgs grid_map_ros grid_map_visualization rfid_node roscpp sensor_msgs tf
-  DEPENDS yaml-cpp
+#  CATKIN_DEPENDS yaml-cpp #cv_bridge geometry_msgs grid_map_cv grid_map_loader grid_map_msgs grid_map_ros grid_map_visualization rfid_node roscpp sensor_msgs tf
+#  DEPENDS yaml-cpp
 )
 
 ###########
@@ -156,7 +156,7 @@ add_dependencies(define_polygon_areas_node define_polygon_areas_node_generate_me
 ## Specify libraries to link a library or executable target against
  target_link_libraries(
    define_polygon_areas_node
-   ${catkin_LIBRARIES}  yaml-cpp
+   ${catkin_LIBRARIES}  #yaml-cpp
  )
 
 #############
