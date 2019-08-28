@@ -18,6 +18,10 @@ std::string ros_rfid_topic_name;
 std::string gazebo_wireless_node_topic_name;
 std::string ros_rfid_frame_id;
 ros::Publisher ros_rfid_pub;
+ros::Publisher count_tags_pub;
+std::unordered_set<std::string> list_tags_IDs;
+std_msgs::Int8 count_tags;
+
 int seq;
 
 /////////////////////////////////////////////////
@@ -39,6 +43,11 @@ void rfid_callback(ConstWirelessNodesPtr& _msg)
       msg.header.seq = seq++;
       msg.header.stamp = ros::Time::now();
       msg.ID = wn.essid();
+      // check if this tag has already been perceived and present in the set
+      std::unordered_set<std::string>::const_iterator got = list_tags_IDs.find(msg.ID);
+      // If not present, add it to the set
+      if (got == list_tags_IDs.end())
+        list_tags_IDs.insert(msg.ID);
       // unit is (100*dBm)
       // TODO!
       msg.txP =-1;
@@ -53,6 +62,9 @@ void rfid_callback(ConstWirelessNodesPtr& _msg)
       // cast MHz to KHz
       msg.frequency = (wn.frequency()*1000.0);
       ros_rfid_pub.publish(msg);
+      // Publish how many tags have been discovered
+      count_tags.data = list_tags_IDs.size();
+      count_tags_pub.publish(count_tags);
 
   }
 }
@@ -75,6 +87,7 @@ int main(int _argc, char** _argv)
 
 
   ros_rfid_pub = nh.advertise<rfid_node::TagReading>(ros_rfid_topic_name, 5);
+  count_tags_pub = nh.advertise<std_msgs::Int8>("/num_tags_discovered", 5);
 
   seq=0;
   // Load gazebo

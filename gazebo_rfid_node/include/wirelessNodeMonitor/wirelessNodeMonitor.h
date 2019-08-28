@@ -8,6 +8,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/gazebo_client.hh>
 #include "gazebo/common/Time.hh"
+#include <std_msgs/Int8.h>
 
 #include "ros/ros.h"
 #include <ros/console.h>
