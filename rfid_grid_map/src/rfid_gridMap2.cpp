@@ -332,7 +332,12 @@ namespace rfid_grid_map2 {
             m.getRPY(roll, pitch, yaw);
             rh=yaw;
 
-            txPower=msg->txP/100.0;
+            if (msg->txP>0){
+                txPower=msg->txP/100.0;
+            } else {
+                // comes from simulation or a weirder place
+                txPower=20.0/100.0;
+            }
             txLoss=std::pow( 10.0 , 11+(msg->rssi -30-txPower) /10.0   ); // 9+ is for received power in nanoWatts
 
             txLoss= (100 - msg->rssi) /100.0;
@@ -345,11 +350,12 @@ namespace rfid_grid_map2 {
             highProb =       txLoss * weight_inc;
 
             //ROS_DEBUG(".");
-            //ROS_DEBUG("rssi (%d) -> txLoss (%3.6f)-> Probs %3.6f, %3.6f, %3.6f",msg->rssi,txLoss,lowProb,midProb,highProb);
+            //ROS_INFO("rssi (%d) | txPower(%d) -> txLoss (%3.6f)-> Probs %3.6f, %3.6f, %3.6f \n",msg->rssi,msg->txP, txLoss,lowProb,midProb,highProb);
 
             //weight_dec=0.02*(weight_inc+0.1);
 
             updateLastDetectionPose(x,y);
+
 
             //We decrease probability outside the confidence region
             //drawSquare(-size_x/2,-size_y/2,size_x/2,size_y/2,-weight_dec);
@@ -357,13 +363,29 @@ namespace rfid_grid_map2 {
             //And increase inside
             if (oldMode){
                 drawCircle( x,  y,  detectRadius, weight_inc);
-            } else {
+            } else {                
                 /*drawDetectionShape(x,y, rh,
                    detectRadius, cone_range, cone_angle,
                    lowProb, midProb,   highProb);*/
-                drawSimilarityShape(x,y, rh,
-                   detectRadius, cone_range, cone_angle,
-                   lowProb, midProb,   highProb,msg->rssi);
+                // drawSimilarityShape(x,y, rh,
+                //    detectRadius, cone_range, cone_angle,
+                //    lowProb, midProb,   highProb,msg->rssi);
+
+            double a, b;
+            // ellipses follow:
+            // a^2 = b^2 + c^2 
+            // we define:
+            // cone_range = a 
+            // detectRadius = b
+            // c = sqrt(a^2 - b^2)
+
+                
+                a =  cone_range;
+                b = detectRadius;
+
+                drawEllipticSimilarityShape(x,  y, rh,
+                    a,  b, cone_angle, 
+                    lowProb, midProb, highProb,  msg->rssi );
             }
 
 
@@ -855,8 +877,96 @@ namespace rfid_grid_map2 {
             }
         }
       }
-
     }
+
+
+
+
+    /**
+     * @brief Draws an Elliptical similarity shape over map at requested focal point
+     * 
+     * @param x_f1 Coordinate x of robot position (meters) (focal point 1)
+     * @param y_f1 Coordinate y of robot position (meters) (focal point 1)
+     * @param orientAngle Robot orientation (rads) (ellipse orientation)
+     * @param a Ellipse mayor radius (meters)
+     * @param b Ellipse minor radius (meters)
+     * @param cone_angle Front lobe (high prob) arc (rads) centered around robot heading
+     * @param lowProbInc  prob increase for cells OUTSIDE front lobe but NO low rssi is received OR
+     *                                            INSIDE  front lobe but NO high rssi is received
+     * @param midProbInc  prob increase for cells OUTSIDE front lobe when low rssi is received
+     * @param highProbInc prob increase for cells INSIDE  front lobe when high rssi is received
+     * @param rssi        received signal power 
+     * @param rssi_low    rssi threshold to consider a low level 
+     * @param rssi_hig    rssi threshold to consider a high level 
+     */
+    void rfid_gridMap2::drawEllipticSimilarityShape(double x_f1,double y_f1, double orientAngle,
+            double a, double b, double cone_angle, 
+            double lowProbInc, double midProbInc, double highProbInc, 
+            double rssi, double rssi_low, double rssi_hig ){
+      //////////////////////////////////////////////////////////////////
+      Position position;
+      double x,y,tetha;
+      bool isInside;
+
+      // shape is an ellipse, with robot at one focal point
+      double c = sqrt((a*a) - (b*b));
+
+      double cx=x_f1 + ( c * std::cos(orientAngle) );
+      double cy=y_f1 + ( c * std::sin(orientAngle) );
+
+
+      Position center(cx, cy);
+      Length length(2.0*b, 2.0*a);
+
+
+      ROS_INFO("Centre (%3.1f, %3.1f) m", cx, cy);
+      ROS_INFO("Orientation (%3.1f) deg", orientAngle*180.0/3.141592);
+      ROS_INFO("Focal point 1 (%3.1f, %3.1f) m", x_f1, y_f1);
+      ROS_INFO("Axes  (%3.1f, %3.1f, %3.1f) m\n\n", a, b,c);
+
+      //inside this circle we have high and mid probs
+      for (grid_map::EllipseIterator iterator(map_, center, length, M_PI_4);
+          !iterator.isPastEnd(); ++iterator) {
+
+        if (isnan(map_.at(layerName, *iterator)))
+        {
+            map_.at(layerName, *iterator) =  0;
+        }
+
+        map_.getPosition(*iterator, position);
+
+        // cell position respect robot center
+        x=position.x()-x_f1;
+        y=position.y()-y_f1;
+
+        // angle between robot heading and cell position
+        tetha=constrainAnglePI(std::atan2(y,x)-orientAngle);
+
+        // is inside front lobe?
+        isInside = std::abs(tetha)>(cone_angle/2);
+
+        if (isInside){
+            //is out of high power cone
+            if (rssi<rssi_low){
+                // and we received a low power... matches
+                map_.at(layerName, *iterator) += midProbInc;
+            } else{
+                // and we receive a high power ... not maches, but still high power
+                 map_.at(layerName, *iterator) += lowProbInc;
+            }
+        } else {
+            //is inside high power cone
+            if (rssi>rssi_hig){
+                // and we receive a high power ... maches
+                map_.at(layerName, *iterator) += highProbInc;
+            } else{
+                // and we received a low power... does not match
+                 map_.at(layerName, *iterator) += lowProbInc;
+            }
+        }
+      }
+    }
+
 
     void rfid_gridMap2::drawDetectionShape(double cx,double cy, double rh,
             double radius,double cone_range,  double cone_heading,

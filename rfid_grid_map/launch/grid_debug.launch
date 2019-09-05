@@ -16,6 +16,9 @@
       <arg name="tag_frequency" default="860.0"/>
       <arg name="tag_power" default="0.001"/>
       <arg name="tag_gain" default="1"/>
+      <arg name="detectRadius"         default="1.8"/> <!-- detectRadius == b -->
+      <arg name="cone_range"           default="3.5"/> <!-- cone_range == a -->
+
 
       <arg name="is_sim" default="false"/>
 
@@ -31,6 +34,8 @@
       <arg name="saveRoute" value="$(arg saveRoute)" />
       <arg name="loadGrids" value="$(arg loadGrids)" />
       <arg name="with_visualizer" value="$(arg with_visualizer)"/>
+      <arg name="detectRadius"    value="$(arg detectRadius)"/>
+      <arg name="cone_range"      value="$(arg cone_range)"/>
     </include>
 
     <!-- really crappy ground truth -->

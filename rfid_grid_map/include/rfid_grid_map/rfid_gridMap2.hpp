@@ -126,6 +126,11 @@ class rfid_gridMap2
             double radius,double cone_range,  double cone_heading,
             double lowProb, double midProb, double highProb, double rssi);
 
+      void drawEllipticSimilarityShape(double x_f1,double y_f1, double orientAngle,
+            double a, double b, double cone_angle, 
+            double lowProbInc, double midProbInc, double highProbInc, 
+            double rssi, double rssi_low= -60.0, double rssi_hig= -48.0);
+
     private:
      double prev_x,prev_y,prev_h;
      double min_d;
