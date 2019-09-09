@@ -16,8 +16,10 @@
       <arg name="tag_frequency" default="860.0"/>
       <arg name="tag_power" default="0.001"/>
       <arg name="tag_gain" default="1"/>
-      <arg name="detectRadius"         default="1.8"/> <!-- detectRadius == b -->
-      <arg name="cone_range"           default="3.5"/> <!-- cone_range == a -->
+      <arg name="detectRadius"         default="0.75"/> <!-- detectRadius == b -->
+      <arg name="cone_range"           default="1.5"/> <!-- cone_range == a -->
+      <arg name="weight_inc"           default="0.05"/>
+      <arg name="weight_dec"           default="0.001"/>
 
 
       <arg name="is_sim" default="false"/>
@@ -36,6 +38,8 @@
       <arg name="with_visualizer" value="$(arg with_visualizer)"/>
       <arg name="detectRadius"    value="$(arg detectRadius)"/>
       <arg name="cone_range"      value="$(arg cone_range)"/>
+      <arg name="weight_inc"      value="$(arg weight_inc)"/>
+      <arg name="weight_dec"      value="$(arg weight_dec)"/>
     </include>
 
     <!-- really crappy ground truth -->

@@ -667,8 +667,6 @@ namespace rfid_grid_map2 {
         try{
             listener_.waitForTransform(global_frame, robot_frame, ros::Time(0), ros::Duration(0.5) );
             listener_.lookupTransform(global_frame, robot_frame, ros::Time(0), transform_);
-
-
         }
         catch (tf::TransformException ex){
             ROS_ERROR("%s",ex.what());
@@ -906,7 +904,10 @@ namespace rfid_grid_map2 {
       //////////////////////////////////////////////////////////////////
       Position position;
       double x,y,tetha;
-      bool isInside;
+      bool isOutside;
+
+      // DEBUUUUU!!
+      //orientAngle = 0;
 
       // shape is an ellipse, with robot at one focal point
       double c = sqrt((a*a) - (b*b));
@@ -916,16 +917,17 @@ namespace rfid_grid_map2 {
 
 
       Position center(cx, cy);
-      Length length(2.0*b, 2.0*a);
+      Length length(2.0*a, 2.0*b);
 
-
-      ROS_INFO("Centre (%3.1f, %3.1f) m", cx, cy);
-      ROS_INFO("Orientation (%3.1f) deg", orientAngle*180.0/3.141592);
-      ROS_INFO("Focal point 1 (%3.1f, %3.1f) m", x_f1, y_f1);
-      ROS_INFO("Axes  (%3.1f, %3.1f, %3.1f) m\n\n", a, b,c);
+      // FIXME: CELLS JUST IN FRONT OF THE ROBOT ARE NOT INSIDE THE HIGH PROB FOV....!!
+      //ROS_INFO("Centre (%3.1f, %3.1f) m", cx, cy);
+      //ROS_INFO("Orientation (%3.1f) deg", (orientAngle*180.0/3.141592) );
+      //ROS_INFO("Focal point 1 (%3.1f, %3.1f) m", x_f1, y_f1);
+      //ROS_INFO("Axes  (%3.1f, %3.1f, %3.1f) m", a, b,c);
+      //ROS_INFO("FOV/2  (%3.3f) deg\n", (cone_angle*90.0/3.141592));
 
       //inside this circle we have high and mid probs
-      for (grid_map::EllipseIterator iterator(map_, center, length, M_PI_4);
+      for (grid_map::EllipseIterator iterator(map_, center, length, orientAngle);
           !iterator.isPastEnd(); ++iterator) {
 
         if (isnan(map_.at(layerName, *iterator)))
@@ -942,10 +944,12 @@ namespace rfid_grid_map2 {
         // angle between robot heading and cell position
         tetha=constrainAnglePI(std::atan2(y,x)-orientAngle);
 
-        // is inside front lobe?
-        isInside = std::abs(tetha)>(cone_angle/2);
-
-        if (isInside){
+        // is isOutside of front lobe?
+        isOutside = std::abs(tetha)>(cone_angle/2);
+        
+        if (isOutside){
+        //    ROS_INFO("Outside ABS point  (%3.3f, %3.3f) m %3.3f deg", position.x(), position.y(), (std::atan2(y,x)*180.0/3.141592));
+         //   ROS_INFO("Outside Rel point  (%3.3f, %3.3f) m %3.3f deg\n", x, y, (tetha*180.0/3.141592));
             //is out of high power cone
             if (rssi<rssi_low){
                 // and we received a low power... matches
