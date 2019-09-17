@@ -213,6 +213,25 @@ int RFIDstartReader(const char* deviceURI)
         return -1;
     }
 
+    ////////////////////////////////////////
+    bool value;
+    if(checkError(TMR_paramGet(readers[readerCount], TMR_PARAM_TAGREADDATA_REPORTRSSIINDBM, &value), "Getting RSSI report units"))
+    {
+        return -1;
+    }
+    if (value){
+        printf("Reader reporting RSSI in dBm\n");
+    } else {
+        printf("Reader WAS REPORTING RSSI in dB!!!!!\n");
+        value = true;
+        if(checkError(TMR_paramSet(readers[readerCount], TMR_PARAM_TAGREADDATA_REPORTRSSIINDBM,&value), "Setting RSSI reported in dBm"))
+        {
+            return -1;
+        }
+
+    }
+    ///////////////////////////////////////////
+
     if(*(region[readerCount]) == TMR_REGION_NONE)
     {
         printf("No saved regions\n");
