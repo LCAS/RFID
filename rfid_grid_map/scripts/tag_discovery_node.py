@@ -34,7 +34,9 @@ class tag_discovery():
         self.tagIDSet=set()
         # Monitored tags have each one a prob topic and hence a topic which follows the convention:
         # /grid_[TAG ID HERE]/rfid_grid_map_node/probs
-        
+
+        rospy.Rate(1.0/8.0).sleep() # Sleep for 8 secs before running
+
         while (len(self.tagIDSet)==0):
             listOfTopics = rospy.get_published_topics()
             for tup in listOfTopics:
