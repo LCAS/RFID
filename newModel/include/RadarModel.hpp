@@ -1,3 +1,7 @@
+#ifndef RADARMODEL_H
+#define RADARMODEL_H
+
+
 #include <grid_map_core/GridMap.hpp>
 #include "Eigen/Eigen"  // AFTER GRIDMAP!
 
@@ -104,19 +108,28 @@ class SplineFunction {
 
 class RadarModel
   {
-    double _sizeX; // x axis
-    double _sizeY; //  y axis
-    double _resolution; // meters/cell
-    double _txtPower; // transmitted power by RFID reader, dB
+    double _sizeXaa; //  x axis size in active area (m.). Related with number of rows
+    double _sizeYaa; //  y axis size in active area (m.). Related with number of cols
+
+    int _Ncol; // number of rows of reference and rfid belief maps (cells)
+    int _Nrow; // number of cols of reference and rfid belief maps (cells)
+    float _free_space_val; // max value stored in reference map, used as free space marker
+    double _resolution; // Active areas, reference, and belief maps resolution (m./cell)
+    double _txtPower; // transmitted power by RFID reader (dB)
 
     // we only model here gaussian noise: flat fadding.
     double _sigma_power;  // noise factor
     double _sigma_phase;  // noise factor
     
-    GridMap _map;
-
-    std::vector<double> _freqs;
-    SplineFunction _antenna_gains;
+    GridMap _active_area_maps;  // active areas. one per phase and power at each frequency.
+    GridMap _rfid_belief_maps;  // Prob. beliefs. One layer per tag. Also, one layer with reference map, mostly for tag layout representation.
+    //GridMap _ref_map;  
+    
+    std::vector<std::pair<double,double>> _tags_coords; // tag locations in reference map coords (m.)
+    int _numTags;  // rfid tags to consider
+    
+    std::vector<double> _freqs; // transmission frequencies (Hz.)
+    SplineFunction _antenna_gains;  // model for antenna power gain depending on the angle (dB.)
 
   public:
 
@@ -132,8 +145,14 @@ class RadarModel
  * @param freqs Freqs to be considered in model (Hz.)
  * TODO We will use a fixed antenna model, Gaussian noise model and will assume tags are isotropic. This may need to be revisited ...
  */
-    RadarModel(const double nx, const double ny, const double resolution, const double sigma_power, const double sigma_phase, const double txtPower, const std::vector<double> freqs );
 
+
+
+
+
+    RadarModel(const double nx, const double ny,  const double resolution, const double sigma_power, const double sigma_phase, const double txtPower, const std::vector<double> freqs, const std::vector<std::pair<double,double>> tags_coords, const std::string imageFileURI ) ;
+    void PrintMap( std::string savePath);
+    void initRefMap(const std::string imageURI);
     void getImage(std::string layerName, std::string fileURI);
 
     /**
@@ -191,6 +210,8 @@ void getSphericCoords(double x, double y, double& r, double& phi);
  * @param  txtPower    Transmitted power (dB)
  * @return             Received power (dB)
  */
+ double received_power_friis(double tag_x, double tag_y, double freq, double txtPower);
+ 
  double received_power_friis(double tag_x, double tag_y, double freq, double txtPower, SplineFunction antennaGainsModel);
 
 /**
@@ -216,9 +237,14 @@ double phaseDifference(double tag_x, double tag_y, double freq);
  */
 void activeAreaFriis(double freq, double txtPower, double sensitivity, double distStep, double& minX, double& minY, double& maxX, double& maxY);
 
+
+void addMeasurement(double x, double y, double orientation, double rxPower, double phase, double freq, int i);
+
 std::string getPowLayerName(double freq_i);
 
 std::string getPhaseLayerName(double freq_i);
+
+std::string getTagLayerName(int tag_num);
 
 double received_power_friis_polar(double tag_r, double tag_h, double freq, double txtPower, SplineFunction antennaGainsModel);
 
@@ -227,16 +253,28 @@ Eigen::MatrixXf getPowProbCond(double rxPw, double f_i);
 Eigen::MatrixXf  getPhaseProbCond(double ph_i, double f_i);
 Eigen::MatrixXf  getProbCond(std::string layer_i, double x, double sig);
 
+void saveProbMapDebug(std::string savePATH, int tag_num, int step, double robot_x, double robot_y, double robot_head);
 
 
 void getImage(GridMap* gm,std::string layerName, std::string fileURI);
 
+void PrintRefMapWithTags(std::string fileURI);
+
 void PrintPowProb(std::string fileURI, double rxPw, double f_i);
 void PrintPhaseProb(std::string fileURI, double phi, double f_i);
 void PrintBothProb(std::string fileURI, double rxPw, double phi, double f_i);
-void PrintProb(std::string fileURI, Eigen::MatrixXf* prob_mat, double f_i);
+
+
+void PrintProb(std::string fileURI, Eigen::MatrixXf* prob_mat,  double sX, double sY, double res);
+void saveProbMaps(std::string savePath);
+
+void PrintProb(std::string fileURI, Eigen::MatrixXf* prob_mat);
 
 
 void debugInfo();
 
 }; // end class
+
+
+
+#endif
