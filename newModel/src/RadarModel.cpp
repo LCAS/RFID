@@ -146,9 +146,8 @@ void RadarModel::initRefMap(const std::string imageURI){
         std::cout<<"\nIniting Ref map."  <<std::endl;
 
         cv::Mat _imageCV = cv::imread(imageURI , CV_LOAD_IMAGE_UNCHANGED );
-        //cv::flip(_imageCV, _imageCV, 1);
-        // RICCOORD: by default, cv has x axis as cols and y as rows
-        //cv::transpose(_imageCV, _imageCV);
+        // this alligns image with our coordinate systems
+        cv::flip(_imageCV, _imageCV, -1);
 
         _Ncol = _imageCV.cols; // radar model total x-range space (cells).
         _Nrow = _imageCV.rows; // radar model total y-range space (cells).
@@ -612,7 +611,9 @@ void RadarModel::initRefMap(const std::string imageURI){
       const float maxValue = _rfid_belief_maps["ref_map"].maxCoeff();
 
       GridMapCvConverter::toImage<unsigned char, 3>(_rfid_belief_maps, "ref_map", CV_8UC3, minValue, maxValue, image);
-      
+      // this RE-alligns image with our coordinate systems
+      cv::flip(image, image, -1);
+
       grid_map::Index index;            
       cv::Point center;
 
