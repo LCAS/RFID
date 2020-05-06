@@ -35,7 +35,7 @@ std::map<std::string,std::vector<geometry_msgs::Point>> loadZois(ros::NodeHandle
         if (!nodeHandle_.getParam(numSubMapParam, numSubmaps))
         {
 			numSubmaps=1;
-			ROS_ERROR("Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps]. Assuming 1 ");
+			ROS_WARN("Can't determine number of sub maps from rosparam [/mmap/numberOfSubMaps]. Assuming 1 ");
 		}
         
 	    ROS_ASSERT_MSG(numSubmaps==1,"Number of submaps different from 1 [%d]. Aborting",numSubmaps);
@@ -48,8 +48,8 @@ std::map<std::string,std::vector<geometry_msgs::Point>> loadZois(ros::NodeHandle
         //            zoiName_pointNumber : { submapName, zoiName, posX, posY  }
         //
         //  Zoi name follows format:
-        //             zoi name-zoi subarea
-        // subareas are parts of bigger zois, they must have same 'zoi name' before the slash.
+        //             zoi_name-zoi_subarea
+        // subareas are parts of bigger zois, they must have same 'zoi_name' before the slash.
         //  i.e. 
         //          kitchen-table
         //          kitchen-cook    both are kitchen zoi, subareas cook and table

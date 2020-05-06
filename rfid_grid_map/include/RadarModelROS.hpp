@@ -37,7 +37,6 @@
 using namespace std;
 using namespace grid_map;
 using namespace std::placeholders;
-
 using Eigen::MatrixXf;
 
 // constants ..................................................................
@@ -164,10 +163,8 @@ public:
   int _numTags;     // rfid tags to consider
 
   SplineFunction _antenna_gains; // model for antenna power gain depending on
-                                 // the angle (dB.)
-
-    RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase );
-
+                                 // the angle (dB.)    
+    RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution );
     void initRefMap(const nav_msgs::OccupancyGrid& nav_map);
 
     void loadBelief(const std::string imageURI);
@@ -356,8 +353,11 @@ public:
   void fillFriisMat(Eigen::MatrixXf *rxPw_mat, Eigen::MatrixXf *delay_mat,
                     double freq_i, double offset);
 
+  void overlayRobotPose(GridMap *gm, double robot_x, double robot_y, double robot_head,
+                        cv::Mat &image);
   void overlayRobotPose(double robot_x, double robot_y, double robot_head,
                         cv::Mat &image);
+                        
   void overlayRobotPoseT(double robot_x, double robot_y, double robot_head,
                          cv::Mat &image);
   void rotatePoints(cv::Point *points, int npts, int cxi, int cyi, double ang);
@@ -388,8 +388,11 @@ public:
                              double sigm);
 
   void debugInfo();
+  void debugInfo(GridMap *gm, std::string mapName,std::string baseLayer);
 
   cv::Point getPoint(double x, double y);
+  cv::Point getPoint(  GridMap* gm, double x_m, double y_m);
+
   void overlayActiveMapEdges(double robot_x, double robot_y, double robot_head,
                              cv::Mat image);
   void overlayMapEdges(cv::Mat image);

@@ -1,8 +1,5 @@
 #include "RadarModelROS.hpp"
 
-using namespace std;
-using namespace grid_map;
-using namespace std::placeholders;
 
 // http://eigen.tuxfamily.org/dox/AsciiQuickReference.txt
 
@@ -57,10 +54,11 @@ SplineFunction::scaled_values(Eigen::VectorXd const &x_vec) const {
 RadarModelROS::RadarModelROS(){};
 
 
-RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase ){
+RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution ){
 
         _sigma_power = sigma_power;
         _sigma_phase = sigma_phase;
+        _resolution = resolution;
         
         // NO TAG COORDS HERE!
         //_tags_coords ;
@@ -104,67 +102,187 @@ RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const doubl
 
 
 void RadarModelROS::initRefMap(const nav_msgs::OccupancyGrid& nav_map){
-        std::cout<<"\nIniting Ref map from occGrid."  <<std::endl;
-
-        _resolution = nav_map.info.resolution;
-
-        //FIXME! col == height? and row == width??
-        _Ncol = nav_map.info.height; // radar model total x-range space (cells).
-        _Nrow = nav_map.info.width; // radar model total y-range space (cells).
+  ROS_DEBUG_STREAM("Initing Ref map from occGrid.");
+  GridMap tempGrid;
+  grid_map::Matrix tempMat;
+  GridMap resizedMap;
+  grid_map::Position pos;       
+      
+  // find occupied space index boundaries          
+  Index ind, ind2, submapTopLeftIndex, submapBufferSize;
+  unsigned int minr, minc, maxr, maxc;
+  double minx, miny, maxx, maxy,maxV, countOnes, countZeros;
+  float occ_space, free_space;
         
-        // Convert to grid map.
-        //FIXME! will be alligned ???
-        GridMapRosConverter::fromOccupancyGrid(nav_map, "ref_map", _rfid_belief_maps);
-        _free_space_val = _rfid_belief_maps.get("ref_map").maxCoeffOfFinites();
+  // we crop input occupancy grid depending on obstacles
+  minr = nav_map.info.height; 
+  minc = nav_map.info.width;
+  maxr = 0;
+  maxc = 0;
+  GridMapRosConverter::fromOccupancyGrid(nav_map, "ref_map", tempGrid);
+  tempMat = tempGrid.get("ref_map");          
+  // clean the input occupancy grid:
+  // remove NANs          
+  tempMat = (tempMat.array().isFinite()).select(tempMat,0.0f); 
+  //Binarize and Invert: 0s are obstacles now and 1 free space
+  occ_space = 0.0f;
+  free_space = 1.0f;
+  tempMat = (tempMat.array()<tempMat.maxCoeff()).select(free_space, grid_map::Matrix::Constant(tempMat.rows(),tempMat.cols(),occ_space)); 
+  tempGrid["ref_map"] = tempMat;
+  
+  // find boundaries defined by obstacles
+  for (GridMapIterator iterator(tempGrid); !iterator.isPastEnd(); ++iterator) {
+    ind = *iterator;
+    if (tempGrid.at("ref_map", ind) == occ_space){
+        if (ind(0)<minr){
+          minr = ind(0);
+        } else if (ind(0)>maxr) {
+          maxr = ind(0);
+        }
+        if (ind(1)<minc){
+          minc = ind(1);
+        } else if (ind(1)>maxc) {
+          maxc = ind(1);
+        }
+    }
+  }
+
+  tempGrid.getPosition(Index(minr,minc),pos);
+  maxx = pos.x();
+  maxy = pos.y();
+  tempGrid.getPosition(Index(maxr,maxc),pos);
+  minx = pos.x();
+  miny = pos.y();
+
+  ROS_DEBUG_STREAM( " ..............................................................."  );
+  ROS_DEBUG_STREAM( " Obstacles are between indexes (" << minr << ", " << minc << ") and (" << maxr << ", " << maxc << ")"  );
+  ROS_DEBUG_STREAM( "                        points (" << minx << ", " << miny << ") and (" << maxx << ", " << maxy << ")"  );
+  ROS_DEBUG_STREAM( "                        Centre (" << (maxx+minx)/2.0 << ", " << (maxy+miny)/2.0 << ")"  );
+  ROS_DEBUG_STREAM( " ..............................................................."  );
+
+  // resize to those boundaries ...
+  bool wasOk;
+  resizedMap = tempGrid.getSubmap(Position(maxx+minx,maxy+miny)/2.0, Length(maxx-minx, maxy-miny), wasOk);
+
+  // change resolution
+  GridMapCvProcessing::changeResolution(resizedMap, resizedMap, _resolution);
+
+  _rfid_belief_maps = resizedMap;
+  //_rfid_belief_maps = tempGrid;
+  //_resolution = nav_map.info.resolution;
+  _Ncol = _rfid_belief_maps.get("ref_map").cols();
+  _Nrow = _rfid_belief_maps.get("ref_map").rows();
+  _free_space_val =  _rfid_belief_maps.get("ref_map").maxCoeffOfFinites(); // should be 1
+
+  countOnes = _rfid_belief_maps.get("ref_map").sum();
+  countZeros = _rfid_belief_maps.get("ref_map").rows() * _rfid_belief_maps.get("ref_map").cols() - countOnes;
+
+  ROS_DEBUG_STREAM(100*countOnes/(countOnes+countZeros) << " % of cells are empty");
+  ROS_DEBUG_STREAM(100*countZeros/(countOnes+countZeros) << " % of cells are obstacles ");
+  ROS_DEBUG_STREAM( " Using : (" << _free_space_val <<") value as free space value  " );
+
+  debugInfo(&tempGrid, "Loaded occ grid","ref_map");
+  debugInfo(&resizedMap, "Resized ref map", "ref_map");
+
+  // ////////////////////////////////////
+  // // Convert to image.
+
+  // cv::Mat image;
+  // GridMapCvConverter::toImage<unsigned char, 3>(_rfid_belief_maps, "ref_map", CV_8UC3, _rfid_belief_maps.get("ref_map").minCoeffOfFinites(), _rfid_belief_maps.get("ref_map").maxCoeffOfFinites(), image);  
+  // //overlayRobotPose(_rfid_belief_maps.getPosition().x(), _rfid_belief_maps.getPosition().y(), 0, image);
+  // //overlayRobotPose(resizedMap.getPosition().x(), resizedMap.getPosition().y(), 0, image);
+  // overlayRobotPose(minx, miny, 0, image);
+  // overlayRobotPose(maxx, miny, 0, image);
+  // overlayRobotPose(maxx, maxy, 0, image);
+  // overlayRobotPose(minx, maxy, 0, image);          
+  // //overlayRobotPose(0, 0, 0, image);
+
+  // overlayMapEdges(image);
+
+  // cv::flip(image, image, -1);
+  // cv::imwrite( "/tmp/orig_map.png", image );
+  // ROS_DEBUG_STREAM(" MAP SAVED! At line: "<<__LINE__);
 
 
-        std::cout << " Input map has " <<   _rfid_belief_maps.getSize()(1) << " cols by " <<  _rfid_belief_maps.getSize()(0) <<" rows "  <<std::endl;
-        std::cout << " Orig at: (" << _rfid_belief_maps.getPosition().x() << ", " << _rfid_belief_maps.getPosition().y() <<") m. " <<std::endl;
-        std::cout << " Size: (" << _rfid_belief_maps.getLength().x() << ", " << _rfid_belief_maps.getLength().y() <<") m. " <<std::endl;
-        std::cout << " Values range: (" << _rfid_belief_maps.get("ref_map").minCoeffOfFinites() << ", " << _free_space_val <<")   " <<std::endl;
-        std::cout << " Using : (" << _free_space_val <<") value as free space value  " <<std::endl;
+  // GridMapCvConverter::toImage<unsigned char, 3>(resizedMap, "ref_map", CV_8UC3, resizedMap.get("ref_map").minCoeffOfFinites(), resizedMap.get("ref_map").maxCoeffOfFinites(), image);  
+  // //overlayRobotPose(&resizedMap, resizedMap.getPosition().x(), resizedMap.getPosition().y(), 0, image);
+  // //overlayRobotPose(&resizedMap, _rfid_belief_maps.getPosition().x(), _rfid_belief_maps.getPosition().y(), 0, image);
+  // overlayRobotPose(&resizedMap,minx, miny, 0, image);
+  // overlayRobotPose(&resizedMap,maxx, miny, 0, image);
+  // overlayRobotPose(&resizedMap,maxx, maxy, 0, image);
+  // overlayRobotPose(&resizedMap,minx, maxy, 0, image);          
+  // //overlayRobotPose(&resizedMap,0, 0, 0, image);
+
+  // cv::flip(image, image, -1);
+  // cv::imwrite( "/tmp/red_map.png", image );
+
+  // ////////////////////////////////////
+
+
+}
+
+void RadarModelROS::debugInfo(){
+  debugInfo(&_rfid_belief_maps, "RFID reference map","ref_map");
+}
+
+void RadarModelROS::debugInfo(GridMap *gm, std::string mapName, std::string baseLayer ){
+
 
         grid_map::Position p;       
         grid_map::Index index;
+        int nrow, ncol;
 
-        std::cout<<"\nTesting boundaries: " <<std::endl;
+        nrow = (*gm).getSize().x();
+        ncol = (*gm).getSize().y();
+
+        ROS_DEBUG_STREAM( " xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+        ROS_DEBUG_STREAM( " Testing map: [" << mapName << "]");
+        ROS_DEBUG_STREAM( " Map has " << nrow << " rows by " << ncol << " cols (i,j axis)");
+        ROS_DEBUG_STREAM( " Size: (" << (*gm).getLength().x() << ", " << (*gm).getLength().y() <<") m. " );
+        ROS_DEBUG_STREAM( " Orig at: (" << (*gm).getPosition().x() << ", " << (*gm).getPosition().y() <<") m., @frame_id: ["+ (*gm).getFrameId()+"]" );
+        ROS_DEBUG_STREAM( " Values range: (" << (*gm).get(baseLayer).minCoeffOfFinites() << ", " << (*gm).get(baseLayer).maxCoeffOfFinites() <<")   " );
+        ROS_DEBUG_STREAM( " Resolution is: " << (*gm).getResolution() << " m. /cell" );
+
+        ROS_DEBUG_STREAM(" " );
+        ROS_DEBUG_STREAM("Testing boundaries: " );
         index =grid_map::Index(0,0);
-        std::cout<<"P: Index("  << 0 << ", " << 0 << ") " <<std::endl;
-        if (_rfid_belief_maps.getPosition(index,p)){  
-            std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " <<std::endl;
+
+        ROS_DEBUG_STREAM("P: Index("  << 0 << ", " << 0 << ") " );
+        if ((*gm).getPosition(index,p)){  
+            ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " );
         } else {
-          std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" <<std::endl;  
+          ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" );  
         }
 
-        index =grid_map::Index(_Nrow-1,0);
-        std::cout<<"P: Index("  << (_Nrow-1) << ", " << 0 << ") " <<std::endl;
-        if (_rfid_belief_maps.getPosition(index,p)){  
-            std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " <<std::endl;
+        index =grid_map::Index(nrow-1,0);
+        ROS_DEBUG_STREAM("P: Index("  << (nrow-1) << ", " << 0 << ") " );
+        if ((*gm).getPosition(index,p)){  
+            ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " );
         } else {
-          std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" <<std::endl;  
+          ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" );  
         }
 
-        index =grid_map::Index(0,_Ncol-1);
-        std::cout<<"P: Index("  << (0) << ", " << (_Ncol-1) << ") " <<std::endl;
-        if (_rfid_belief_maps.getPosition(index,p)){  
-            std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " <<std::endl;
+        index =grid_map::Index(0,ncol-1);
+        ROS_DEBUG_STREAM("P: Index("  << (0) << ", " << (ncol-1) << ") " );
+        if ((*gm).getPosition(index,p)){  
+            ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " );
         } else {
-          std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" <<std::endl;  
+          ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" );  
         }
 
-        index =grid_map::Index(_Nrow-1,_Ncol-1);
-        std::cout << "P: Index("  << (_Nrow-1) << ", " << (_Ncol-1) << ") " <<std::endl;        
-        if (_rfid_belief_maps.getPosition(index,p)){  
-            std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " <<std::endl;
+        index =grid_map::Index(nrow-1,ncol-1);
+        ROS_DEBUG_STREAM( "P: Index("  << (nrow-1) << ", " << (ncol-1) << ") " );        
+        if ((*gm).getPosition(index,p)){  
+            ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" << p(0) << ", " << p(1)<<") m. " );
         } else {
-          std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" <<std::endl;  
+          ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out bounds!" );  
         }
-        std::cout << "............................. " << std::endl << std::endl;        
+        ROS_DEBUG_STREAM( " xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 }
 
 
 void RadarModelROS::loadBelief(const std::string imageURI) {
-  std::cout << "\nLoading belief map." << std::endl;
+  ROS_DEBUG_STREAM( "\nLoading belief map." );
 
   cv::Mat _imageCV = cv::imread(imageURI, CV_LOAD_IMAGE_UNCHANGED);
 
@@ -232,7 +350,7 @@ RadarModelROS::RadarModelROS(const double resolution, const double sigma_power, 
 
 
 void RadarModelROS::initRefMap(const std::string imageURI) {
-  std::cout << "\nIniting Ref map." << std::endl;
+  ROS_DEBUG_STREAM( "\nIniting Ref map." );
 
   cv::Mat _imageCV = cv::imread(imageURI, CV_LOAD_IMAGE_UNCHANGED);
   // this alligns image with our coordinate systems
@@ -268,63 +386,63 @@ void RadarModelROS::initRefMap(const std::string imageURI) {
   GridMapCvConverter::addLayerFromImage<unsigned char, 3>(
       _imageCV, "ref_map", _rfid_belief_maps, minValue, maxValue);
 
-  std::cout << " Input map has " << _rfid_belief_maps.getSize()(1)
+  ROS_DEBUG_STREAM( " Input map has " << _rfid_belief_maps.getSize()(1)
             << " cols by " << _rfid_belief_maps.getSize()(0) << " rows "
-            << std::endl;
-  std::cout << " Orig at: (" << orig_x << ", " << orig_y << ") m. "
-            << std::endl;
-  std::cout << " Size: (" << _rfid_belief_maps.getLength().x() << ", "
-            << _rfid_belief_maps.getLength().y() << ") m. " << std::endl;
-  std::cout << " Values range: (" << minValue << ", " << maxValue << ")   "
-            << std::endl;
-  std::cout << " Using : (" << maxValue << ") value as free space value  "
-            << std::endl;
+            );
+  ROS_DEBUG_STREAM( " Orig at: (" << orig_x << ", " << orig_y << ") m. "
+            );
+  ROS_DEBUG_STREAM( " Size: (" << _rfid_belief_maps.getLength().x() << ", "
+            << _rfid_belief_maps.getLength().y() << ") m. " );
+  ROS_DEBUG_STREAM( " Values range: (" << minValue << ", " << maxValue << ")   "
+            );
+  ROS_DEBUG_STREAM( " Using : (" << maxValue << ") value as free space value  "
+            );
 
   grid_map::Position p;
   grid_map::Index index;
 
-  // std::cout<<"\nTesting boundaries: " <<std::endl;
+  // ROS_DEBUG_STREAM("\nTesting boundaries: " );
   index = grid_map::Index(0, 0);
-  // std::cout<<"P: Index("  << 0 << ", " << 0 << ") " <<std::endl;
+  // ROS_DEBUG_STREAM("P: Index("  << 0 << ", " << 0 << ") " );
   if (_rfid_belief_maps.getPosition(index, p)) {
-    // std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
-    // p(0) << ", " << p(1)<<") m. " <<std::endl;
+    // ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
+    // p(0) << ", " << p(1)<<") m. " );
   } else {
-    // std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out
-    // bounds!" <<std::endl;
+    // ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out
+    // bounds!" );
   }
 
   index = grid_map::Index(_Nrow - 1, 0);
-  // std::cout<<"P: Index("  << (_Nrow-1) << ", " << 0 << ") " <<std::endl;
+  // ROS_DEBUG_STREAM("P: Index("  << (_Nrow-1) << ", " << 0 << ") " );
   if (_rfid_belief_maps.getPosition(index, p)) {
-    // std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
-    // p(0) << ", " << p(1)<<") m. " <<std::endl;
+    // ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
+    // p(0) << ", " << p(1)<<") m. " );
   } else {
-    // std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out
-    // bounds!" <<std::endl;
+    // ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out
+    // bounds!" );
   }
 
   index = grid_map::Index(0, _Ncol - 1);
-  // std::cout<<"P: Index("  << (0) << ", " << (_Ncol-1) << ") " <<std::endl;
+  // ROS_DEBUG_STREAM("P: Index("  << (0) << ", " << (_Ncol-1) << ") " );
   if (_rfid_belief_maps.getPosition(index, p)) {
-    // std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
-    // p(0) << ", " << p(1)<<") m. " <<std::endl;
+    // ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
+    // p(0) << ", " << p(1)<<") m. " );
   } else {
-    // std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out
-    // bounds!" <<std::endl;
+    // ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out
+    // bounds!" );
   }
 
   index = grid_map::Index(_Nrow - 1, _Ncol - 1);
-  // std::cout << "P: Index("  << (_Nrow-1) << ", " << (_Ncol-1) << ") "
-  // <<std::endl;
+  // ROS_DEBUG_STREAM( "P: Index("  << (_Nrow-1) << ", " << (_Ncol-1) << ") "
+  // );
   if (_rfid_belief_maps.getPosition(index, p)) {
-    // std::cout<<"P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
-    // p(0) << ", " << p(1)<<") m. " <<std::endl;
+    // ROS_DEBUG_STREAM("P: Cell("  << index(0) << ", " << index(1) << ") is at (" <<
+    // p(0) << ", " << p(1)<<") m. " );
   } else {
-    // std::cout<<" Cell("  << index(0) << ", " << index(1) << ") is out
-    // bounds!" <<std::endl;
+    // ROS_DEBUG_STREAM(" Cell("  << index(0) << ", " << index(1) << ") is out
+    // bounds!" );
   }
-  // std::cout << "............................. " << std::endl << std::endl;
+  // ROS_DEBUG_STREAM( "............................. " );
 }
 
 void RadarModelROS::saveProbMaps(std::string savePath) {
@@ -337,7 +455,7 @@ void RadarModelROS::saveProbMaps(std::string savePath) {
   // prob distribution maps
   for (int i = 0; i < _numTags; ++i) {
     tagLayerName = getTagLayerName(i);
-    // std::cout << " Saving layer [" << tagLayerName << "]" << std::endl ;
+    // ROS_DEBUG_STREAM( " Saving layer [" << tagLayerName << "]" ) ;
     fileURI = savePath + "final_prob_" + tagLayerName + ".png";
     getImage(&_rfid_belief_maps, tagLayerName, fileURI);
     // data_mat = _rfid_belief_maps[tagLayerName];
@@ -477,7 +595,7 @@ Eigen::MatrixXf RadarModelROS::getFriisMatFast(double x_m, double y_m, double or
 
   // And finally add obstacle losses and propagation losses  
   rxPower = rxPower   - _rfid_belief_maps.get("obst_losses");
-  //std::cout << "Still running at line: " << __LINE__<< std::endl;
+  //ROS_DEBUG_STREAM( "Still running at line: " << __LINE__);
 
   // this should remove points where received power is too low
   rxPower = (rxPower.array()>SENSITIVITY).select(rxPower,SENSITIVITY); 
@@ -560,7 +678,7 @@ Eigen::MatrixXf RadarModelROS::getPhaseMat(double x_m, double y_m, double orient
 }
 
 void RadarModelROS::getImage(std::string layerName, std::string fileURI){
-    //std::cout << "Still running at line: " << __LINE__<< std::endl;
+    //ROS_DEBUG_STREAM( "Still running at line: " << __LINE__);
 
     getImage(&_rfid_belief_maps, layerName, fileURI);
 }
@@ -590,13 +708,13 @@ double RadarModelROS::getTotalWeight(double x, double y, double orientation,
 
   if (!_rfid_belief_maps.getIndex(submapStartPosition, submapStartIndex)) {
     submapStartIndex = grid_map::Index(0, 0);
-    // std::cout<<"Clip start!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip start!" );
   }
 
   if (!_rfid_belief_maps.getIndex(submapEndPosition, submapEndIndex)) {
     Size siz = _rfid_belief_maps.getSize();
     submapEndIndex = grid_map::Index(siz(0) - 1, siz(1) - 1);
-    // std::cout<<"Clip end!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip end!" );
   }
 
   submapBufferSize = submapEndIndex - submapStartIndex;
@@ -604,14 +722,13 @@ double RadarModelROS::getTotalWeight(double x, double y, double orientation,
   grid_map::SubmapIterator iterator(_rfid_belief_maps, submapStartIndex,
                                     submapBufferSize);
 
-  // std::cout<<"\nGet prob.:" << std::endl;
-  // std::cout<<" Centered at Position (" << x << ", " << y << ") m. / Size ("
-  // << size_x << ", " << size_y << ")" << std::endl; std::cout<<" Start pose ("
-  // << submapStartPosition(0) << ", " << submapStartPosition(1) << ") m. to
-  // pose " << submapEndPosition(0) << ", " << submapEndPosition(1) << ") m."<<
-  // std::endl; std::cout<<" Start Cell ("  << submapStartIndex(0) << ", " <<
-  // submapStartIndex(1) << ") to cell("  << submapEndIndex(0) << ", " <<
-  // submapEndIndex(1) << ")"<< std::endl;
+  // ROS_DEBUG_STREAM("\nGet prob.:" );
+  // ROS_DEBUG_STREAM(" Centered at Position (" << x << ", " << y << ") m. / Size ("
+  //                    << size_x << ", " << size_y << ")" ); ROS_DEBUG_STREAM(" Start pose ("
+  //                    << submapStartPosition(0) << ", " << submapStartPosition(1) << ") m. to pose " << submapEndPosition(0) << ", " << submapEndPosition(1) << ") m."); 
+  // ROS_DEBUG_STREAM(" Start Cell ("  << submapStartIndex(0) << ", " <<
+  //                    submapStartIndex(1) << ") to cell("  << submapEndIndex(0) << ", " <<
+  //                    submapEndIndex(1) << ")" );
 
   return getTotalWeight(iterator, tag_i);
 }
@@ -680,26 +797,26 @@ void RadarModelROS::getImageDebug(GridMap *gm, std::string layerName,
   grid_map::Position p(maxX, maxY);
   (*gm).getIndex(p, index);
   cv::Point gree(index.x(), index.x());
-  std::cout << "Green: (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "Green: (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   p = Position(maxX, -maxY);
   (*gm).getIndex(p, index);
   cv::Point blu(index.y(), index.x());
-  std::cout << "Blue (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "Blue (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   p = Position(-maxX, -maxY);
   (*gm).getIndex(p, index);
   cv::Point re(index.y(), index.x());
-  std::cout << "Red (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "Red (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   p = Position(-maxX, maxY);
   (*gm).getIndex(p, index);
   cv::Point yell(index.y(), index.x());
-  std::cout << "Yellow (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "Yellow (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   cv::circle(image, gree, 20, green, -1);
   cv::circle(image, blu, 20, blue, -1);
@@ -712,20 +829,20 @@ void RadarModelROS::getImageDebug(GridMap *gm, std::string layerName,
   p = Position(h / 2.0, 0);
   (*gm).getIndex(p, index);
   triang_points[0][0] = cv::Point(index.y(), index.x());
-  std::cout << "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   p = Position(-h / 2.0, -h / 2.0);
   (*gm).getIndex(p, index);
   triang_points[0][1] = cv::Point(index.y(), index.x());
-  std::cout << "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   p = Position(-h / 2.0, h / 2.0);
   (*gm).getIndex(p, index);
   triang_points[0][2] = cv::Point(index.y(), index.x());
-  std::cout << "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
-            << ", " << index(1) << ")" << std::endl;
+  ROS_DEBUG_STREAM( "p (" << p(0) << ", " << p(1) << ") m. == Cell(" << index(0)
+            << ", " << index(1) << ")" );
 
   const cv::Point *ppt[1] = {triang_points[0]};
   int npt[] = {3};
@@ -733,8 +850,10 @@ void RadarModelROS::getImageDebug(GridMap *gm, std::string layerName,
 
   // Rotate 90 Degrees Clockwise To get our images to have increasing X to right
   // and increasing Y up
-  cv::transpose(image, image);
-  cv::flip(image, image, 1);
+  // cv::transpose(image, image);
+  // cv::flip(image, image, 1);
+  cv::flip(image, image, -1);
+
   cv::imwrite(fileURI, image);
 }
 
@@ -771,33 +890,40 @@ std::string RadarModelROS::getLayerName(double x) {
 }
 
 cv::Point RadarModelROS::getPoint(double x_m, double y_m) {
-  Length mlen = _rfid_belief_maps.getLength();
-  grid_map::Position orig = _rfid_belief_maps.getPosition();
-  double min_x = orig(0) - mlen(0) / 2 + _resolution;
-  double max_x = orig(0) + mlen(0) / 2 - _resolution;
-  double min_y = orig(1) - mlen(1) / 2 + _resolution;
-  double max_y = orig(1) + mlen(1) / 2 - _resolution;
+  return getPoint(&_rfid_belief_maps,x_m, y_m);
+}
+
+
+
+cv::Point RadarModelROS::getPoint(  GridMap* gm, double x_m, double y_m) {
+
+  Length mlen = (*gm).getLength();
+  double resol = (*gm).getResolution();
+  int nrow = (*gm).getSize().x();
+  int ncol = (*gm).getSize().y();
+  grid_map::Position orig = (*gm).getPosition();
+
+  double min_x = orig(0) - mlen(0) / 2 + resol;
+  double max_x = orig(0) + mlen(0) / 2 - resol;
+  double min_y = orig(1) - mlen(1) / 2 + resol;
+  double max_y = orig(1) + mlen(1) / 2 - resol;
 
   grid_map::Index index;
 
   grid_map::Position p(x_m, y_m);
-
-  if (!_rfid_belief_maps.getIndex(p, index)) {
-    // std::cout<<" Position ("  << p(0) << ", " << p(1) << ") is out of
-    // _rfid_belief_maps bounds!!" <<std::endl;
+  if (!(*gm).getIndex(p, index)) {
     x_m = std::min(std::max(x_m, min_x), max_x);
     y_m = std::min(std::max(y_m, min_y), max_y);
     p = grid_map::Position(x_m, y_m);
-    _rfid_belief_maps.getIndex(p, index);
+    (*gm).getIndex(p, index);
   }
 
   // cast from gridmap indexes to opencv indexes
-  int cv_y = (_Nrow - 1) - index.x();
-  int cv_x = (_Ncol - 1) - index.y();
-  // std::cout<<"Which equals to opencv cell ("  << cv_x << ", " << cv_y << ") "
-  // << std::endl;
+  int cv_y = (nrow - 1) - index.x();
+  int cv_x = (ncol - 1) - index.y();
 
   return cv::Point(cv_x, cv_y);
+  //return cv::Point(index.y(), index.x());
 }
 
 void RadarModelROS::getSphericCoords(double x, double y, double &r, double &phi) {
@@ -815,12 +941,12 @@ void RadarModelROS::PrintRecPower(std::string fileURI, double f_i, double txtPow
 
 void RadarModelROS::PrintRecPower(std::string fileURI,double x_m, double y_m, double orientation_deg, double f_i, double txtPower){
   // create a copy of the average values
-  //std::cout << "Still running at line: " << __LINE__<< std::endl;
+  //ROS_DEBUG_STREAM( "Still running at line: " << __LINE__);
   Eigen::MatrixXf av_mat = getFriisMat(x_m, y_m, orientation_deg, f_i, txtPower);
 
-  //std::cout << "Still running at line: " << __LINE__<< std::endl;
+  //ROS_DEBUG_STREAM( "Still running at line: " << __LINE__);
   PrintProb(fileURI, &av_mat);
-  //std::cout << "Still running at line: " << __LINE__<< std::endl;
+  //ROS_DEBUG_STREAM( "Still running at line: " << __LINE__);
 }
 
 void RadarModelROS::PrintPhase(std::string fileURI,  double f_i){            
@@ -917,7 +1043,7 @@ void RadarModelROS::PrintRefMapWithTags(std::string fileURI) {
 
 void RadarModelROS::overlayMapEdges(cv::Mat image) {
   cv::Point square_points[1][4];
-  cv::Scalar red(0, 255, 255);
+  cv::Scalar yellow(0, 255, 255);
   int cv_y, cv_x;
 
   cv_y = (_Nrow - 1);
@@ -930,8 +1056,9 @@ void RadarModelROS::overlayMapEdges(cv::Mat image) {
 
   const cv::Point *pts[1] = {square_points[0]};
   int npts[] = {4};
-  cv::polylines(image, pts, npts, 1, true, red);
+  cv::polylines(image, pts, npts, 1, true, yellow);
 }
+
 
 void RadarModelROS::overlayRobotPoseT(double robot_x, double robot_y,
                                    double robot_head, cv::Mat &image) {
@@ -958,13 +1085,17 @@ void RadarModelROS::overlayRobotPoseT(double robot_x, double robot_y,
   cv::fillPoly(image, pts, npts, 1, red, 8);
 }
 
-void RadarModelROS::overlayRobotPose(double robot_x, double robot_y,
-                                  double robot_head, cv::Mat &image) {
-  cv::Point center;
+void RadarModelROS::overlayRobotPose(double robot_x, double robot_y, double robot_head, cv::Mat &image) {
+  return overlayRobotPose(&_rfid_belief_maps, robot_x, robot_y, robot_head, image);
+}
 
+void RadarModelROS::overlayRobotPose(GridMap *gm, double robot_x, double robot_y, double robot_head, cv::Mat &image){
+
+  cv::Point center;
+  int radius = std::ceil(0.25/(_resolution ));
   cv::Scalar red(0, 0, 255);
-  center = getPoint(robot_x, robot_y);
-  cv::circle(image, center, 5, red, -1);
+  center = getPoint(gm, robot_x, robot_y);
+  cv::circle(image, center, 5, red, 1);
 }
 
 void RadarModelROS::rotatePoints(cv::Point *points, int npts, int cxi, int cyi,
@@ -1013,8 +1144,8 @@ grid_map::Position RadarModelROS::fromPoint(cv::Point cvp) {
   grid_map::Index index(gm_x, gm_y);
 
   if (!_rfid_belief_maps.getPosition(index, p)) {
-    // std::cout<<" Index ("  << index(0) << ", " << index(1) << ") is out of
-    // _rfid_belief_maps bounds!!" <<std::endl;
+    // ROS_DEBUG_STREAM(" Index ("  << index(0) << ", " << index(1) << ") is out of
+    // _rfid_belief_maps bounds!!" );
     gm_x = std::min(std::max(gm_x, 0), _Nrow - 1);
     gm_y = std::min(std::max(gm_y, 0), _Ncol - 1);
     index = grid_map::Index(gm_x, gm_y);
@@ -1026,20 +1157,6 @@ grid_map::Position RadarModelROS::fromPoint(cv::Point cvp) {
 
 //////////////////////////// Other functions ////////////////////////////
 
-void RadarModelROS::debugInfo() {
-  std::cout << ".................." << std::endl;
-  Length mlen = _rfid_belief_maps.getLength();
-  std::cout << "RFID belief area is: " << mlen(0) << " by " << mlen(1)
-            << " m. (x,y)" << std::endl;
-  std::cout << "Resolution is: " << _resolution << " m. /cell" << std::endl;
-  std::cout << "RFID belief grid is: " << _rfid_belief_maps.getSize()(0)
-            << " by " << _rfid_belief_maps.getSize()(1) << " cells (i,j axis)"
-            << std::endl;
-  std::cout << ". " << std::endl;
-  std::cout << "Total grid Map is: " << _Ncol << " by " << _Nrow
-            << " cells (i,j axis)" << std::endl;
-  std::cout << ".................." << std::endl;
-}
 
 void RadarModelROS::saveProbMapDebug(std::string savePATH, int tag_num, int step,
                                   double robot_x, double robot_y,
@@ -1061,14 +1178,38 @@ void RadarModelROS::saveProbMapDebug(std::string savePATH, int tag_num, int step
   // Convert to image.
   cv::Mat image = rfidBeliefToCVImg(layerName);
 
+  // overlay obstacles in green
+  cv::Mat image2;
+  grid_map::Matrix obstMat = _rfid_belief_maps["ref_map"];
+  
+  obstMat = 1.0f - obstMat.array(); 
+  _rfid_belief_maps.add("tempLayer",obstMat);
+
+  const float minValue = _rfid_belief_maps["tempLayer"].minCoeff();
+  const float maxValue = _rfid_belief_maps["tempLayer"].maxCoeff();
+
+  GridMapCvConverter::toImage<unsigned char, 3>(_rfid_belief_maps, "tempLayer", CV_8UC3, minValue, maxValue, image2);  
+  cv::flip(image2, image2, -1);
+
+  std::vector<cv::Mat> channels,channels2;
+  cv::split(image, channels);
+  cv::split(image2, channels2);
+
+  // b,g,r
+  std::vector<cv::Mat> newChannes = { channels[0], channels[1]+channels2[2], channels[2] };
+  cv::merge(newChannes, image);
+
+  /// overlay tag position
+
+
   cv::Point tag_center;
 
   /// overlay tag position
   /// .................................................................................................
-  double tx = _tags_coords[tag_num].first;
-  double ty = _tags_coords[tag_num].second;
-  tag_center = getPoint(tx, ty);
-  cv::circle(image, tag_center, 5, green, 1);
+  // double tx = _tags_coords[tag_num].first;
+  // double ty = _tags_coords[tag_num].second;
+  // tag_center = getPoint(tx, ty);
+  // cv::circle(image, tag_center, 5, green, 1);
 
   /// overlay robot position
   /// .................................................................................................
@@ -1121,8 +1262,8 @@ void RadarModelROS::clearObstacles(cv::Mat &image) {
         result.at<cv::Vec3b>(y, x) = image.at<cv::Vec3b>(y, x);
       }
       if ((ref_val != 0) && (ref_val != 255)) {
-        std::cout << "Map image NOT BINARY AT (" << x << ", " << y
-                  << ") = " << ref_val << std::endl;
+        ROS_DEBUG_STREAM( "Map image NOT BINARY AT (" << x << ", " << y
+                  << ") = " << ref_val );
       }
     }
   }
@@ -1130,10 +1271,10 @@ void RadarModelROS::clearObstacles(cv::Mat &image) {
   // there you go ...
   image = result;
 
-  // std::cout<<"Map image (" << ref_img.size().width << ", "
-  // <<ref_img.size().height<<") pixels" <<std::endl; std::cout<<"Out image ("
+  // ROS_DEBUG_STREAM("Map image (" << ref_img.size().width << ", "
+  // <<ref_img.size().height<<") pixels" ); ROS_DEBUG_STREAM("Out image ("
   // << image.size().width << ", " <<image.size().height<<") pixels"
-  // <<std::endl; and save
+  // ); and save
   cv::imwrite("/tmp/refMap.png", ref_img);
 
   // cv::Mat rgba;
@@ -1175,9 +1316,9 @@ double RadarModelROS::antennaPlaneLoss(double angleRad) {
   double angleDeg = angleRad * 180.0 / M_PI;
 
   if (fabs(angleDeg) > 180.0) {
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-    std::cout << "Angle (" << angleDeg << ") deg. " << std::endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+    ROS_DEBUG_STREAM( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+    ROS_DEBUG_STREAM( "Angle (" << angleDeg << ") deg. " );
+    ROS_DEBUG_STREAM( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
   }
 
   // gain list entries start at -180 degrees to 180 in steps of 15.
@@ -1302,21 +1443,15 @@ RadarModelROS::received_power_friis_polar(double tag_r, double tag_h, double fre
   }
 
   if (rxPower > txtPower) {
-    std::cout << endl
-              << endl
-              << "ERROR! MORE POWER RECEIVED THAN TRANSMITTED!!!!!!!!!!!!! "
-              << endl;
-    std::cout << "Relative tag polar pose: (" << tag_r << " m.,"
-              << tag_h * 180 / M_PI << " deg.)" << endl;
-    std::cout << "At Freq.: (" << freq / 1e6 << " MHz.)" << endl;
-    std::cout << "Lambda: (" << lambda << " m.)" << endl;
-    std::cout << "Tx Pw.: (" << txtPower << " dB)" << endl;
-    std::cout << "Rx Pw.: (" << rxPower << " dB)" << endl;
-    std::cout << "Antenna losses: (" << antL << " dB)" << endl;
-    std::cout << "Propagation losses: (" << propL << " dB)" << endl;
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " << endl
-              << endl
-              << endl;
+    ROS_DEBUG_STREAM( "ERROR! MORE POWER RECEIVED THAN TRANSMITTED!!!!!!!!!!!!! ");
+    ROS_DEBUG_STREAM( "Relative tag polar pose: (" << tag_r << " m.,"  << tag_h * 180 / M_PI << " deg.)" );
+    ROS_DEBUG_STREAM( "At Freq.: (" << freq / 1e6 << " MHz.)" );
+    ROS_DEBUG_STREAM( "Lambda: (" << lambda << " m.)" );
+    ROS_DEBUG_STREAM( "Tx Pw.: (" << txtPower << " dB)" );
+    ROS_DEBUG_STREAM( "Rx Pw.: (" << rxPower << " dB)" );
+    ROS_DEBUG_STREAM( "Antenna losses: (" << antL << " dB)" );
+    ROS_DEBUG_STREAM( "Propagation losses: (" << propL << " dB)" );
+    ROS_DEBUG_STREAM( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " );
   }
 
   return rxPower;
@@ -1357,14 +1492,14 @@ RadarModelROS::findTagFromBeliefMap(int num_tag) {
         index(0) <= _rfid_belief_maps.getLength().x() - buffer_size) {
       if (index(1) > buffer_size and
           index(1) <= _rfid_belief_maps.getLength().y() - buffer_size) {
-        // std::cout << "I: " << index(0) << "," << index(1) << endl;
+        // ROS_DEBUG_STREAM( "I: " << index(0) << "," << index(1) );
         Index submapStartIndex(index(0) - buffer_size, index(1) - buffer_size);
         Index submapBufferSize(buffer_size, buffer_size);
         for (grid_map::SubmapIterator sub_iterator(
                  _rfid_belief_maps, submapStartIndex, submapBufferSize);
              !sub_iterator.isPastEnd(); ++sub_iterator) {
           Index sub_index(*sub_iterator);
-          // std::cout << "I: " << sub_index(0) << "," << sub_index(1) << endl;
+          // ROS_DEBUG_STREAM( "I: " << sub_index(0) << "," << sub_index(1) );
           tmp_power += grid(sub_index(0), sub_index(1));
         }
       }
@@ -1388,7 +1523,7 @@ RadarModelROS::findTagFromBeliefMap(int num_tag) {
   }
   std::pair<int, std::pair<int, int>> final_return(powerRead, tag);
 
-  // cout << "Value read: " << powerRead << endl;
+  // ROS_DEBUG_STREAM( "Value read: " << powerRead );
   return final_return;
 }
 
@@ -1491,13 +1626,13 @@ double RadarModelROS::getTotalEntropy(double x, double y, double orientation,
 
   if (!_rfid_belief_maps.getIndex(submapStartPosition, submapStartIndex)) {
     submapStartIndex = grid_map::Index(0, 0);
-    // std::cout<<"Clip start!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip start!" );
   }
 
   if (!_rfid_belief_maps.getIndex(submapEndPosition, submapEndIndex)) {
     Size siz = _rfid_belief_maps.getSize();
     submapEndIndex = grid_map::Index(siz(0) - 1, siz(1) - 1);
-    // std::cout<<"Clip end!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip end!" );
   }
 
   submapBufferSize = submapEndIndex - submapStartIndex;
@@ -1537,7 +1672,7 @@ double RadarModelROS::getTotalEntropy(double x, double y, double orientation,
         log2_neg_likelihood = log2(neg_likelihood);
         if (isinf(log2_neg_likelihood))
           log2_neg_likelihood = 0.0;
-        // cout << " l: " << log2_likelihood << endl;
+        // ROS_DEBUG_STREAM( " l: " << log2_likelihood );
         // likelihood =
         // rfid_tools->rm.getBeliefMaps().atPosition(layerName,rel_point);
         total_entropy += -likelihood * log2_likelihood -
@@ -1601,7 +1736,7 @@ double RadarModelROS::getTotalEntropyEllipse(grid_map::EllipseIterator iterator,
         log2_neg_likelihood = log2(neg_likelihood);
         if (isinf(log2_neg_likelihood))
           log2_neg_likelihood = 0.0;
-        // cout << " l: " << log2_likelihood << endl;
+        // ROS_DEBUG_STREAM( " l: " << log2_likelihood );
         // likelihood =
         // rfid_tools->rm.getBeliefMaps().atPosition(layerName,rel_point);
         total_entropy += -likelihood * log2_likelihood -
@@ -1615,7 +1750,7 @@ double RadarModelROS::getTotalEntropyEllipse(grid_map::EllipseIterator iterator,
 void RadarModelROS::printEllipse(double x, double y, double orient_rad, double maxX, double minX){
   std::string fileURI;
 
-  cout << "[ELLIPSE] x: " << x << ", y: " << y << ", orient_rad: " << orient_rad << endl;
+  ROS_DEBUG_STREAM( "[ELLIPSE] x: " << x << ", y: " << y << ", orient_rad: " << orient_rad );
 
   double a =  (abs(maxX) + abs(minX))/2.0;
   double c =  (abs(maxX) - abs(minX))/2;
@@ -1658,13 +1793,13 @@ double RadarModelROS::getTotalKL(double x, double y, double orientation,
 
   if (!_rfid_belief_maps.getIndex(submapStartPosition, submapStartIndex)) {
     submapStartIndex = grid_map::Index(0, 0);
-    // std::cout<<"Clip start!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip start!" );
   }
 
   if (!_rfid_belief_maps.getIndex(submapEndPosition, submapEndIndex)) {
     Size siz = _rfid_belief_maps.getSize();
     submapEndIndex = grid_map::Index(siz(0) - 1, siz(1) - 1);
-    // std::cout<<"Clip end!" << std::endl;
+    // ROS_DEBUG_STREAM("Clip end!" );
   }
 
   submapBufferSize = submapEndIndex - submapStartIndex;
@@ -1696,9 +1831,9 @@ double RadarModelROS::getTotalKL(double x, double y, double orientation,
         if (isnan(tmp_KL))
           tmp_KL = 0;
         total_KL += tmp_KL;
-        // cout << "Prior: " << prior << endl;
-        // cout << "Posterior: " << posterior << endl;
-        // cout << "totalKL: " << total_KL << endl;
+        // ROS_DEBUG_STREAM( "Prior: " << prior );
+        // ROS_DEBUG_STREAM( "Posterior: " << posterior );
+        // ROS_DEBUG_STREAM( "totalKL: " << total_KL );
       }
     }
   }
@@ -1711,7 +1846,7 @@ void RadarModelROS::addTmpMeasurementRFIDCriterion(double x_m, double y_m,
                                                 double freq, int i,
                                                 double len_update) {
 
-  // cout << "computeKL: " << computeKL << endl;
+  // ROS_DEBUG_STREAM( "computeKL: " << computeKL );
   double rel_x, rel_y, prob_val, orientation_rad;
   double glob_x, glob_y, delt_x, delt_y;
   Position rel_point, glob_point;
@@ -1732,7 +1867,7 @@ void RadarModelROS::addTmpMeasurementRFIDCriterion(double x_m, double y_m,
     //   prob_mat = getNegProb(getPowLayerName(freq), rxPower,
     //   _sigma_power);//.cwiseProduct(getPhaseProbCond(phase, freq));
     // //   if (i == 0){
-    // //     cout << "Neg: " << prob_mat.sum() << endl;
+    // //     ROS_DEBUG_STREAM( "Neg: " << prob_mat.sum() );
     // //   }
     // }
 
@@ -1786,7 +1921,7 @@ Eigen::MatrixXf RadarModelROS::getPowProbCondRFIDCriterion(double rxPw,
                                                         double f_i) {
   // probability of receiving less than X1 in every cell
   Eigen::MatrixXf x1_mat = getNegProbRFIDCriterion(rxPw, _sigma_power);
-  // std::cout << "x1_mat: " << x1_mat.sum()/(siz(0)*siz(1)) << endl;
+  // ROS_DEBUG_STREAM( "x1_mat: " << x1_mat.sum()/(siz(0)*siz(1)) );
 
   // probability of receiving between X1 and X2 in every cell
   Eigen::MatrixXf ans = (x1_mat).array().abs();

@@ -3,6 +3,6 @@ grid_map_visualizations:
   - name: occupancy_grid
     type: occupancy_grid
     params:
-     layer: type
+     layer: '0'
      data_min: 0.0
      data_max: 1.0

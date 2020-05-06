@@ -27,8 +27,6 @@ if(NOT EIGEN3_FOUND)
   set(EIGEN3_INCLUDE_DIR ${EIGEN3_INCLUDE_DIRS})
 endif()
 
-# find_package(yaml-cpp REQUIRED)
-
 find_package(OpenCV REQUIRED
   COMPONENTS
   opencv_highgui
@@ -44,9 +42,9 @@ find_package(Boost REQUIRED COMPONENTS random)
 
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS cv_bridge grid_map_costmap_2d #yaml-cpp
-  #DEPENDS yaml-cpp 
+# LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS cv_bridge grid_map_costmap_2d 
+# DEPENDS  
 )
 
 ###########
@@ -64,23 +62,9 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(
-   rfid_grid_map_node 
+   rfid_grid_map_node
    src/rfid_grid_map_node.cpp
    src/rfid_gridMap.cpp
-   )
-   
-## Declare a C++ executable
-add_executable(
-   rfid_grid_map_node2 
-   src/rfid_grid_map_node2.cpp
-   src/rfid_gridMap2.cpp
-   )
-
-## Declare a C++ executable
-add_executable(
-   rfid_grid_map_node3
-   src/rfid_grid_map_node3.cpp
-   src/rfid_gridMap3.cpp
    src/RadarModelROS.cpp
    )
 
@@ -94,26 +78,11 @@ add_executable(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(
    rfid_grid_map_node
-   ${catkin_LIBRARIES} #yaml-cpp
+   ${catkin_LIBRARIES} 
   ${OpenCV_LIBRARIES} 
   ${Boost_LIBRARIES}
  )
 
-## Specify libraries to link a library or executable target against
- target_link_libraries(
-   rfid_grid_map_node2
-   ${catkin_LIBRARIES} #yaml-cpp
-  ${OpenCV_LIBRARIES} 
-  ${Boost_LIBRARIES}
- )
- 
-## Specify libraries to link a library or executable target against
- target_link_libraries(
-   rfid_grid_map_node3
-   ${catkin_LIBRARIES} #yaml-cpp
-  ${OpenCV_LIBRARIES} 
-  ${Boost_LIBRARIES}
- )
 
  target_link_libraries(
    viewZois 
@@ -127,18 +96,6 @@ add_executable(
 #############
 
 install(TARGETS rfid_grid_map_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(TARGETS rfid_grid_map_node2
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(TARGETS rfid_grid_map_node3
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
