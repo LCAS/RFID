@@ -40,8 +40,8 @@
        <arg name="tagID"                value="390101110000000000000001" />
        <arg name="object"               value="remote" />
        <arg name="saveRoute"            value="$(find rfid_grid_map)/save/FDG/" />    
-       <arg name="sigma_power"          value="3.92"/>
-       <arg name="rfidgrid_resolution"  value="0.05"/>
+       <arg name="sigma_power"          value="5.92"/>
+       <arg name="rfidgrid_resolution"  value="0.075"/>
        <arg name="with_visualizer"      value="true"/>    
     </include>
     <!-- <include file="$(find rfid_grid_map)/launch/grid.launch">

@@ -79,6 +79,8 @@ namespace rfid_grid_map {
 
             model_.addMeasurement(x, y, rh* 180.0/M_PI, rxPower_dB, rxPhase_rad, rxFreq_Hz, 0, txPower_dB);
             model_.saveProbMapDebug("/tmp/test/",0, (int) numDetections,x,y, rh);
+            // make a video out of this shit            
+            // ffmpeg -r 10 -f image2 -s 1920x1080 -start_number 000 -i T0_S%03d_tempMap.png -vcodec libx264 -crf 25 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  -pix_fmt yuv420p test0.mp4
         }
     }
 

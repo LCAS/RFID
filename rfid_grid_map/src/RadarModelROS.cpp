@@ -1072,7 +1072,7 @@ void RadarModelROS::overlayRobotPoseT(double robot_x, double robot_y,
 
   // create a pentagone pointing x+
 
-  int h = 4; // pixels?
+  int h =  std::ceil(0.2/(_resolution ));; // pixels?
 
   pentag_points[0][0] = cv::Point(center.x - h, center.y - h);
   pentag_points[0][1] = cv::Point(center.x - h, center.y + h);
@@ -1611,6 +1611,9 @@ void RadarModelROS::addMeasurement(double x_m, double y_m, double orientation_de
         _rfid_belief_maps[tagLayerName].cwiseProduct(likl_mat);
   }
   normalizeRFIDLayer(tagLayerName);
+  ROS_DEBUG_STREAM( "Max belief: [" <<  _rfid_belief_maps.get(tagLayerName).maxCoeffOfFinites() <<"]" );
+  ROS_DEBUG_STREAM( "Belief sum: [" <<  _rfid_belief_maps[tagLayerName].sum() <<"]" );
+
 }
 
 double RadarModelROS::getTotalEntropy(double x, double y, double orientation,
