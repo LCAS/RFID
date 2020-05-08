@@ -8,18 +8,14 @@
 
       It publishes a costmap from the gridmap that can be displayed in RVIZ.
   -->    
+  <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
 
-  <arg name="tagID"          default="390000010000000000000007"/>
-
-  <group ns="grid_$(arg tagID)">
 
     <!-- Launch the grid map visualizer -->
     <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen">
       <rosparam command="load" file="$(find rfid_grid_map)/config/visualization.yaml" />
-      <rosparam param="grid_map_topic" subst_value="True">/grid_$(arg tagID)/rfid_grid_map_node/grid_map</rosparam>    
+      <rosparam param="grid_map_topic" subst_value="True">$(arg rfid_belief_topic_name)</rosparam>    
     </node>
-
-  </group>
 
 
 </launch>

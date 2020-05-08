@@ -5,8 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Grid1
-        - /Map_remote1
+        - /Grid1/Offset1
+        - /Map1
+        - /TF1/Frames1
         - /Marker1/Namespaces1
+        - /GridMap1
       Splitter Ratio: 0.470802993
     Tree Height: 675
   - Class: rviz/Selection
@@ -34,10 +37,10 @@ Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
-      Cell Size: 0.5
+      Cell Size: 0.270000011
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.0299999993
         Value: Lines
@@ -48,9 +51,9 @@ Visualization Manager:
         Y: 2
         Z: 0
       Plane: XY
-      Plane Cell Count: 20
-      Reference Frame: <Fixed Frame>
-      Value: true
+      Plane Cell Count: 36
+      Reference Frame: map
+      Value: false
     - Alpha: 0.300000012
       Class: rviz/Map
       Color Scheme: map
@@ -292,68 +295,39 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
-    - Alpha: 0.899999976
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: true
-      Name: Map_remote
-      Topic: /grid_390101110000000000000001/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Use Timestamp: false
-      Value: true
-    - Alpha: 0.699999988
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: false
-      Name: Map_keys
-      Topic: /grid_390101110000000000000002/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Use Timestamp: false
-      Value: false
-    - Alpha: 0.699999988
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: false
-      Name: Map_pillbox
-      Topic: /grid_390101110000000000000003/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Use Timestamp: false
-      Value: false
-    - Alpha: 0.699999988
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: false
-      Name: Map_wallet
-      Topic: /grid_390101110000000000000004/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Use Timestamp: false
-      Value: false
-    - Alpha: 0.699999988
-      Class: rviz/Map
-      Color Scheme: costmap
-      Draw Behind: false
-      Enabled: false
-      Name: Map_glasses
-      Topic: /grid_390101110000000000000005/grid_map_visualization/occupancy_grid
-      Unreliable: false
-      Use Timestamp: false
-      Value: false
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /visualization_marker
       Name: Marker
       Namespaces:
         kitchen: true
-        livingroom: false
+        livingroom: true
         livingroom_dining_table: true
         livingroom_sofa: true
         livingroom_study: true
         livingroom_window: true
       Queue Size: 100
+      Value: true
+    - Alpha: 0.5
+      Autocompute Intensity Bounds: true
+      Class: grid_map_rviz_plugin/GridMap
+      Color: 200; 200; 200
+      Color Layer: 1
+      Color Transformer: GridMapLayer
+      Enabled: true
+      Height Layer: 0
+      Height Transformer: Flat
+      History Length: 1
+      Invert Rainbow: true
+      Max Color: 255; 255; 255
+      Max Intensity: 10
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: GridMap
+      Show Grid Lines: true
+      Topic: /rfid_grid_map_node/rfid_belief_maps
+      Unreliable: false
+      Use Rainbow: true
       Value: true
   Enabled: true
   Global Options:
@@ -379,7 +353,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 1.58920848
+      Angle: 1.58420849
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
@@ -389,7 +363,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 71.3737488
+      Scale: 86.5013733
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
       X: 2.18311405

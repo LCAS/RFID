@@ -12,12 +12,9 @@
 #include <math.h>
 #include <list>
 #include <cmath>
-#include <yaml-cpp/yaml.h>
 #include <string>
 #include <fstream>
-#include <XmlRpcValue.h>
-#include <boost/algorithm/string/predicate.hpp>
-
+//#include <boost/algorithm/string/predicate.hpp>
 
 // OpenCV
 #include <cv_bridge/cv_bridge.h>
@@ -52,6 +49,7 @@
 
 // ROS - OURS
 #include <rfid_node/TagReading.h>
+#include "rfid_grid_map/GetBeliefMaps.h"
 
 // lib
 #include "RadarModelROS.hpp"
@@ -69,10 +67,17 @@ namespace rfid_grid_map {
 class rfid_gridMap
 {
 
-    struct type_area{
-        double prob;
-        grid_map::Polygon polygon;
-        string name;
+    struct type_measurement{
+        std::string tagID;
+        int tagNum;
+        int numDetections;        
+        double x_m;
+        double y_m;
+        double th_deg;
+        double rxPower_dB;
+        double rxPhase_rad;
+        double rxFreq_Hz;
+        double txPower_dB;
     };
 
     public:
@@ -88,62 +93,29 @@ class rfid_gridMap
       //! callback for rfid messages...
       void rfid_readings_topic_callback(const rfid_node::TagReading::ConstPtr& msg);
 
+      bool rfid_belief_srv_callback(rfid_grid_map::GetBeliefMaps::Request  &req, rfid_grid_map::GetBeliefMaps::Response &res);
+
       void loadROSParams();
 
       void showROSParams();
 
-      //! periodic map updates
-      void belief_publishing_callback(const ros::TimerEvent&);
-
-      void prob_publishing_callback(const ros::TimerEvent&);
-
       void updateRobotPose();
-
-      void publishMap();
-
-      double countValuesInArea(Polygon pol);
 
       void getMapDimensions();
 
-      void drawSquare(double start_x,double start_y,double end_x,double end_y,double value);
-
-      void drawCircle(double x, double y, double radius, double value);
-
-      void drawDetectionShape(double cx,double cy, double rh,
-        double radius,double radiusMin,  double max_heading,
-        double midProb, double lowProb, double highProb);
-
-      void updateLastDetectionPose(double x, double y);
-
-      void wasHere(type_area area);
-
-      void drawPolygon(const grid_map::Polygon poly,double value);
-
-      void loadZois();
-
-      void belief_saving_callback(const ros::TimerEvent&);
-
       void map_topic_callback(const nav_msgs::OccupancyGrid& msg);
-      bool isUpdatePose();
-      bool isSubregion(std::string zoiName,std::string &parent);
 
       void do_stuff();
+
     private:
-      type_area lastRegion_;
-      Position lastDetectPose_;
-
-
       //! ROS nodehandle.
       ros::NodeHandle& nodeHandle_;
-
-      //! relevant detections counter.
-      unsigned int numDetections_;
 
       //! ROS subscriber to rfid messages...
       std::string rfid_readings_topic_name_;
       ros::Subscriber rfid_readings_topic_sub_;
       // stores readings
-      ConsumerProducerQueue<std::vector<double>> readings_queue_;
+      ConsumerProducerQueue<type_measurement> readings_queue_;
 
       //! We read the static map once.
       bool isMapLoaded_;
@@ -154,42 +126,18 @@ class rfid_gridMap
       nav_msgs::MapMetaData mapDesc_;
       string map_frame_id_;
 
-      //! preload gridmaps from files
-      bool loadGrids_;
-      //! load/save gridmap path
-      std::string save_route_;
-      //! load/save gridmap file name name
-      std::string gridmap_image_file_;
-
-      //! ROS publisher for location probs
-      std::string prob_topic_name_;
-      ros::Publisher prob_topic_pub_;
+      //! ROS service for rfid belief grid maps.
+      std::string rfid_belief_srv_name_; 
+      ros::ServiceServer rfid_belief_srv_ss_; 
 
       //! ROS publisher for rfid belief grid map.
       std::string rfid_belief_topic_name_; //grid_map_name
       ros::Publisher rfid_belief_topic_pub_; //gridMapPublisher_
 
-      //! ROS timers for periodic tasks
-      // publish rfid belief map
-      ros::Timer belief_publishing_timer_;
-      //! period [s]
-      double belief_publishing_period_; 
-      // publish location probabilities
-      ros::Timer prob_publishing_timer_;
-      //! period [s]
-      double prob_publishing_period_; 
-      // save temporal probability maps
-      ros::Timer belief_saving_timer_ ;
-      //! period [s]
-      double belief_saving_period_; 
-
-
       // tfs to track robot position
       tf::TransformListener listener_;
       tf::StampedTransform transform_;
       double robot_x_,robot_y_,robot_h_;
-
-
 
       // radar model
       RadarModelROS model_;
@@ -198,26 +146,16 @@ class rfid_gridMap
       //! map resolution // m. /cell
       double map_resolution_; 
 
-      //! saved ROS gridmap image format
-      std::string rosEncoding;
-      //! rfid tag id
-      std::string tagID_;
-
-      //! tagged object name
-      std::string object_name_;
-
       //! robot frame id
       std::string robot_frame_;
 
+      // Counts each tag number of detections.
+      std::unordered_map<std::string, int> tagID_detections_map_;
+      // Assing each tag a number
+      std::unordered_map<std::string, int> tagID_enumeration_map_;
 
-      double constrainAngle2PI(double x);
-
-      double constrainAnglePI(double x);
-
-      void nextTimeDecay();
-
-      // zois indexed by name
-      std::map<std::string,rfid_gridMap::type_area> mapAreas;
+      // prevents from reading more tags when service is called ...
+      bool isReadingEnabled_;
 
 
 }; // End of Class rfid_gridMap

@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_ros
   grid_map_visualization
   grid_map_costmap_2d
+  message_generation
   rfid_node
   roscpp
   sensor_msgs
@@ -35,6 +36,15 @@ find_package(OpenCV REQUIRED
 
 find_package(Boost REQUIRED COMPONENTS random)
 
+add_service_files(
+   FILES
+   GetBeliefMaps.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  grid_map_msgs
+)
 
 ###################################
 ## catkin specific configuration ##

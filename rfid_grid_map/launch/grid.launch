@@ -9,8 +9,6 @@
   -->
 
   <arg name="with_visualizer"           default="true"/>
-  <arg name="tagID"                     default="390100010000000000000001"/>
-  <arg name="object"                    default="remote"/>
   <arg name="sigma_power"               default="3.92"/>
   <arg name="sigma_phase"               default="2.0"/>
   <arg name="rfidgrid_resolution"       default="0.025"/>
@@ -18,18 +16,11 @@
   <arg name="map_topic_name"            default="/map"/>
   <arg name="map_service_name"          default="/static_map"/>
   <arg name="robot_frame"               default="base_link"/>
-  <arg name="rfid_belief_topic_name"    default="grid_map"/>
-  <arg name="prob_topic_name"           default="probs"/>
-  <arg name="saveRoute"                 default="/tmp"/>
-  <arg name="loadGrids"                 default="false"/>
-  <arg name="belief_publishing_period"  default="5.0"/>
-  <arg name="prob_publishing_period"    default="1.0"/>
-  <arg name="belief_saving_period"      default="10.0"/>
+  <arg name="rfid_belief_srv_name"      default="get_rfid_belief"/>
+  <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
 
   <!-- Launch grid_deploy: locate objects -->
   <include file="$(find rfid_grid_map)/launch/grid_deploy.launch">
-    <arg name="tagID"                     value="$(arg tagID)"/>
-    <arg name="object"                    value="$(arg object)"/>
     <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
     <arg name="sigma_power"               value="$(arg sigma_power)"/>
     <arg name="sigma_phase"               value="$(arg sigma_phase)"/>
@@ -37,19 +28,8 @@
     <arg name="map_topic_name"            value="$(arg map_topic_name)"/>
     <arg name="map_service_name"          value="$(arg map_service_name)"/>
     <arg name="robot_frame"               value="$(arg robot_frame)"/>
+    <arg name="rfid_belief_srv_name"      value="$(arg rfid_belief_srv_name)"/>
     <arg name="rfid_belief_topic_name"    value="$(arg rfid_belief_topic_name)"/>
-    <arg name="prob_topic_name"           value="$(arg prob_topic_name)"/>
-    <arg name="saveRoute"                 value="$(arg saveRoute)"/>
-    <arg name="loadGrids"                 value="$(arg loadGrids)"/>
-    <arg name="belief_publishing_period"  value="$(arg belief_publishing_period)"/>
-    <arg name="prob_publishing_period"    value="$(arg prob_publishing_period)"/>
-    <arg name="belief_saving_period"      value="$(arg belief_saving_period)"/>
   </include>
-
-  <!-- Launch the grid map visualizer: publishes a costmap from the gridmap that can be displayed in RVIZ -->
-  <include file="$(find rfid_grid_map)/launch/grid_visualization.launch"  if="$(arg with_visualizer)">
-      <arg name="tagID" value="$(arg tagID)"/>
-  </include>
-
 
 </launch>

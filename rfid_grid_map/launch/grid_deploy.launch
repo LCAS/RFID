@@ -6,8 +6,6 @@
       This file requires from a Regions yaml file to be loaded as params, using Tiago zoi setup 
   -->    
 
-  <arg name="tagID"                     default="390100010000000000000001"/>
-  <arg name="object"                    default="remote"/>
   <arg name="sigma_power"               default="3.92"/>
   <arg name="sigma_phase"               default="2.0"/>
   <arg name="rfidgrid_resolution"       default="0.025"/>
@@ -15,24 +13,16 @@
   <arg name="map_topic_name"            default="/map"/>
   <arg name="map_service_name"          default="/static_map"/>
   <arg name="robot_frame"               default="base_link"/>
-  <arg name="rfid_belief_topic_name"    default="grid_map"/>
-  <arg name="prob_topic_name"           default="probs"/>
-  <arg name="saveRoute"                 default="/tmp"/>
-  <arg name="loadGrids"                 default="false"/>
-  <arg name="belief_publishing_period"  default="5.0"/>
-  <arg name="prob_publishing_period"    default="1.0"/>
-  <arg name="belief_saving_period"      default="10.0"/>
+  <arg name="rfid_belief_srv_name"      default="get_rfid_belief"/>
+  <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
 
   
   <env name="ROSCONSOLE_CONFIG_FILE"
         value="$(find rfid_grid_map)/config/custom_rosconsole.conf"/>
   
       
-  <group ns="grid_$(arg tagID)">
-    <!-- Launch rfid_grid_map: locate objects -->
-    <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen" required="true">
-      <rosparam param="tagID"                     subst_value="True">"$(arg tagID)"</rosparam>
-      <rosparam param="object"                    subst_value="True">"$(arg object)"</rosparam>
+  <!-- Launch rfid_grid_map: locate objects -->
+  <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen" required="true">
       <rosparam param="rfidgrid_resolution"       subst_value="True">"$(arg rfidgrid_resolution)"</rosparam>
       <rosparam param="sigma_power"               subst_value="True">"$(arg sigma_power)"</rosparam>
       <rosparam param="sigma_phase"               subst_value="True">"$(arg sigma_phase)"</rosparam>
@@ -40,14 +30,9 @@
       <rosparam param="map_topic_name"            subst_value="True">"$(arg map_topic_name)"</rosparam>
       <rosparam param="map_service_name"          subst_value="True">"$(arg map_service_name)"</rosparam>
       <rosparam param="robot_frame"               subst_value="True">"$(arg robot_frame)"</rosparam>
-      <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>
-      <rosparam param="prob_topic_name"           subst_value="True">"$(arg prob_topic_name)"</rosparam>
-      <rosparam param="saveRoute"                 subst_value="True">"$(arg saveRoute)"</rosparam>
-      <rosparam param="loadGrids"                 subst_value="True">"$(arg loadGrids)"</rosparam>
-      <rosparam param="belief_publishing_period"  subst_value="True">"$(arg belief_publishing_period)"</rosparam>
-      <rosparam param="prob_publishing_period"    subst_value="True">"$(arg prob_publishing_period)"</rosparam>
-      <rosparam param="belief_saving_period"      subst_value="True">"$(arg belief_saving_period)"</rosparam>
+      <rosparam param="rfid_belief_srv_name"      subst_value="True">"$(arg rfid_belief_srv_name)"</rosparam>      
+      <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>      
+
     </node>     
   
-  </group>
 </launch>

@@ -23,56 +23,61 @@
 template<typename T>
 class ConsumerProducerQueue{
 
-        std::condition_variable cond;
-        std::mutex mutex;
-        std::queue<T> cpq;
-        int maxSize;
-
+        std::condition_variable store_cond_;
+        std::mutex store_mutex_;
+        std::queue<T> data_queue_;
+        int maxSize_;
     public:
-        ConsumerProducerQueue() : maxSize(1000)
+        ConsumerProducerQueue() : maxSize_(1000)
         { }
 
-        ConsumerProducerQueue(int mxsz) : maxSize(mxsz)
+        ConsumerProducerQueue(int mxsz) : maxSize_(mxsz)
         { }
 
         void add(T request){
-            std::unique_lock<std::mutex> lock(mutex);
-            cond.wait(lock, [this]()
+            std::unique_lock<std::mutex> lock(store_mutex_);
+            store_cond_.wait(lock, [this]()
             { return !isFull(); });
-            cpq.push(request);
+            data_queue_.push(request);
             lock.unlock();
-            cond.notify_all();
+            store_cond_.notify_all();
         }
 
         void consume(T &request){
-            std::unique_lock<std::mutex> lock(mutex);
-            cond.wait(lock, [this]()
+            std::unique_lock<std::mutex> lock(store_mutex_);
+            store_cond_.wait(lock, [this]()
             { return !isEmpty(); });
-            request = cpq.front();
-            cpq.pop();
+            request = data_queue_.front();
+            data_queue_.pop();
             lock.unlock();
-            cond.notify_all();
+            store_cond_.notify_all();
         }
 
         bool isEmpty() const{
-            return cpq.size() == 0;
+            return data_queue_.size() == 0;
+        }
+
+        void waitEmpty(){
+            std::unique_lock<std::mutex> lock(store_mutex_);
+            store_cond_.wait(lock, [this]()
+            { return isEmpty(); });
         }
 
         int length() const{
-            return cpq.size();
+            return data_queue_.size();
         }
 
         void clear(){
-            std::unique_lock<std::mutex> lock(mutex);
+            std::unique_lock<std::mutex> lock(store_mutex_);
             while (!isEmpty()){
-                cpq.pop();
+                data_queue_.pop();
             }
             lock.unlock();
-            cond.notify_all();
+            store_cond_.notify_all();
         }
 
         bool isFull() const{
-        return cpq.size() >= maxSize;
+        return data_queue_.size() >= maxSize_;
     }
 };
 

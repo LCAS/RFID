@@ -379,8 +379,10 @@ public:
   std::pair<int, std::pair<int, int>> findTagFromBeliefMap(int num_tag);
 
   void normalizeRFIDLayer(std::string layerName);
-  void normalizeRFIDMap();
-  void clearObstacleCellsRFIDMap();
+  void clearObstacleCellsRFIDLayer(std::string layerName);
+  void addTagLayer(int tagNum);
+
+
   double getNormalizingFactorBayesRFIDActiveArea(double x_m, double y_m,
                                                  double orientation_rad,
                                                  string tagLayerName);
