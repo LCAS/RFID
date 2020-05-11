@@ -164,6 +164,10 @@ public:
 
   SplineFunction _antenna_gains; // model for antenna power gain depending on
                                  // the angle (dB.)    
+  // gains cache for hopefully faster access.
+  std::vector<float> _antenaGainVector; 
+  float gainValue(int x);
+  
     RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution );
     void initRefMap(const nav_msgs::OccupancyGrid& nav_map);
 

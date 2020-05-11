@@ -16,10 +16,10 @@ namespace rfid_grid_map {
         getMapDimensions();
 
         //debug  
-        ROS_DEBUG("Debugging initial pose...");      
-        updateRobotPose();
-        ROS_DEBUG_STREAM("Robot starts at pose: (" << robot_x_ << ", " << robot_y_ << ") m. " << robot_h_ * 180.0/M_PI << " deg. ");
-        model_.saveProbMapDebug("/tmp/test/",-1, -1 ,robot_x_, robot_y_, robot_h_);
+        //ROS_DEBUG("Debugging initial pose...");      
+        //updateRobotPose();
+        //ROS_DEBUG_STREAM("Robot starts at pose: (" << robot_x_ << ", " << robot_y_ << ") m. " << robot_h_ * 180.0/M_PI << " deg. ");
+        //model_.saveProbMapDebug("/tmp/test/",-1, -1 ,robot_x_, robot_y_, robot_h_);
 
         // Param load and setup finished....................................
         showROSParams();
@@ -55,12 +55,17 @@ namespace rfid_grid_map {
             readings_queue_.consume(reading);
 
             // only for debug purposes
-            // ROS_DEBUG_STREAM("Processing reading # " << reading.numDetections << 
-            //                  " from tag ("<<reading.tagID <<" @ "<< reading.txPower_dB << " dB, "<< reading.rxFreq_Hz/1e6 << " MHz.) " <<
-            //                   "at pose: (" << reading.x_m << ", " << reading.y_m << ") m. " << reading.th_deg  << " deg. :" << 
-            //                    reading.rxPower_dB <<"  dB, " << reading.rxPhase_rad * 180.0/M_PI << " degs  ==> Queue["<< readings_queue_.length() <<"]" );
+            ROS_DEBUG_STREAM("Processing reading # " << reading.numDetections << 
+                             " from tag ("<<reading.tagID <<" @ "<< reading.txPower_dB << " dB, "<< reading.rxFreq_Hz/1e6 << " MHz.) " <<
+                              "at pose: (" << reading.x_m << ", " << reading.y_m << ") m. " << reading.th_deg  << " deg. :" << 
+                               reading.rxPower_dB <<"  dB, " << reading.rxPhase_rad * 180.0/M_PI << " degs  ==> Queue["<< readings_queue_.length() <<"]" );
+            
+            ros::Time begin = ros::Time::now();
             model_.addMeasurement(reading.x_m, reading.y_m, reading.th_deg, reading.rxPower_dB, reading.rxPhase_rad, reading.rxFreq_Hz, reading.tagNum, reading.txPower_dB);
-            model_.saveProbMapDebug("/tmp/test/",reading.tagNum, reading.numDetections,reading.x_m,reading.y_m, reading.th_deg * M_PI/180.0);
+            ros::Time end = ros::Time::now();
+            ROS_INFO_STREAM("Adding measurement took (" << (end-begin).toSec() << ") secs\n" );
+
+            //model_.saveProbMapDebug("/tmp/test/",reading.tagNum, reading.numDetections,reading.x_m,reading.y_m, reading.th_deg * M_PI/180.0);
             // make a video out of this shit            
             // ffmpeg -r 10 -f image2 -s 1920x1080 -start_number 000 -i T0_S%03d_tempMap.png -vcodec libx264 -crf 25 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2"  -pix_fmt yuv420p test0.mp4
         }

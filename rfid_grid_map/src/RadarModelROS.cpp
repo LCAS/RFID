@@ -71,6 +71,15 @@ RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const doubl
         Eigen::VectorXd yvals= Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(yVec.data(), yVec.size());        
         _antenna_gains= SplineFunction(xvals, yvals);
 
+        // faster approach: build a cache
+        _antenaGainVector.reserve(6284); // [-pi,pi] in steps of 0.001 rads        
+        float gain_i, rad_i;
+        for(int milirad_index=0; milirad_index<6284; milirad_index++) {
+          rad_i =  (((float) milirad_index)/1000.0) - M_PI; // from range [0,6283] to [-pi,pi]
+          gain_i = _antenna_gains.interpRadf( rad_i );
+          _antenaGainVector.push_back(gain_i);
+        }
+
         // no tags yet.   
         _numTags = 0;
 
@@ -356,6 +365,11 @@ Eigen::MatrixXf RadarModelROS::getFriisMatSlow(double x_m, double y_m, double or
   return rxPw_mat;
 }
 
+float RadarModelROS::gainValue(int x){
+  return (float) _antenaGainVector.at(x);
+
+}
+
 Eigen::MatrixXf RadarModelROS::getFriisMatFast(double x_m, double y_m, double orientation_deg, double freq, double txtPower){
 
   Eigen::MatrixXf X, Y, R, A, propL, antL,totalLoss, rxPower;
@@ -364,7 +378,9 @@ Eigen::MatrixXf RadarModelROS::getFriisMatFast(double x_m, double y_m, double or
   double lambda =  C/freq;
   double orientation_rad = orientation_deg * M_PI/180.0;
   
-  // rotate and translate
+  ros::Time begin, end;
+  begin = ros::Time::now();
+  //1. rotate and translate
   Eigen::MatrixXf X0 = _rfid_belief_maps["X"];
   Eigen::MatrixXf Y0 = _rfid_belief_maps["Y"];
   
@@ -374,23 +390,32 @@ Eigen::MatrixXf RadarModelROS::getFriisMatFast(double x_m, double y_m, double or
   X =   ( X0 * cA + Y0 * sA).array() - (x_m*cA + y_m*sA);
   Y =   (-X0 * sA + Y0 * cA).array() + (x_m*sA - y_m*cA);  
 
-  // create R,Ang matrixes
+  //2. create R,Ang matrixes
   R = (X.array().square() + Y.array().square()).array().sqrt();
   A = Y.binaryExpr(X, std::ptr_fun(atan2f)).array();
 
-  // 1. Create a friis losses propagation matrix without taking obstacles        
-  auto funtor = std::bind(&SplineFunction::interpRadf, _antenna_gains, std::placeholders::_1) ;
-  antL =  TAG_LOSSES + A.unaryExpr( funtor ).array();   
+  //3. Create a friis losses propagation matrix without taking obstacles        
+  // auto funtor = std::bind(&SplineFunction::interpRadf, _antenna_gains, std::placeholders::_1) ;
+  //antL =  TAG_LOSSES + A.unaryExpr( funtor ).array();   
+
+  //2.1 cast matrix A to contain rad indexes
+  A = (A.array() + M_PI) * 1000.0; 
+  Eigen::MatrixXi Ai = A.cast<int>();
+    
+  auto funtor = std::bind(&RadarModelROS::gainValue, this, std::placeholders::_1) ;
+
+  antL =  TAG_LOSSES + Ai.unaryExpr( funtor ).array();   
+
   propL = LOSS_CONSTANT - (20.0 * (R * freq).array().log10()).array() ;
 
-  // signal goes from antenna to tag and comes back again, so we double the losses
+  //4. final rxPower: signal goes from antenna to tag and comes back again, so we double the losses
   totalLoss =  2.0*antL + 2.0*propL ;
   
   rxPower = totalLoss.array() + txtPower;
   // this should remove points where friis is not applicable
   rxPower = (R.array()>2.0*lambda).select(rxPower,txtPower); 
   
-  //2. Create a NaN filled matrix for obstacles loses
+  //5. Obstacle losses: Create a NaN filled matrix 
   _rfid_belief_maps.add("obst_losses",NAN);
 
   // iterate over four lines to fill obst_losses layer ...................  
