@@ -1,4 +1,5 @@
 #include "RadarModelROS.hpp"
+#include <unsupported/Eigen/SpecialFunctions>
 
 
 // http://eigen.tuxfamily.org/dox/AsciiQuickReference.txt
