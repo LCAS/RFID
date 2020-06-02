@@ -10,8 +10,8 @@ namespace rfid_grid_map {
 
         loadROSParams();
 
-        // enable readings
-        isReadingEnabled_ = true;
+        // enable readings only after a service call
+        isReadingEnabled_ = false;
 
         getMapDimensions();
 
@@ -181,15 +181,20 @@ namespace rfid_grid_map {
             //                  rxPower_dB <<"  dB, " << msg->phase<< " degs ==> Queue["<< readings_queue_.length() <<"]" );
 
             // Find tag number for RadarModel and account for num of detections
-            auto search = tagID_detections_map_.find(msg->ID);        
+            auto search = tagID_detections_map_.find(msg->ID);
             if (search != tagID_detections_map_.end()) {
-                tagID_detections_map_[msg->ID] = tagID_detections_map_[msg->ID] + 1;
+                tagID_detections_map_[msg->ID] = tagID_detections_map_[msg->ID] + 1;                
             } else {
+                int tag_set_size = tagID_enumeration_map_.size();
                 tagID_detections_map_[msg->ID] = 1;
-                tagID_enumeration_map_[msg->ID] = tagID_enumeration_map_.size()-1; //counts after creating the entry ...
+                tagID_enumeration_map_[msg->ID] = tag_set_size;
             }        
             numDetections = tagID_detections_map_[msg->ID];
             tagNum = tagID_enumeration_map_[msg->ID];            
+
+            ROS_DEBUG_STREAM( "ID ("<<  msg->ID << ") " <<
+                              "Num ("<< tagNum << ") " <<
+                              "detection # " << numDetections);
 
             // store for further process
             type_measurement reading;
@@ -234,12 +239,20 @@ namespace rfid_grid_map {
       isSuccess = true;
       
       ros::Time begin = ros::Time::now();      
-      // Stop reading more tags..........................................................
-      ROS_WARN_STREAM("RFID Belief map service called. Tag reading will be disabled now." );
+      // Start reading more tags..........................................................
+      ROS_WARN_STREAM("RFID Belief map service called. Tag reading will be ENABLED now." );
+      isReadingEnabled_ = true;
+
+      // Wait for a second       ..........................................................
+      ROS_WARN_STREAM("Reading tags for 1 second." );
+      ros::Duration(1.0).sleep();
+
+      // STOP reading more tags..........................................................
+      ROS_WARN_STREAM("Reading for 1 second. Tag reading will be disabled now." );
       isReadingEnabled_ = false;
 
       // Print queue size................................................................
-      ROS_DEBUG_STREAM("Still need to process [" << readings_queue_.length() << "] more readings:" );
+      ROS_DEBUG_STREAM("I need to process [" << readings_queue_.length() << "] more readings:" );
       
       for (auto const& x : tagID_detections_map_){
               ROS_DEBUG_STREAM( "\t - Tag num [" << tagID_enumeration_map_[x.first] << "] " <<
