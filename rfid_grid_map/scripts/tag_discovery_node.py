@@ -19,6 +19,8 @@ class tag_discovery():
         self.tag_discovery_coverage_topic_name = rospy.get_param(
             'tag_discovery_coverage_topic_name', '/tag_coverage')
 
+        self.tag_set_list = rospy.get_param('~tag_set', '')
+
     def initROS(self):
         # topic publishers
         self.tag_discovery_coverage_pub = rospy.Publisher(self.tag_discovery_coverage_topic_name, Float32, queue_size=1)
@@ -32,23 +34,8 @@ class tag_discovery():
    
     def initTagIDSet(self):
         self.tagIDSet=set()
-        # Monitored tags have each one a prob topic and hence a topic which follows the convention:
-        # /grid_[TAG ID HERE]/rfid_grid_map_node/probs
-
-        rospy.Rate(1.0/8.0).sleep() # Sleep for 8 secs before running
-
-        while (len(self.tagIDSet)==0):
-            listOfTopics = rospy.get_published_topics()
-            for tup in listOfTopics:
-                if ('probs' in tup[0]) and ('std_msgs/String' in tup[1]):
-                    foundTopic=tup[0]
-                    tag_id = foundTopic[6:-25]
-                    self.tagIDSet.add(tag_id)
-            
-            if (len(self.tagIDSet)==0):
-                rospy.logerr("Node [" + rospy.get_name() + "] There are no tag probs topics... (/grid_[TAG ID HERE]/rfid_grid_map_node/probs) waiting 5 secs.!!")
-                rospy.sleep(5.)
-        
+        self.tagIDSet.update(self.tag_set_list)
+        rospy.logwarn("Node [" + rospy.get_name() + "] Tags under survey: ("+ ', '.join(self.tagIDSet) +")")
 
     # Must have __init__(self) function for a class, similar to a C++ class constructor.
     def __init__(self):

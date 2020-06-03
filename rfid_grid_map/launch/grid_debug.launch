@@ -3,7 +3,7 @@
   MFC:
     This file adds debugging over the basic grid.launch functionality.
     - Publishes a given tag ground truth.
-    - Can also create simulated tags in gazebo in same position than groundtruth.
+    - Can also create simulated tags in gazebo in same position than groundtruth if sim flag is enabled.
 -->
 
 <launch>
@@ -12,7 +12,8 @@
   <arg name="robot_tf"                  default="base_link"/>
   <arg name="world_tf"                  default="map"/>
   <arg name="tag_num"                   default="1"/>
-<arg name="worldTagPose"                default="0.161 -1.803 0.0 0.0 0.0 0.729 0.685"/>
+  <arg name="tagID"                     default="390100010000000000000001"/>
+  <arg name="worldTagPose"              default="0.161 -1.803 0.0 0.0 0.0 0.729 0.685"/>
 
   <!-- gazebo model params -->
   <arg name="tag_frequency"             default="860.0"/>
@@ -20,57 +21,19 @@
   <arg name="tag_gain"                  default="1"/>
   <arg name="is_sim"                    default="false"/>
 
-  <!-- rfid grid params -->
-  <arg name="with_visualizer"           default="true"/>
-  <arg name="tagID"                     default="390100010000000000000001"/>
-  <arg name="object"                    default="remote"/>
-  <arg name="sigma_power"               default="3.92"/>
-  <arg name="sigma_phase"               default="2.0"/>
-  <arg name="rfid_readings_topic_name"  default="/lastTag"/>
-  <arg name="map_topic_name"            default="/map"/>
-  <arg name="map_service_name"          default="/static_map"/>
-  <arg name="robot_frame"               default="base_link"/>
-  <arg name="rfid_belief_topic_name"    default="grid_map"/>
-  <!-- <arg name="prob_topic_name"           default="probs"/> -->
-  <!-- <arg name="saveRoute"                 default="/tmp"/> -->
-  <!-- <arg name="loadGrids"                 default="false"/> -->
-  <!-- <arg name="belief_publishing_period"  default="5.0"/> -->
-  <!-- <arg name="prob_publishing_period"    default="1.0"/> -->
-  <!-- <arg name="belief_saving_period"      default="10.0"/> -->
+  <!-- really crappy ground truth -->
+  <include file="$(find pr_model)/launch/tagData.launch">
+    <arg name="robot_tf" value="$(arg robot_tf)"/>
+    <arg name="world_tf" value="$(arg world_tf)"/>
+    <arg name="tagID" value="$(arg tagID)"/>
+    <arg name="tag_num" value="$(arg tag_num)"/>
+    <arg name="worldTagPose" value="$(arg worldTagPose)"/>
+  </include>
 
-  <!-- grid launcher -->
-  <!-- <include file="$(find rfid_grid_map)/launch/grid.launch">
-    <arg name="with_visualizer"           default="true"/> -->
-        <!-- <arg name="tagID"                     default="$(arg tagID)"/> -->
-        <!-- <arg name="object"                    default="$(arg object)"/> -->
-    <!-- <arg name="sigma_power"               default="$(arg sigma_power)"/>
-    <arg name="sigma_phase"               default="$(arg sigma_phase)"/>
-    <arg name="rfid_readings_topic_name"  default="$(arg rfid_readings_topic_name)"/>
-    <arg name="map_topic_name"            default="$(arg map_topic_name)"/>
-    <arg name="map_service_name"          default="$(arg map_service_name)"/>
-    <arg name="robot_frame"              default="$(arg robot_frame)"/>
-    <arg name="rfid_belief_topic_name"    default="$(arg rfid_belief_topic_name)"/> -->
-        <!-- <arg name="prob_topic_name"           default="$(arg prob_topic_name)"/> -->
-        <!-- <arg name="saveRoute"                 default="$(arg saveRoute)"/> -->
-        <!-- <arg name="loadGrids"                 default="$(arg loadGrids)"/> -->
-        <!-- <arg name="belief_publishing_period"  default="$(arg belief_publishing_period)"/> -->
-        <!-- <arg name="prob_publishing_period"    default="$(arg prob_publishing_period)"/> -->
-        <!-- <arg name="belief_saving_period"      default="$(arg belief_saving_period)"/> -->
-  <!-- </include> -->
+  <!-- Add rfid tag model ...................................................... -->
+  <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tagID)' frequency:='$(arg tag_frequency)' power:='$(arg tag_power)' gain:='$(arg tag_gain)'" if="$(arg is_sim)"/>
 
-    <!-- really crappy ground truth -->
-    <include file="$(find pr_model)/launch/tagData.launch">
-      <arg name="robot_tf" value="$(arg robot_tf)"/>
-      <arg name="world_tf" value="$(arg world_tf)"/>
-      <arg name="tagID" value="$(arg tagID)"/>
-      <arg name="tag_num" value="$(arg tag_num)"/>
-      <arg name="worldTagPose" value="$(arg worldTagPose)"/>
-    </include>
-
-    <!-- Add rfid tag model ...................................................... -->
-    <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tagID)' frequency:='$(arg tag_frequency)' power:='$(arg tag_power)' gain:='$(arg tag_gain)'" if="$(arg is_sim)"/>
-
-    <!-- spawn it!-->
-    <node pkg="gazebo_rfid_node" type="spawn_model" name="tag_spawner_$(arg tag_num)" args="-urdf -param /tag_description_$(arg tag_num) -model tag_$(arg tagID)  -pose $(arg worldTagPose)"  if="$(arg is_sim)"/>
+  <!-- spawn it!-->
+  <node pkg="gazebo_rfid_node" type="spawn_model" name="tag_spawner_$(arg tag_num)" args="-urdf -param /tag_description_$(arg tag_num) -model tag_$(arg tagID)  -pose $(arg worldTagPose)"  if="$(arg is_sim)"/>
 
 </launch>

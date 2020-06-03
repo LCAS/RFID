@@ -273,10 +273,10 @@ namespace rfid_grid_map {
       rfid_belief_topic_pub_.publish(res.rfid_maps);
 
       // Resume reading..................................................................
-      isReadingEnabled_ = true;
+      //isReadingEnabled_ = true;
       ros::Time end = ros::Time::now();
       // Print queue size................................................................
-      ROS_INFO_STREAM("Resuming operations. Service took (" << (end-begin).toSec() << ") secs" );
+      ROS_INFO_STREAM("Service took (" << (end-begin).toSec() << ") secs" );
 
       return isSuccess;
     }

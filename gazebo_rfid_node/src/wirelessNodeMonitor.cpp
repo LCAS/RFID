@@ -101,7 +101,7 @@ int main(int _argc, char** _argv)
         break;
       }
     }
-    ROS_ERROR("[%s] Topic [%s] not found. Waiting 1 sec. for it to be available",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
+    ROS_WARN("[%s] Topic [%s] not found. Waiting 1 sec. for it to be available",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
     one_error= true;
     ros::Duration(1).sleep();
   }
@@ -110,7 +110,7 @@ int main(int _argc, char** _argv)
       node->Subscribe(gazebo_wireless_node_topic_name, rfid_callback);
 
   if (one_error){
-        ROS_ERROR("[%s] Topic [%s] was finally found",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
+        ROS_WARN("[%s] Topic [%s] was finally found",ros::this_node::getName().c_str(), gazebo_wireless_node_topic_name.c_str());
   }
 
   ros::spin();

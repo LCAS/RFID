@@ -8,7 +8,6 @@
 
   -->
 
-  <arg name="with_visualizer"           default="true"/>
   <arg name="sigma_power"               default="3.92"/>
   <arg name="sigma_phase"               default="2.0"/>
   <arg name="rfidgrid_resolution"       default="0.025"/>
