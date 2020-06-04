@@ -244,11 +244,11 @@ namespace rfid_grid_map {
       isReadingEnabled_ = true;
 
       // Wait for a second       ..........................................................
-      ROS_WARN_STREAM("Reading tags for 1 second." );
-      ros::Duration(1.0).sleep();
+      ROS_WARN_STREAM("Reading tags for 0.1 second." );
+      ros::Duration(0.1).sleep();
 
       // STOP reading more tags..........................................................
-      ROS_WARN_STREAM("Reading for 1 second. Tag reading will be disabled now." );
+      ROS_WARN_STREAM("Reading for 0.1 second. Tag reading will be disabled now." );
       isReadingEnabled_ = false;
 
       // Print queue size................................................................

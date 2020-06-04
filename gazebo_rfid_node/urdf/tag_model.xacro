@@ -38,7 +38,7 @@
 
 <gazebo reference="$(arg tf_prefix)/rfid_tag_$(arg ID)_link">
   <turnGravityOff>true</turnGravityOff>
-  <is_static>true</is_static>
+  <static>true</static>
   <gravity>0</gravity>
   <sensor name="rfid_tag_$(arg ID)_sensor" type="wireless_transmitter">
     <pose>0 0 0 0 0 0</pose>
