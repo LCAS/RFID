@@ -131,6 +131,8 @@ class rfid_gridMap
       //! ROS service for rfid belief grid maps.
       std::string rfid_belief_srv_name_; 
       ros::ServiceServer rfid_belief_srv_ss_; 
+      // how long do we have tag reading active
+      double tag_reading_time_; // seconds
 
       //! ROS publisher for rfid belief grid map.
       std::string rfid_belief_topic_name_; //grid_map_name

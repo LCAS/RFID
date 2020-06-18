@@ -89,7 +89,7 @@ namespace rfid_grid_map {
       ROS_DEBUG("\tGlobal Config ________________________");      
 
       ROS_DEBUG("\t\tMap Resolution: %2.1f", map_resolution_);
-
+      ROS_DEBUG("\t\tsBelief map tag reading time: %2.1f", tag_reading_time_);
       if (tagID_enumeration_map_.size()>0){
         ROS_DEBUG_STREAM("TAG inventory provided with ("<< tagID_enumeration_map_.size() <<") elements.");
         for (auto const& x : tagID_enumeration_map_){
@@ -164,6 +164,10 @@ namespace rfid_grid_map {
 
         private_node_handle.param("rfid_belief_srv_name", rfid_belief_srv_name_, std::string("grid_map"));       
         private_node_handle.param("rfid_belief_topic_name",rfid_belief_topic_name_, std::string("rfid_belief_maps"));       
+
+        private_node_handle.param("reading_time", temp,std::string("1.0"));
+        tag_reading_time_=std::stod(temp);
+
 
         //HERE!!! STUPID ARRAY MANAGEMENT IN C++
         std::string tag_list_str;
@@ -285,11 +289,11 @@ namespace rfid_grid_map {
       isReadingEnabled_ = true;
 
       // Wait for a second       ..........................................................
-      ROS_WARN_STREAM("Reading tags for 0.1 second." );
-      ros::Duration(0.1).sleep();
+      ROS_WARN_STREAM("Reading tags for " << tag_reading_time_ << " sec." );
+      ros::Duration(tag_reading_time_).sleep();
 
       // STOP reading more tags..........................................................
-      ROS_WARN_STREAM("Reading for 0.1 second. Tag reading will be disabled now." );
+      ROS_WARN_STREAM("Reading for " << tag_reading_time_ << " sec. Tag reading will be disabled now." );
       isReadingEnabled_ = false;
 
       // Print queue size................................................................

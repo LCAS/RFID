@@ -6,6 +6,7 @@
       This file requires from a Regions yaml file to be loaded as params, using Tiago zoi setup 
   -->    
   <arg name="tag_set"                   default=""/>
+  <arg name="reading_time"              default="1"/>
   <arg name="sigma_power"               default="3.92"/>
   <arg name="sigma_phase"               default="2.0"/>
   <arg name="rfidgrid_resolution"       default="0.025"/>
@@ -23,6 +24,7 @@
       
   <!-- Launch rfid_grid_map: locate objects -->
   <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen" required="true">
+      <rosparam param="reading_time"              subst_value="True">"$(arg reading_time)"</rosparam>
       <rosparam param="tag_set"                   subst_value="True">"$(arg tag_set)"</rosparam>
       <rosparam param="rfidgrid_resolution"       subst_value="True">"$(arg rfidgrid_resolution)"</rosparam>
       <rosparam param="sigma_power"               subst_value="True">"$(arg sigma_power)"</rosparam>
