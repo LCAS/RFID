@@ -15,6 +15,14 @@ namespace rfid_grid_map {
 
         getMapDimensions();
 
+        //Add tag layers for requested maps
+        if (tagID_enumeration_map_.size()>0){
+            ROS_DEBUG_STREAM("TAG inventory provided with ("<< tagID_enumeration_map_.size() <<") elements.");
+            for (auto const& x : tagID_enumeration_map_){
+                model_.addTagID(x.first, tagID_enumeration_map_[x.first]);
+            }
+        }
+
         //debug  
         //ROS_DEBUG("Debugging initial pose...");      
         //updateRobotPose();
@@ -82,6 +90,16 @@ namespace rfid_grid_map {
 
       ROS_DEBUG("\t\tMap Resolution: %2.1f", map_resolution_);
 
+      if (tagID_enumeration_map_.size()>0){
+        ROS_DEBUG_STREAM("TAG inventory provided with ("<< tagID_enumeration_map_.size() <<") elements.");
+        for (auto const& x : tagID_enumeration_map_){
+                ROS_DEBUG_STREAM( "\t - Tag num [" << tagID_enumeration_map_[x.first] << "] " <<
+                            "ID ["  << x.first << "] ") ;
+        }
+      } else {
+        ROS_WARN_STREAM("No tag inventory provided.");
+      }
+
       ROS_DEBUG("\tROS Params________________________");
       ROS_DEBUG("\t\tstatic map topic name: %s", map_topic_name_.c_str());
       ROS_DEBUG("\t\tstatic map service name: %s", map_service_name_.c_str());
@@ -146,6 +164,29 @@ namespace rfid_grid_map {
 
         private_node_handle.param("rfid_belief_srv_name", rfid_belief_srv_name_, std::string("grid_map"));       
         private_node_handle.param("rfid_belief_topic_name",rfid_belief_topic_name_, std::string("rfid_belief_maps"));       
+
+        //HERE!!! STUPID ARRAY MANAGEMENT IN C++
+        std::string tag_list_str;
+        if (private_node_handle.hasParam("tag_set")){
+            private_node_handle.getParam("tag_set", tag_list_str);
+            std::regex regex(",");
+	        std::vector<std::string> tag_list(std::sregex_token_iterator(tag_list_str.begin(), tag_list_str.end(), regex, -1),std::sregex_token_iterator());
+            
+            ROS_DEBUG_STREAM("TAG inventory provided with ("<< tag_list.size() <<") elements.");
+            for (auto &tag_i: tag_list) {
+                ROS_DEBUG_STREAM("\t - "<< tag_i);
+                int tag_id_order = tagID_enumeration_map_.size();
+                tagID_detections_map_[tag_i] = 0;
+                tagID_enumeration_map_[tag_i] = tag_id_order;
+            }
+        } else {
+            ROS_WARN_STREAM("No tag inventory provided ");
+        }
+
+
+        // Assing each tag a number
+        //std::unordered_map<std::string, int> tagID_enumeration_map_;
+
 
     }
 

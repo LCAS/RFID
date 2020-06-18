@@ -43,11 +43,12 @@
       0.075 m/cell / 113 rows by 130 cols / addMeasurement took 0.020 sec x reading 
       0.04  m/cell / 211 rows by 244 cols / addMeasurement took 0.040 sec x reading 
       0.02  m/cell / 423 rows by 488 cols / addMeasurement took 0.150 sec x reading << queue grows ...
+      MFC: I know that tag_set could have been made a list of strings, but parsing was easier. USE ONLY A "," separating tag id!
  --> 
     <include file="$(find rfid_grid_map)/launch/grid.launch">
        <arg name="sigma_power"          value="5.92"/>
        <arg name="rfidgrid_resolution"  value="0.075"/> 
-       <arg name="with_visualizer"      value="true"/>    
+       <arg name="tag_set" value="390101110000000000000001,390101110000000000000002,390101110000000000000003,390101110000000000000004"/>
     </include>
    
   <!-- Launch viewZois: for display -->

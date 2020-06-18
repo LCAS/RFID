@@ -1363,6 +1363,15 @@ void RadarModelROS::clearObstacleCellsRFIDLayer(std::string layerName) {
      _rfid_belief_maps[layerName] = layer_mat;
 }
 
+void RadarModelROS::addTagID(std::string tagID, int i) {
+  std::string tagLayerName;
+
+  tagLayerName = getTagLayerName(i);
+  if (!_rfid_belief_maps.exists(tagLayerName)){
+    addTagLayer(i);
+  }
+}
+  
 ///////////////  ADD MEASUREMENT METHOD ////////////////////////////////////////
 
 // So, robot at pr (x,y,orientation) (long, long, int) receives

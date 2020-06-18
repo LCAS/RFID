@@ -158,8 +158,7 @@ public:
                              // representation.
   GridMap _tmp_rfid_c_map;
 
-  std::vector<std::pair<double, double>>
-      _tags_coords; // tag locations in reference map coords (m.)
+  std::vector<std::pair<double, double>>  _tags_coords; // tag locations in reference map coords (m.)
   int _numTags;     // rfid tags to consider
 
   SplineFunction _antenna_gains; // model for antenna power gain depending on
@@ -168,12 +167,12 @@ public:
   std::vector<float> _antenaGainVector; 
   float gainValue(int x);
   
-    RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution );
-    void initRefMap(const nav_msgs::OccupancyGrid& nav_map);
+  RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution );
+  void initRefMap(const nav_msgs::OccupancyGrid& nav_map);
 
-    void loadBelief(const std::string imageURI);
+  void loadBelief(const std::string imageURI);
 
-    void saveBelief(const std::string imageURI);
+  void saveBelief(const std::string imageURI);
 
   /**
    * @brief Construct a new Radar Model object
@@ -238,7 +237,7 @@ public:
   void PrintMap(std::string savePath);
   void initRefMap(const std::string imageURI);
   void getImage(std::string layerName, std::string fileURI);
-
+  void addTagID(std::string tagID, int i);
   /**
    * @brief Get layer name corresponding to given frequency (Hz.)
    *

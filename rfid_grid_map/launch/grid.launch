@@ -7,7 +7,7 @@
       grid.launch = grid_deploy.launch + grid_visualization.launch
 
   -->
-
+  <arg name="tag_set"                   default=""/>
   <arg name="sigma_power"               default="3.92"/>
   <arg name="sigma_phase"               default="2.0"/>
   <arg name="rfidgrid_resolution"       default="0.025"/>
@@ -20,6 +20,7 @@
 
   <!-- Launch grid_deploy: locate objects -->
   <include file="$(find rfid_grid_map)/launch/grid_deploy.launch">
+    <arg name="tag_set"                   value="$(arg tag_set)"/>
     <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
     <arg name="sigma_power"               value="$(arg sigma_power)"/>
     <arg name="sigma_phase"               value="$(arg sigma_phase)"/>

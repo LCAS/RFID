@@ -14,6 +14,8 @@
 #include <cmath>
 #include <string>
 #include <fstream>
+#include <regex>
+
 //#include <boost/algorithm/string/predicate.hpp>
 
 // OpenCV
@@ -151,6 +153,7 @@ class rfid_gridMap
 
       // Counts each tag number of detections.
       std::unordered_map<std::string, int> tagID_detections_map_;
+      
       // Assing each tag a number
       std::unordered_map<std::string, int> tagID_enumeration_map_;
 
