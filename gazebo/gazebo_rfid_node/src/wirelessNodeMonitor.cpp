@@ -19,44 +19,40 @@ std::string gazebo_wireless_node_topic_name;
 std::string ros_rfid_frame_id;
 ros::Publisher ros_rfid_pub;
 int seq;
+double tx_power_db;
 
 /////////////////////////////////////////////////
 // Function is called everytime a message is received.
-void rfid_callback(ConstWirelessNodesPtr& _msg)
-{
-  int numNodes = _msg->node_size();
-  rfid_node::TagReading msg;
-  gazebo::msgs::WirelessNode wn;
-  msg.timestamp = ros::Time::now();
+void rfid_callback(ConstGzStringPtr &_msg){
+    // We got a new message from the Gazebo sensor.  Stuff a
+    // corresponding ROS message and publish it.
 
+    static const std::string fieldSep_ = (":");
+    static const std::string entrySep_ = ("\n");
 
-  for (int i = 0; i < numNodes; i++) {
+    rfid_node::TagReading tag_msg;
+    tag_msg.header.frame_id = ros_rfid_frame_id;
 
-      wn = _msg->node(i);
-      // send data
-      msg.header.frame_id = ros_rfid_frame_id;
-      // make sure is properly filled...
-      msg.header.seq = seq++;
-      msg.header.stamp = ros::Time::now();
-      msg.ID = wn.essid();
-      // unit is (100*dBm)
-      // TODO!
-      msg.txP =-1;
-
-      //msg.timestamp = ros::Time::now();
-
-      // cast db to dbm
-      msg.rssi  = wn.signal_level()+30;
-      // TODO!
-      msg.phase  = -1;
-
-      // cast MHz to KHz
-      msg.frequency = (wn.frequency()*1000.0);
-      ros_rfid_pub.publish(msg);
+    //split each reading 
+    std::vector<std::string> readings;
+    std::vector<std::string> reading_fields;
+    boost::split(readings, _msg->data(), boost::is_any_of(entrySep_));
+    
+    for (auto reading: readings){
+        boost::split(reading_fields, reading, boost::is_any_of(fieldSep_));
+        if (reading_fields.size()==5){
+          tag_msg.header.stamp = ros::Time::now();
+          tag_msg.ID = reading_fields[0];
+          tag_msg.frequency = int ( atof(reading_fields[1].c_str()) /1000.0); // Internally we use Hz., but rfid_node uses KHz as unit for frequency
+          tag_msg.rssi  = int ( atof(reading_fields[2].c_str()) + 30.0) ; // Internally we use dB, but rfid_node uses dBm as unit for RSSI
+          tag_msg.txP  = int ( (atof(reading_fields[3].c_str()) + 30.0 ) * 100.0 ) ; // Internally we use dB, but rfid_node uses (100*dBm) as unit for transmitted power
+          tag_msg.phase  = int ( atof(reading_fields[4].c_str()) * 180.0/M_PI ); // Internally we use radians, but rfid_node uses degrees as unit for received phase          
+          tag_msg.timestamp = tag_msg.header.stamp;          
+          ros_rfid_pub.publish(tag_msg);            
+        }
+    }
 
   }
-}
-
 /////////////////////////////////////////////////
 int main(int _argc, char** _argv)
 {
@@ -69,6 +65,8 @@ int main(int _argc, char** _argv)
                                  ros_rfid_topic_name, "/lastTag");
   ros::param::param<std::string>("~ros_rfid_frame_id",
                                     ros_rfid_frame_id, "lastTag");
+  ros::param::param<double>("~tx_power_db",
+                                    tx_power_db, 1);
 
   ros::param::param<std::string>("~gazebo_wireless_node_topic_name",
                                  gazebo_wireless_node_topic_name, "/gazebo/default/thorvald_001/base_link/_head_reader_sensor/transceiver");

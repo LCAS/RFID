@@ -1,0 +1,9 @@
+<library path="lib/libgazebo_rfid_tag">
+  <class name="sensors/rfid_tag"
+         type="gazebo::sensors::RFIDtag"
+         base_class_type="gazebo::sensors::Sensor">
+    <description> 
+      
+    </description>
+  </class>
+</library>

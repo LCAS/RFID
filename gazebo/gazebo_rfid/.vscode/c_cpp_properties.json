@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/manuel/workspace/nbs_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/manuel/workspace/nbs_ws/src/RFID/gazebo/gazebo_rfid/include/**",
+                "/home/manuel/workspace/nbs_ws/src/RFID/gazebo_rfid_node/include/**",
+                "/home/manuel/workspace/nbs_ws/src/nbs_ros/include/**",
+                "/home/manuel/workspace/nbs_ws/src/RFID/rfid_grid_map/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

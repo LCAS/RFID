@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+ <!--
+
+      Spawns a rfid tag and reader
+-->
+
+<launch>
+  <!-- PARAMS .............................................................. -->
+  <arg name="use_sim_time" default="true"/>
+  <param name ="/use_sim_time" value="$(arg use_sim_time)"/>
+
+  <!-- RFID reader -->
+  <arg name="reader_pose_x" default="0.0"/>
+  <arg name="reader_pose_y" default="0.0"/>
+  <arg name="reader_pose_z" default="0.0"/>
+  <arg name="reader_pose_roll" default="0.0"/>
+  <arg name="reader_pose_pitch" default="0.0"/>
+  <arg name="reader_pose_yaw" default="0.0"/>
+
+  <arg name="reader_min_frequency" default="902.0"/> <!-- (MHz.) RFID reader min range frequency -->
+  <arg name="reader_max_frequency" default="928.0"/> <!-- (MHz.) RFID reader max range frequency -->
+  <arg name="reader_power" default="15.0"/> <!-- (dBm) RFID reader txted. power -->
+  <arg name="reader_sensitivity" default="-85.0"/> <!-- (dBm) RFID reader minimum received power -->
+  <!-- Where is Receiver antenna Gain? It is embedded in the sensor. Ideas about improving it are welcome. -->
+
+  <!--  RFID TAGS-->
+  <arg name="tag1_x" default="1.0"/>
+  <arg name="tag1_y" default="0.0"/>
+  <arg name="tag1_z" default="0.0"/>
+  <arg name="tag1_roll" default="0.0"/>
+  <arg name="tag1_pitch" default="0.0"/>
+  <arg name="tag1_yaw" default="0.0"/>
+
+  <arg name="tag1_id" default="042" /> <!-- We will use essid in transceiver model to store this ID -->
+  <arg name="tag1_gain" default="25.2"/>  <!-- (dBm)  TAG radiation pattern is OMNIDIRECTIONAL https://www.hindawi.com/journals/ijap/2013/194145/tab4/ -->
+  <arg name="tag1_sensitivity" default="-85.0"/> <!-- (dBm) Used to draw coverage grid around tag. A good value is reader's sensitivity -->
+  
+  <arg name="tag2_x" default="1.0"/>
+  <arg name="tag2_y" default="1.0"/>
+  <arg name="tag2_z" default="0.0"/>
+  <arg name="tag2_roll" default="0.0"/>
+  <arg name="tag2_pitch" default="0.0"/>
+  <arg name="tag2_yaw" default="0.0"/>
+
+  <arg name="tag2_id" default="0112358" /> <!-- We will use essid in transceiver model to store this ID -->
+  <arg name="tag2_gain" default="25.2"/>  <!-- (dBm)  TAG radiation pattern is OMNIDIRECTIONAL https://www.hindawi.com/journals/ijap/2013/194145/tab4/ -->
+  <arg name="tag2_sensitivity" default="-85.0"/> <!-- (dBm) Used to draw coverage grid around tag. A good value is reader's sensitivity -->
+
+  <!-- create gazebo world ................................................. -->
+ <include file="$(find gazebo_ros)/launch/empty_world.launch">
+   <!-- this is where the gazebo custom preloader is compiled. It might be in a different place is we release this  -->
+   <arg name="extra_gazebo_args" value="-s $(find gazebo_rfid_node)/../../../../devel/lib/libgazebo_custom_sensor_preloader.so"/>
+   <arg name="paused" value="false"/>
+   <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+   <arg name="recording" value="false"/>
+   <arg name="debug" value="false"/>
+   <arg name="verbose" value="false"/>
+ </include>
+
+  <!-- Add rfid reader ...................................................... -->
+  <param name="reader_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/reader_model.xacro' --inorder min_frequency:='$(arg reader_min_frequency)' max_frequency:='$(arg reader_max_frequency)' power:='$(arg reader_power)'  sensitivity:='$(arg reader_sensitivity)' " />
+
+  <!-- spawn it!-->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawner" args="-urdf -param /reader_description -model rfid_reader -x $(arg reader_pose_x) -y $(arg reader_pose_y) -z $(arg reader_pose_z) -R $(arg  reader_pose_roll)  -P $(arg reader_pose_pitch)  -Y $(arg reader_pose_yaw)"/>
+
+  <!-- Add rfid tag(s)...................................................... -->
+  <param name="tag1_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag1_id)' gain:='$(arg tag1_gain)' sensitivity:='$(arg tag1_sensitivity)'" /> 
+  <param name="tag2_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag2_id)' gain:='$(arg tag2_gain)' sensitivity:='$(arg tag2_sensitivity)'" /> 
+  <!-- spawn'em!-->
+  <node pkg="gazebo_ros" type="spawn_model" name="tag1_spawner" args="-urdf -param /tag1_description -model tag_$(arg tag1_id) -x $(arg tag1_x) -y $(arg tag1_y) -z $(arg tag1_z)  -R $(arg  tag1_roll)  -P $(arg tag1_pitch)  -Y $(arg tag1_yaw)"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="tag2_spawner" args="-urdf -param /tag2_description -model tag_$(arg tag2_id) -x $(arg tag2_x) -y $(arg tag2_y) -z $(arg tag2_z)  -R $(arg  tag2_roll)  -P $(arg tag2_pitch)  -Y $(arg tag2_yaw)"/>
+
+
+
+
+  <!-- GAZEBO-ROS bridge ................................................... -->
+  <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim" >
+       <param name="ros_rfid_topic_name" value="/lastTag"/>
+       <param name="ros_rfid_frame_id" value="lastTag"/>
+       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/rfid_reader/reader_link/rfid_reader_sensor/transceiver"/>
+  </node>
+
+</launch>

@@ -7,9 +7,8 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rfid_tag">
 
 <xacro:arg name="ID" default="1"/>
-<xacro:arg name="frequency" default="860.0"/>
-<xacro:arg name="power" default="0.001"/>
-<xacro:arg name="gain" default="1"/>
+<xacro:arg name="sensitivity" default="-85.0"/>
+<xacro:arg name="gain" default="25.2"/>
 
 <xacro:arg name="tf_prefix" default=""/>
 
@@ -40,15 +39,14 @@
   <turnGravityOff>true</turnGravityOff>
   <static>true</static>
   <gravity>0</gravity>
-  <sensor name="rfid_tag_$(arg ID)_sensor" type="wireless_transmitter">
+  <sensor name="rfid_tag_$(arg ID)_sensor" type="rfid_tag">
     <pose>0 0 0 0 0 0</pose>
     <visualize>true</visualize>
     <update_rate>40</update_rate>
     <always_on>1</always_on>
     <transceiver>
       <essid>$(arg ID)</essid>
-      <frequency>$(arg frequency)</frequency>
-      <power>$(arg power)</power>
+      <sensitivity>$(arg sensitivity)</sensitivity>
       <gain>$(arg gain)</gain>
     </transceiver>
   </sensor>

@@ -1,0 +1,15 @@
+syntax = "proto2";
+package gazebo_rfid_reader.msgs;
+
+/// \ingroup gazebo_msgs
+/// \interface TagInventory
+/// \brief Msgs for sending information about a list of rfid tags
+
+
+import "tag_reading.proto";
+
+message TagInventory
+{
+  repeated TagReading node = 1;
+}
+

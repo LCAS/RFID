@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+ <!--
+        min_frequency
+        max_frequency
+        power
+        sensitivity        
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rfid_reader">
+
+  <xacro:arg name="tf_prefix" default=""/>
+
+  <xacro:arg name="min_frequency" default="800.0"/>
+  <xacro:arg name="max_frequency" default="920.0"/>
+  <xacro:arg name="power" default="20"/>
+  <xacro:arg name="sensitivity" default="-85.0"/>
+
+  <!-- RFID reader -->
+  <link name="$(arg tf_prefix)/reader_link">
+    <collision name="reader_collision">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <!-- mesh filename="model://antenna/antenna.stl"/ -->
+        <mesh scale="0.5 0.5 0.5" filename="package://gazebo_rfid_node/models/antenna/antenna.stl"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <!-- mesh filename="model://antenna/antenna.stl"/ -->
+        <mesh scale="0.5 0.5 0.5" filename="package://gazebo_rfid_node/models/antenna/antenna.stl"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <gazebo reference="$(arg tf_prefix)/reader_link">
+    <sensor name="rfid_reader_sensor" type="rfid_reader">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <always_on>1</always_on>
+      <transceiver>
+        <min_frequency>$(arg min_frequency)</min_frequency>
+        <max_frequency>$(arg max_frequency)</max_frequency>
+        <power>$(arg power)</power>
+        <sensitivity>$(arg sensitivity)</sensitivity>
+      </transceiver>
+
+      <!-- <plugin name="reader" filename="libgazebo_ros_rfid_reader.so" >
+          <robotNamespace></robotNamespace>
+          <topicName>/lastTag</topicName>
+          <frameName>/world</frameName>
+    </plugin> -->
+
+    </sensor>
+  </gazebo>
+
+</robot>

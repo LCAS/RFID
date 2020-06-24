@@ -1,0 +1,17 @@
+syntax = "proto2";
+package gazebo_rfid_reader.msgs;
+
+/// \ingroup gazebo_msgs
+/// \interface TagReading
+/// \brief Message for sending info about a detected RFID tag
+
+
+message TagReading
+{
+  required string id           = 1;
+  required double frequency    = 2;
+  required double signal_level = 3;
+  required double tx_power     = 4;
+  required double rx_power     = 5;
+  required double phase        = 6;
+}

@@ -17,4 +17,6 @@
 #include <iostream>
 #include <sstream>
 
+#include <boost/algorithm/string.hpp>
+
 #include <rfid_node/TagReading.h>

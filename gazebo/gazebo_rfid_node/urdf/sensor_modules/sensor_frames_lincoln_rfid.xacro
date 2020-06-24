@@ -10,7 +10,7 @@
 
   <xacro:arg name="min_frequency" default="800.0"/>
   <xacro:arg name="max_frequency" default="920.0"/>
-  <xacro:arg name="gain" default="2.5"/>
+  <xacro:arg name="power" default="20"/>
   <xacro:arg name="sensitivity" default="-90.0"/>
 
 
@@ -52,7 +52,7 @@
   </joint>
 
   <gazebo reference="$(arg tf_prefix)/reader_link">
-    <sensor name="$(arg robot_name)_head_reader_sensor" type="wireless_receiver">
+    <sensor name="rfid_reader_sensor" type="rfid_reader">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
       <update_rate>40</update_rate>
@@ -60,9 +60,16 @@
       <transceiver>
         <min_frequency>$(arg min_frequency)</min_frequency>
         <max_frequency>$(arg max_frequency)</max_frequency>
-        <gain>$(arg gain)</gain>
+        <power>$(arg power)</power>
         <sensitivity>$(arg sensitivity)</sensitivity>
       </transceiver>
+
+      <!-- <plugin name="reader" filename="libgazebo_ros_rfid_reader.so" >
+          <robotNamespace></robotNamespace>
+          <topicName>/lastTag</topicName>
+          <frameName>/world</frameName>
+    </plugin> -->
+
     </sensor>
   </gazebo>
 
@@ -90,7 +97,7 @@
   </link>
 
   <joint name="base_base_sens" type="fixed">
-    <parent link="$(arg tf_prefix)/base_link"/>
+    <parent link="$(arg tf_prefix)base_link"/>
     <child link="$(arg tf_prefix)/base_sensors"/>
     <origin xyz="0.67 0 0.6" rpy="0 0 0"/>
   </joint>
