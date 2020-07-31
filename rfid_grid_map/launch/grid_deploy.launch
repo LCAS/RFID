@@ -5,6 +5,7 @@
       Creates an rfid_grid_map to track an object.
       This file requires from a Regions yaml file to be loaded as params, using Tiago zoi setup 
   -->    
+  <arg name="namespace"                 default=""/>
   <arg name="tag_set"                   default=""/>
   <arg name="reading_time"              default="1"/>
   <arg name="sigma_power"               default="3.92"/>
@@ -21,21 +22,21 @@
   <env name="ROSCONSOLE_CONFIG_FILE"
         value="$(find rfid_grid_map)/config/custom_rosconsole.conf"/>
   
-      
-  <!-- Launch rfid_grid_map: locate objects -->
-  <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen" required="true">
-      <rosparam param="reading_time"              subst_value="True">"$(arg reading_time)"</rosparam>
-      <rosparam param="tag_set"                   subst_value="True">"$(arg tag_set)"</rosparam>
-      <rosparam param="rfidgrid_resolution"       subst_value="True">"$(arg rfidgrid_resolution)"</rosparam>
-      <rosparam param="sigma_power"               subst_value="True">"$(arg sigma_power)"</rosparam>
-      <rosparam param="sigma_phase"               subst_value="True">"$(arg sigma_phase)"</rosparam>
-      <rosparam param="rfid_readings_topic_name"  subst_value="True">"$(arg rfid_readings_topic_name)"</rosparam>
-      <rosparam param="map_topic_name"            subst_value="True">"$(arg map_topic_name)"</rosparam>
-      <rosparam param="map_service_name"          subst_value="True">"$(arg map_service_name)"</rosparam>
-      <rosparam param="robot_frame"               subst_value="True">"$(arg robot_frame)"</rosparam>
-      <rosparam param="rfid_belief_srv_name"      subst_value="True">"$(arg rfid_belief_srv_name)"</rosparam>      
-      <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>      
+  <group ns="$(arg namespace)">    
+    <!-- Launch rfid_grid_map: locate objects -->
+    <node pkg="rfid_grid_map" type="rfid_grid_map_node" name="rfid_grid_map_node" output="screen" required="true">
+        <rosparam param="reading_time"              subst_value="True">"$(arg reading_time)"</rosparam>
+        <rosparam param="tag_set"                   subst_value="True">"$(arg tag_set)"</rosparam>
+        <rosparam param="rfidgrid_resolution"       subst_value="True">"$(arg rfidgrid_resolution)"</rosparam>
+        <rosparam param="sigma_power"               subst_value="True">"$(arg sigma_power)"</rosparam>
+        <rosparam param="sigma_phase"               subst_value="True">"$(arg sigma_phase)"</rosparam>
+        <rosparam param="rfid_readings_topic_name"  subst_value="True">"$(arg rfid_readings_topic_name)"</rosparam>
+        <rosparam param="map_topic_name"            subst_value="True">"$(arg map_topic_name)"</rosparam>
+        <rosparam param="map_service_name"          subst_value="True">"$(arg map_service_name)"</rosparam>
+        <rosparam param="robot_frame"               subst_value="True">"$(arg robot_frame)"</rosparam>
+        <rosparam param="rfid_belief_srv_name"      subst_value="True">"$(arg rfid_belief_srv_name)"</rosparam>      
+        <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>      
+      </node>     
+  </group>    
 
-    </node>     
-  
 </launch>

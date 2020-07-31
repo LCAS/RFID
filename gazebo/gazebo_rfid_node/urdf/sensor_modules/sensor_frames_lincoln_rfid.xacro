@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
  <!--
-        Modified version of sensor_frames_lincoln that contains a simulated "rfid reader"
+        Modified version of roobot_007_sensors.xacro that contains a simulated "rfid reader"
 -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sensor_frames">
@@ -13,18 +13,24 @@
   <xacro:arg name="power" default="20"/>
   <xacro:arg name="sensitivity" default="-90.0"/>
 
-
-
-  <link name="$(arg tf_prefix)/base_sensors"/>
-  <link name="$(arg tf_prefix)/septentrio"/>
-  <link name="$(arg tf_prefix)/xsens"/>
+  <link name="$(arg tf_prefix)base_sensors"/>
+  <link name="$(arg tf_prefix)xsens"/>
+  <link name="$(arg tf_prefix)velodyne"/>
+  <link name="$(arg tf_prefix)thermal_camera"/>
+  <link name="$(arg tf_prefix)kinect2_rgb_optical_frame"/>"
 
   <!-- RFID reader -->
-  <link name="$(arg tf_prefix)/reader_link">
+  <joint name="base_sens_rfid" type="fixed">
+    <parent link="$(arg tf_prefix)base_sensors"/>
+    <child link="$(arg tf_prefix)reader_link"/>
+    <axis xyz="0 0 0" />
+    <origin xyz="1.2 0.10 -0.6" rpy="0 0.0 0.0"/>
+  </joint> 
+
+  <link name="$(arg tf_prefix)reader_link">
     <collision name="reader_collision">
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <!-- mesh filename="model://antenna/antenna.stl"/ -->
         <mesh scale="0.5 0.5 0.5" filename="package://gazebo_rfid_node/models/antenna/antenna.stl"/>
       </geometry>
     </collision>
@@ -32,7 +38,6 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <!-- mesh filename="model://antenna/antenna.stl"/ -->
         <mesh scale="0.5 0.5 0.5" filename="package://gazebo_rfid_node/models/antenna/antenna.stl"/>
       </geometry>
     </visual>
@@ -44,14 +49,7 @@
     </inertial>
   </link>
 
-  <joint name="base_sens_rfid" type="fixed">
-    <parent link="$(arg tf_prefix)/base_sensors"/>
-    <child link="$(arg tf_prefix)/reader_link"/>
-    <axis xyz="0 1 0" />
-    <origin xyz="0.0 0 .30" rpy="0 0 0"/>
-  </joint>
-
-  <gazebo reference="$(arg tf_prefix)/reader_link">
+  <gazebo reference="$(arg tf_prefix)reader_link">
     <sensor name="rfid_reader_sensor" type="rfid_reader">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
@@ -63,18 +61,11 @@
         <power>$(arg power)</power>
         <sensitivity>$(arg sensitivity)</sensitivity>
       </transceiver>
-
-      <!-- <plugin name="reader" filename="libgazebo_ros_rfid_reader.so" >
-          <robotNamespace></robotNamespace>
-          <topicName>/lastTag</topicName>
-          <frameName>/world</frameName>
-    </plugin> -->
-
     </sensor>
   </gazebo>
 
   <!-- Hokuyo Laser -->
-  <link name="$(arg tf_prefix)/hokuyo">
+  <link name="$(arg tf_prefix)hokuyo">
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
@@ -98,32 +89,48 @@
 
   <joint name="base_base_sens" type="fixed">
     <parent link="$(arg tf_prefix)base_link"/>
-    <child link="$(arg tf_prefix)/base_sensors"/>
-    <origin xyz="0.67 0 0.6" rpy="0 0 0"/>
+    <child link="$(arg tf_prefix)base_sensors"/>
+    <!-- <origin xyz="-0.370 -0.1075 1.440" rpy="0 0 0"/> -->
+    <origin xyz="-0.370 -0.115 1.440" rpy="0 0 0"/> 
   </joint>
-
-  <joint name="base_sens_septentrio" type="fixed">
-    <parent link="$(arg tf_prefix)/base_sensors"/>
-    <child link="$(arg tf_prefix)/septentrio"/>
-    <origin xyz="-0.01 0 0.3" rpy="0 0 0"/>
-  </joint>
-
 
   <joint name="base_sens_xsens" type="fixed">
-    <parent link="$(arg tf_prefix)/base_sensors"/>
-    <child link="$(arg tf_prefix)/xsens"/>
-    <origin xyz="0.05 0 0" rpy="0 0 0"/>
+    <parent link="$(arg tf_prefix)base_link"/>
+    <child link="$(arg tf_prefix)xsens"/>
+    <origin xyz="0.8025 -0.05 0.76" rpy="0 0 0"/>
   </joint>
 
-  <joint name="base_sens_hokuyo" type="fixed">
-    <parent link="$(arg tf_prefix)/base_sensors"/>
-    <child link="$(arg tf_prefix)/hokuyo"/>
+   <joint name="base_sens_hokuyo" type="fixed">
+    <parent link="$(arg tf_prefix)base_link"/>
+    <child link="$(arg tf_prefix)hokuyo"/>
     <axis xyz="0 1 0" />
-    <origin xyz="0.0 0 .15" rpy="0 0 0"/>
+    <origin xyz="0.8025 -0.0 0.65" rpy="3.141593 0.0 0.0"/>
   </joint>
+
+ <joint name="base_sens_velodyne" type="fixed">
+    <parent link="$(arg tf_prefix)base_sensors"/>
+    <child link="$(arg tf_prefix)velodyne"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="0.38 -0.122 0.04" rpy="0 0 0"/>
+  </joint>
+
+ <joint name="base_sens_thermal" type="fixed">
+    <parent link="$(arg tf_prefix)base_sensors"/>
+    <child link="$(arg tf_prefix)thermal_camera"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="0.29 0.135 0.115" rpy="0 0 0"/>
+  </joint>
+
+ <joint name="base_sens_kinect2" type="fixed">
+    <parent link="$(arg tf_prefix)base_sensors"/> 
+    <child link="$(arg tf_prefix)kinect2_rgb_optical_frame"/>
+    <axis xyz="0 1 0" />
+    <origin xyz="0.494 0.0025 0.023" rpy="0 0 0"/>
+  </joint>
+
 
   <!--hokuyo-->
-  <gazebo reference="$(arg tf_prefix)/hokuyo">
+  <gazebo reference="$(arg tf_prefix)hokuyo">
     <sensor name="$(arg robot_name)_head_hokuyo_sensor" type="ray">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
@@ -161,3 +168,4 @@
   </gazebo>
 
 </robot>
+

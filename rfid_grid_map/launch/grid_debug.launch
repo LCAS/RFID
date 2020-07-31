@@ -12,28 +12,28 @@
   <arg name="robot_tf"                  default="base_link"/>
   <arg name="world_tf"                  default="map"/>
   <arg name="tag_num"                   default="1"/>
-  <arg name="tagID"                     default="390100010000000000000001"/>
+  <arg name="tagID"                     default="390100010000000000000001"/>  <!-- We will use essid in transceiver model to store this ID -->
   <arg name="worldTagPose"              default="0.161 -1.803 0.0 0.0 0.0 0.729 0.685"/>
+  <arg name="noRel"                     default="false"/>
+
 
   <!-- gazebo model params -->
-  <arg name="tag_frequency"             default="860.0"/>
-  <arg name="tag_power"                 default="0.001"/>
-  <arg name="tag_gain"                  default="1"/>
+  <arg name="tag_gain"                  default="25.2"/>  <!-- (dBm)  TAG radiation pattern is OMNIDIRECTIONAL https://www.hindawi.com/journals/ijap/2013/194145/tab4/ -->
+  <arg name="tag_sensitivity"           default="-85.0"/> <!-- (dBm) Used to draw coverage grid around tag. A good value is reader's sensitivity -->
   <arg name="is_sim"                    default="false"/>
 
   <!-- really crappy ground truth -->
   <include file="$(find pr_model)/launch/tagData.launch">
-    <arg name="robot_tf" value="$(arg robot_tf)"/>
-    <arg name="world_tf" value="$(arg world_tf)"/>
-    <arg name="tagID" value="$(arg tagID)"/>
-    <arg name="tag_num" value="$(arg tag_num)"/>
+    <arg name="noRel"        value="$(arg noRel)"/>
+    <arg name="robot_tf"     value="$(arg robot_tf)"/>
+    <arg name="world_tf"     value="$(arg world_tf)"/>
+    <arg name="tagID"        value="$(arg tagID)"/>
+    <arg name="tag_num"      value="$(arg tag_num)"/>
     <arg name="worldTagPose" value="$(arg worldTagPose)"/>
   </include>
 
   <!-- Add rfid tag model ...................................................... -->
-  <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tagID)' frequency:='$(arg tag_frequency)' power:='$(arg tag_power)' gain:='$(arg tag_gain)'" if="$(arg is_sim)"/>
-
+  <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tagID)' gain:='$(arg tag_gain)' sensitivity:='$(arg tag_sensitivity)'" if="$(arg is_sim)"/>
   <!-- spawn it!-->
-  <node pkg="gazebo_rfid_node" type="spawn_model" name="tag_spawner_$(arg tag_num)" args="-urdf -param /tag_description_$(arg tag_num) -model tag_$(arg tagID)  -pose $(arg worldTagPose)"  if="$(arg is_sim)"/>
-
+  <node pkg="gazebo_rfid_node" type="spawn_model" name="tag_spawner_$(arg tag_num)" args="-urdf -param /tag_description_$(arg tag_num) -model tag_$(arg tagID) -pose $(arg worldTagPose)" if="$(arg is_sim)"/>
 </launch>
