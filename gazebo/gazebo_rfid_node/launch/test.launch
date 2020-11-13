@@ -22,6 +22,7 @@
   <arg name="reader_power" default="15.0"/> <!-- (dBm) RFID reader txted. power -->
   <arg name="reader_sensitivity" default="-85.0"/> <!-- (dBm) RFID reader minimum received power -->
   <!-- Where is Receiver antenna Gain? It is embedded in the sensor. Ideas about improving it are welcome. -->
+  <arg name="rfidgrid_resolution"  default="0.075"/> 
 
   <!--  RFID TAGS-->
   <arg name="tag1_x" default="1.0"/>
@@ -79,5 +80,12 @@
        <param name="ros_rfid_frame_id" value="lastTag"/>
        <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/rfid_reader/reader_link/rfid_reader_sensor/transceiver"/>
   </node>
+
+  <!-- grid launcher -->
+  <include file="$(find rfid_grid_map)/launch/grid.launch">
+    <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
+    <arg name="sigma_power"               value="$(arg reader_power)"/>
+    <arg name="namespace"                 value="rfid_reader"/>
+  </include> 
 
 </launch>

@@ -9,21 +9,24 @@
   <arg name="use_sim_time" default="true"/>
   <param name ="/use_sim_time" value="$(arg use_sim_time)"/>
 
-  <env name="ROSCONSOLE_CONFIG_FILE"
-    value="$(find gazebo_rfid_node)/config/custom_rosconsole.conf"/>
+  <!-- <env name="ROSCONSOLE_CONFIG_FILE"
+    value="$(find gazebo_rfid_node)/config/custom_rosconsole.conf"/> -->
 
   <arg name="gazeboGui" default="true"/>
   <arg name="rvizGui" default="true"/>
   
   <!-- this file is also included in base_simulation. copied by simplicity  -->
-  <arg name="world_name" default="$(find gazebo_rfid_node)/worlds/ncfm_model_no_actors.world"/>
+  <arg name="world_name" default="$(find nbs_experiments)/worlds/empty.world"/>
   <arg name="map" default="$(find gazebo_rfid_node)/maps/ncfm_sim.yaml"/>
   <arg name="rviz_config_file" default="$(find gazebo_rfid_node)/rviz/gazebo_thorvald_rfid.rviz"/>
+  <arg name="map_2_loc_map_pose"   default="0.0 0.0 0.0 0.0 0.0 0.0 1.0"/>
 
   <arg name="tf_prefix" default="" />
   <arg name="robot_name" default="thorvald_001" />
   <arg name="datum_file" default=""/>
-  <arg name="robot_model" default="$(find rasberry_bringup)/config/robot_007.yaml"/>
+  <arg name="robot_model" default="$(find rasberry_bringup)/config/robot_008.yaml"/>
+  <!--Args not likely to change -->
+  <!-- <arg name="odom"           default="odometry/gazebo"/> -->
   <!-- <arg name="robot_model" default="$(find thorvald_description)/config/thorvald_ii_4wd4ws_std/thorvald_ii_4wd4ws_std.yaml" /> -->
 
   <arg name="robot_pose_x" default="0.0"/>
@@ -38,14 +41,16 @@
         It has no control over transmitted power.
   <param name="model_extras" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro' - -inorder  min_frequency:='$(arg reader_min_frequency)' max_frequency:='$(arg reader_max_frequency)' power:='$(arg reader_power)' sensitivity:='$(arg reader_sensitivity)'"/> 
   -->
-  <arg name="model_extras" value="$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro" />
+  <!-- <arg name="model_extras" value="$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro" /> -->
+  <arg name="model_extras" value="$(find rasberry_bringup)/urdf/robot_008_sensors_rfid.xacro"/>
   <arg name="reader_min_frequency" default="800.0"/>
   <arg name="reader_max_frequency" default="920.0"/>
   <arg name="reader_power" default="15.0"/> <!-- (dBm) RFID reader txted. power -->
   <arg name="reader_sensitivity" default="-85.0"/> <!-- (dBm) RFID reader minimum received power -->
   <!-- Where is Receiver antenna Gain? It is embedded in the sensor. Ideas about improving it are welcome. -->
   
-
+  <arg name="sigma_power"          default="3.92"/>
+  <arg name="rfidgrid_resolution"  default="0.075"/> 
 
   <!--  RFID TAGS-->
   <arg name="tag1_x" default="1.0"/>
@@ -116,17 +121,25 @@
   <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim" >
        <param name="ros_rfid_topic_name" value="/lastTag"/>
        <param name="ros_rfid_frame_id" value="lastTag"/>
-       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/thorvald_ii/base_link/rfid_reader_sensor/transceiver"/>
+       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor/transceiver"/>
      </node>
 
   <!-- Navigation .......................................................... -->
 
   <!-- localization -->
+  <!-- <node name="loc_map_server" pkg="map_server" type="map_server" args="$(arg map)"  output="screen">
+    <remap from="map" to ="loc_map"/>
+    <param name="frame_id" value="loc_map"/>
+  </node> -->
+
   <node pkg="fake_localization" type="fake_localization" respawn="false" name="fake_loc">
-       <remap from="base_pose_ground_truth" to="odometry/gazebo" />
-       <param name="odom_frame_id" type="string" value="odom"/>
-       <param name="base_frame_id" type="string" value="base_link"/>
+    <remap from="base_pose_ground_truth" to="/thorvald_001/odometry/gazebo" />
+    <param name="odom_frame_id" type="string" value="odom"/>
+    <param name="base_frame_id" type="string" value="base_link"/>
   </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="map_2_loc_map_tfb"
+        args="$(arg map_2_loc_map_pose) map loc_map 1000"/>
 
   <!-- map server(s) -->
 
@@ -145,7 +158,7 @@
   </node>
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
-      <remap from="odom" to="odometry/base_raw"/>
+      <remap from="odom" to="thorvald_001/odometry/gazebo"/>
       <rosparam file="$(find rasberry_move_base)/config/dwa/dwa_planner_ros.yaml" command="load"/>
       <rosparam file="$(find rasberry_move_base)/config/dwa/dwa_move_base_params.yaml" command="load"/>
       <rosparam file="$(find rasberry_move_base)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
@@ -158,5 +171,13 @@
 
   <!-- Visualization ....................................................... -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config_file)" if="$(arg rvizGui)"/>
+
+   <!-- grid launcher -->
+  <include file="$(find rfid_grid_map)/launch/grid.launch">
+    <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
+    <arg name="sigma_power"               value="$(arg sigma_power)"/>
+    <arg name="namespace"                 value="$(arg robot_name)"/>
+  </include>
+
 
 </launch>
