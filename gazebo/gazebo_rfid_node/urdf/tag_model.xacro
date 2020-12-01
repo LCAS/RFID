@@ -53,6 +53,14 @@
 </gazebo>
 
 
+<gazebo>
+  <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+    <frameName>map</frameName>
+    <bodyName>$(arg tf_prefix)/rfid_tag_$(arg ID)_link</bodyName>
+    <topicName>poses/$(arg ID)</topicName>
+    <updateRate>5.0</updateRate>
+  </plugin>
+</gazebo>
 
 
 </robot>
