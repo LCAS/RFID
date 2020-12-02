@@ -165,9 +165,11 @@ public:
                                  // the angle (dB.)    
   // gains cache for hopefully faster access.
   std::vector<float> _antenaGainVector; 
+
+  bool _output_prediction = false;
   float gainValue(int x);
   
-  RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution );
+  RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution, bool output_prediction );
   void initRefMap(const nav_msgs::OccupancyGrid& nav_map);
 
   void loadBelief(const std::string imageURI);

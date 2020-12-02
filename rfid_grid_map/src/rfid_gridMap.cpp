@@ -167,6 +167,8 @@ namespace rfid_grid_map {
 
         private_node_handle.param("reading_time", temp,std::string("1.0"));
         tag_reading_time_=std::stod(temp);
+        
+        private_node_handle.param("output_prediction", output_prediction_, false);
 
 
         //HERE!!! STUPID ARRAY MANAGEMENT IN C++
@@ -335,7 +337,7 @@ namespace rfid_grid_map {
                 isMapLoaded_=true;
                 mapDesc_=msg.info;
                 map_frame_id_=msg.header.frame_id;
-                model_ = RadarModelROS(msg, sigma_power_, sigma_phase_, map_resolution_ );
+                model_ = RadarModelROS(msg, sigma_power_, sigma_phase_, map_resolution_, output_prediction_ );
 
                 ROS_DEBUG("Received a %d X %d map @ %.3f m/pix  Origin X %.3f Y %.3f\n",
                         msg.info.width,

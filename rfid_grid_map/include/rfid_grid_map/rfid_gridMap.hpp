@@ -162,6 +162,10 @@ class rfid_gridMap
       // prevents from reading more tags when service is called ...
       bool isReadingEnabled_;
 
+      // if the reader must output prediction over tag position (bayes update)
+      // or simply the likelihood at each reading action
+      bool output_prediction_;
+
 
 }; // End of Class rfid_gridMap
 

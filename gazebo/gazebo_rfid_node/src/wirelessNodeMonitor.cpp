@@ -20,6 +20,7 @@ std::string ros_rfid_frame_id;
 ros::Publisher ros_rfid_pub;
 int seq;
 double tx_power_db;
+bool output_prediction;
 
 /////////////////////////////////////////////////
 // Function is called everytime a message is received.
@@ -71,6 +72,7 @@ int main(int _argc, char** _argv)
   ros::param::param<std::string>("~gazebo_wireless_node_topic_name",
                                  gazebo_wireless_node_topic_name, "/gazebo/default/thorvald_001/base_link/_head_reader_sensor/transceiver");
 
+  ros::param::param<bool>("~output_prediction", output_prediction, false);
 
   ros_rfid_pub = nh.advertise<rfid_node::TagReading>(ros_rfid_topic_name, 5);
 

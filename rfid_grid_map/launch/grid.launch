@@ -18,6 +18,7 @@
   <arg name="robot_frame"               default="base_link"/>
   <arg name="rfid_belief_srv_name"      default="get_rfid_belief"/>
   <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
+  <arg name="output_prediction"         default="false"/>
 
   <!-- Launch grid_deploy: locate objects -->
   <include file="$(find rfid_grid_map)/launch/grid_deploy.launch">
@@ -32,6 +33,7 @@
     <arg name="robot_frame"               value="$(arg robot_frame)"/>
     <arg name="rfid_belief_srv_name"      value="$(arg rfid_belief_srv_name)"/>
     <arg name="rfid_belief_topic_name"    value="$(arg rfid_belief_topic_name)"/>
+    <arg name="output_prediction"         value="$(arg output_prediction)"/>
   </include>
 
 </launch>

@@ -55,11 +55,12 @@ SplineFunction::scaled_values(Eigen::VectorXd const &x_vec) const {
 RadarModelROS::RadarModelROS(){};
 
 
-RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution ){
+RadarModelROS::RadarModelROS(const nav_msgs::OccupancyGrid& nav_map, const double sigma_power, const double sigma_phase, const double resolution, bool output_prediction ){
 
         _sigma_power = sigma_power;
         _sigma_phase = sigma_phase;
         _resolution = resolution;
+        _output_prediction = output_prediction;
         
 
 
@@ -1406,18 +1407,25 @@ void RadarModelROS::addMeasurement(double x_m, double y_m, double orientation_de
   Eigen::MatrixXf obst_mat = _rfid_belief_maps["ref_map"];
   likl_mat = (obst_mat.array() == _free_space_val).select(likl_mat, 0);
 
-  // normalize in this space:
-  double bayes_den = likl_mat.sum();
-  if (bayes_den > 0) {
-    likl_mat = likl_mat / bayes_den;
-    // now do bayes ...  everywhere
-    _rfid_belief_maps[tagLayerName] =
-        _rfid_belief_maps[tagLayerName].cwiseProduct(likl_mat);
+  // NOTE: we can decide if publishing a prediction on tag position
+  // computed using bayes update or just the reading (likl_mat)
+  if (_output_prediction){
+    // normalize in this space:
+    double bayes_den = likl_mat.sum();
+    if (bayes_den > 0) {
+      likl_mat = likl_mat / bayes_den;
+      // now do bayes ...  everywhere
+      _rfid_belief_maps[tagLayerName] =
+          _rfid_belief_maps[tagLayerName].cwiseProduct(likl_mat);
+    }
+    normalizeRFIDLayer(tagLayerName);
+    ROS_DEBUG_STREAM( "Min belief: [" <<  _rfid_belief_maps.get(tagLayerName).minCoeffOfFinites() <<"]" );
+    ROS_DEBUG_STREAM( "Max belief: [" <<  _rfid_belief_maps.get(tagLayerName).maxCoeffOfFinites() <<"]" );
+    ROS_DEBUG_STREAM( "Belief sum: [" <<  _rfid_belief_maps[tagLayerName].sum() <<"]" );
+  }else{
+    //NOTE: every map contains the likelihood of the most recent reading
+  _rfid_belief_maps[tagLayerName] = likl_mat;
   }
-  normalizeRFIDLayer(tagLayerName);
-  // ROS_DEBUG_STREAM( "Max belief: [" <<  _rfid_belief_maps.get(tagLayerName).maxCoeffOfFinites() <<"]" );
-  // ROS_DEBUG_STREAM( "Belief sum: [" <<  _rfid_belief_maps[tagLayerName].sum() <<"]" );
-
 }
 
 double RadarModelROS::getTotalEntropy(double x, double y, double orientation,

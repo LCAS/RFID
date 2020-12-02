@@ -17,6 +17,7 @@
   <arg name="robot_frame"               default="base_link"/>
   <arg name="rfid_belief_srv_name"      default="get_rfid_belief"/>
   <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
+  <arg name="output_prediction"         default="false"/>
 
   
   <env name="ROSCONSOLE_CONFIG_FILE"
@@ -35,7 +36,8 @@
         <rosparam param="map_service_name"          subst_value="True">"$(arg map_service_name)"</rosparam>
         <rosparam param="robot_frame"               subst_value="True">"$(arg robot_frame)"</rosparam>
         <rosparam param="rfid_belief_srv_name"      subst_value="True">"$(arg rfid_belief_srv_name)"</rosparam>      
-        <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>      
+        <rosparam param="rfid_belief_topic_name"    subst_value="True">"$(arg rfid_belief_topic_name)"</rosparam>     
+        <rosparam param="output_prediction"         subst_value="True">"$(arg output_prediction)"</rosparam>      
       </node>     
   </group>    
 
