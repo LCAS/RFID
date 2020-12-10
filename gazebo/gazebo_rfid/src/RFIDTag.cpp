@@ -1,4 +1,5 @@
 #include <ignition/math/Rand.hh>
+#include <ignition/math/Helpers.hh>
 
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
@@ -168,11 +169,11 @@ double RFIDtag::SignalStrength(
   double delta = 0.001;
   std::string prevEntity = "caspa";
   while ( ( maxDist > (occ_space+free_space) ) & (!tagEdgeFound) ) {
-         this->dataPtr->testRay->SetPoints(start, end);
-         prevEntity = entityName;
-         this->dataPtr->testRay->GetIntersection(dist, entityName);        
-         tagEdgeFound = tagEdgeFound || (entityName.find(tagName) != std::string::npos);  
-         antennaEdgeFound = antennaEdgeFound || (entityName.find(_receiverName) != std::string::npos);                    
+        this->dataPtr->testRay->SetPoints(start, end);
+        prevEntity = entityName;
+        this->dataPtr->testRay->GetIntersection(dist, entityName);        
+        tagEdgeFound = tagEdgeFound || (entityName.find(tagName) != std::string::npos);  
+        antennaEdgeFound = antennaEdgeFound || (entityName.find(_receiverName) != std::string::npos);                    
 
         // already found or just found...
         if ((!antennaEdgeFound) || (entityName.find(_receiverName) != std::string::npos)) {
@@ -202,7 +203,8 @@ double RFIDtag::SignalStrength(
   // propagation model
   const ignition::math::Pose3d rel_pose = this->referencePose - _receiver;
   double tag_r = rel_pose.Pos().Length();
-  double tag_h = rel_pose.Rot().Roll();
+  // double tag_h = rel_pose.Rot().Yaw();
+  double tag_h = fmod(rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw(), 2*M_PI);
 
   double db_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_DB_NOISE);
   double ph_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_PH_NOISE);
