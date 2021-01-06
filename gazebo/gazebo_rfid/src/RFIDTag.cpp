@@ -204,7 +204,14 @@ double RFIDtag::SignalStrength(
   const ignition::math::Pose3d rel_pose = this->referencePose - _receiver;
   double tag_r = rel_pose.Pos().Length();
   // double tag_h = rel_pose.Rot().Yaw();
-  double tag_h = fmod(rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw(), 2*M_PI);
+  double tag_h = rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw();
+  
+  // gzdbg << "Antenna (" << _receiverName << ") : "<< _receiver.Rot().Yaw() << std::endl;
+  // gzdbg << "Tag (" << tagName << ") : "<< this->referencePose.Rot().Yaw() << std::endl;
+  // gzdbg << "Relative: " << tag_h << std::endl;
+  tag_h = fmod(2*M_PI, tag_h);
+  // gzdbg << ", norm: " << tag_h << std::endl;
+  // gzdbg << "Distance: " << tag_r << std::endl << std::endl;
 
   double db_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_DB_NOISE);
   double ph_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_PH_NOISE);
