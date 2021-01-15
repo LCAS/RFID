@@ -205,6 +205,12 @@ double RFIDtag::SignalStrength(
   double tag_r = rel_pose.Pos().Length();
   // double tag_h = rel_pose.Rot().Yaw();
   double tag_h = rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw();
+  double rel_angle = fmod(_receiver.Rot().Yaw() + 2* M_PI, 2*M_PI);
+  double delta_y = _receiver.Pos().Y() - this->referencePose.Pos().Y() ;
+  double delta_x = _receiver.Pos().X() - this->referencePose.Pos().X();
+  double tag_h = fmod(atan2(delta_y, delta_x) + 2* M_PI, 2*M_PI);
+  tag_h = (rel_angle - tag_h) ;
+  tag_h = std::abs(tag_h) - M_PI;
   
   // gzdbg << "Antenna (" << _receiverName << ") : "<< _receiver.Rot().Yaw() << std::endl;
   // gzdbg << "Tag (" << tagName << ") : "<< this->referencePose.Rot().Yaw() << std::endl;
@@ -225,7 +231,7 @@ double RFIDtag::SignalStrength(
   double lambda = common::SpeedOfLight / _freq ;
 
   // otherwise friis approach does not apply
-  if (tag_r > 2 * lambda) {
+  // if (tag_r > 2 * lambda) {
     /*
     SIMPLIFICATION!!! TAG is OMNIDIRECTIONAL
     (a.k.a. don't have tag radiation pattern and
@@ -234,10 +240,15 @@ double RFIDtag::SignalStrength(
     */
 
     // relative angle "tag_h" is between -pi, pi 
+    // NOTE: when tag and robot looks each other, tag_h = 0. 
+    // It must be increased by M_PI because in _antenaGainVector, 
+    // the values ranges from (-pi, pi)
+    // if (std::abs(tag_h) < 0.01) tag_h = 0.0;
     int ang_index = (int) ((tag_h + M_PI) * 1000.0); 
+    // int ang_index = (int) ((tag_h) * 1000.0); 
     ant1 = _antenaGainVector.at(ang_index);
 
-    antL = this->dataPtr->gain + ant1;
+    antL = this->dataPtr->gain * pow(cos(tag_h), 2) + ant1;
     // propagation losses
     propL = LOSS_CONSTANT - (20 * log10( tag_r * _freq));
     // signal goes from antenna to tag and comes back again, so we double the losses
@@ -245,9 +256,9 @@ double RFIDtag::SignalStrength(
 
     // Each "wall" adds around 3dB losses. A wall is ~15cm thick, then each metter through obstacles adds  (3 * occ_space / 0.15) dB losses
     _rxPw -= 20.0 * occ_space; // db 
-  } else {
-    _rxPw = _txPw - std::abs(db_noise);
-  }
+  // } else {
+  //   _rxPw = _txPw - std::abs(db_noise);
+  // }
 
 return 0;
 }

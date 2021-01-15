@@ -50,7 +50,7 @@
   <!-- Where is Receiver antenna Gain? It is embedded in the sensor. Ideas about improving it are welcome. -->
   
   <arg name="sigma_power"          default="3.92"/>
-  <arg name="rfidgrid_resolution"  default="0.075"/> 
+  <arg name="rfidgrid_resolution"  default="0.25"/> 
 
   <!--  RFID TAGS-->
   <arg name="tag1_x" default="1.0"/>
@@ -114,14 +114,14 @@
   <param name="tag2_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag2_id)' gain:='$(arg tag2_gain)' sensitivity:='$(arg tag2_sensitivity)'" /> 
   <!-- spawn'em!-->
   <node pkg="gazebo_ros" type="spawn_model" name="tag1_spawner" args="-urdf -param /tag1_description -model tag_$(arg tag1_id) -x $(arg tag1_x) -y $(arg tag1_y) -z $(arg tag1_z)  -R $(arg  tag1_roll)  -P $(arg tag1_pitch)  -Y $(arg tag1_yaw)"/>
-  <node pkg="gazebo_ros" type="spawn_model" name="tag2_spawner" args="-urdf -param /tag2_description -model tag_$(arg tag2_id) -x $(arg tag2_x) -y $(arg tag2_y) -z $(arg tag2_z)  -R $(arg  tag2_roll)  -P $(arg tag2_pitch)  -Y $(arg tag2_yaw)"/>
+  <!-- <node pkg="gazebo_ros" type="spawn_model" name="tag2_spawner" args="-urdf -param /tag2_description -model tag_$(arg tag2_id) -x $(arg tag2_x) -y $(arg tag2_y) -z $(arg tag2_z)  -R $(arg  tag2_roll)  -P $(arg tag2_pitch)  -Y $(arg tag2_yaw)"/> -->
 
 
   <!-- GAZEBO-ROS bridge ................................................... -->
   <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim" >
        <param name="ros_rfid_topic_name" value="/lastTag"/>
        <param name="ros_rfid_frame_id" value="lastTag"/>
-       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor/transceiver"/>
+       <param name="gazebo_wireless_node_topic_name" value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor_left/transceiver"/>
      </node>
 
   <!-- Navigation .......................................................... -->
@@ -177,6 +177,8 @@
     <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
     <arg name="sigma_power"               value="$(arg sigma_power)"/>
     <arg name="namespace"                 value="$(arg robot_name)"/>
+    <arg name="robot_frame"               value="$(arg tf_prefix)rfid_reader_link_left"/>
+    <arg name="rfid_belief_srv_name"      value="get_rfid_belief_left"/>
   </include>
 
 

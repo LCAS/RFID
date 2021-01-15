@@ -9,6 +9,12 @@
   <arg name="use_sim_time" default="true"/>
   <param name ="/use_sim_time" value="$(arg use_sim_time)"/>
 
+  <arg name="gazeboGui" default="true"/>
+  <arg name="rvizGui" default="true"/>
+  <arg name="rviz_config_file" default="$(find gazebo_rfid_node)/rviz/gazebo_reader_rfid.rviz"/>
+  <arg name="map_2_reader_link_pose"   default="0.0 0.0 0.0 0.0 0.0 0.0 1.0"/>
+  <arg name="map" default="$(find gazebo_rfid_node)/maps/ncfm_sim.yaml"/>
+
   <!-- RFID reader -->
   <arg name="reader_pose_x" default="0.0"/>
   <arg name="reader_pose_y" default="0.0"/>
@@ -22,7 +28,8 @@
   <arg name="reader_power" default="15.0"/> <!-- (dBm) RFID reader txted. power -->
   <arg name="reader_sensitivity" default="-85.0"/> <!-- (dBm) RFID reader minimum received power -->
   <!-- Where is Receiver antenna Gain? It is embedded in the sensor. Ideas about improving it are welcome. -->
-  <arg name="rfidgrid_resolution"  default="0.075"/> 
+  <arg name="sigma_power"          default="3.92"/>
+  <arg name="rfidgrid_resolution"  default="0.25"/> 
 
   <!--  RFID TAGS-->
   <arg name="tag1_x" default="1.0"/>
@@ -58,6 +65,9 @@
    <arg name="verbose" value="false"/>
  </include>
 
+ <!-- state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" />
+
   <!-- Add rfid reader ...................................................... -->
   <param name="reader_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/reader_model.xacro' --inorder min_frequency:='$(arg reader_min_frequency)' max_frequency:='$(arg reader_max_frequency)' power:='$(arg reader_power)'  sensitivity:='$(arg reader_sensitivity)' " />
 
@@ -69,7 +79,7 @@
   <param name="tag2_description" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag2_id)' gain:='$(arg tag2_gain)' sensitivity:='$(arg tag2_sensitivity)'" /> 
   <!-- spawn'em!-->
   <node pkg="gazebo_ros" type="spawn_model" name="tag1_spawner" args="-urdf -param /tag1_description -model tag_$(arg tag1_id) -x $(arg tag1_x) -y $(arg tag1_y) -z $(arg tag1_z)  -R $(arg  tag1_roll)  -P $(arg tag1_pitch)  -Y $(arg tag1_yaw)"/>
-  <node pkg="gazebo_ros" type="spawn_model" name="tag2_spawner" args="-urdf -param /tag2_description -model tag_$(arg tag2_id) -x $(arg tag2_x) -y $(arg tag2_y) -z $(arg tag2_z)  -R $(arg  tag2_roll)  -P $(arg tag2_pitch)  -Y $(arg tag2_yaw)"/>
+  <!-- <node pkg="gazebo_ros" type="spawn_model" name="tag2_spawner" args="-urdf -param /tag2_description -model tag_$(arg tag2_id) -x $(arg tag2_x) -y $(arg tag2_y) -z $(arg tag2_z)  -R $(arg  tag2_roll)  -P $(arg tag2_pitch)  -Y $(arg tag2_yaw)"/> -->
 
 
 
@@ -84,8 +94,30 @@
   <!-- grid launcher -->
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
-    <arg name="sigma_power"               value="$(arg reader_power)"/>
+    <arg name="sigma_power"               value="$(arg sigma_power)"/>
     <arg name="namespace"                 value="rfid_reader"/>
+    <arg name="robot_frame"               value="reader_link"/>
+    <arg name="rfid_belief_srv_name"      value="get_rfid_belief"/>
   </include> 
+
+  <!-- robot_pose_publisher -->
+  <node pkg="robot_pose_publisher" type="robot_pose_publisher" name="robot_pose_publisher" respawn="true">
+    <param name="~map_frame" value="/map"/>
+    <param name="~base_frame" value="/reader_link"/>
+  </node>
+
+  <!-- <node pkg="fake_localization" type="fake_localization" respawn="false" name="fake_loc">
+    <remap from="base_pose_ground_truth" to="/thorvald_001/odometry/gazebo" />
+    <param name="odom_frame_id" type="string" value="map"/>
+    <param name="base_frame_id" type="string" value="reader_link"/>
+  </node> -->
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="map_2_loc_map_tfb"
+        args="$(arg map_2_reader_link_pose) map reader_link 1000"/>
+
+  <!-- Visualization ....................................................... -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config_file)" if="$(arg rvizGui)"/>
 
 </launch>
