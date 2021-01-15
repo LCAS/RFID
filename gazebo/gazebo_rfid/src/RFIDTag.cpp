@@ -203,8 +203,16 @@ double RFIDtag::SignalStrength(
   // propagation model
   const ignition::math::Pose3d rel_pose = this->referencePose - _receiver;
   double tag_r = rel_pose.Pos().Length();
-  // double tag_h = rel_pose.Rot().Yaw();
-  double tag_h = rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw();
+  // double tag_h = rel_pose.Rot().Yaw() + this->referencePose.Rot().Yaw();
+  // gzdbg << std::endl;
+  // gzdbg << "Antenna : "<< _receiver.Rot().Yaw() * 180 / M_PI<< std::endl;
+  // gzdbg << "          " << _receiver.Rot().Roll() * 180 / M_PI<< std::endl;
+  // gzdbg << "          " << _receiver.Rot().Pitch() * 180 / M_PI<< std::endl;
+
+  // gzdbg << "Tag: " << this->referencePose.Rot().Yaw() * 180 / M_PI<< std::endl;
+  // gzdbg << "     " << this->referencePose.Rot().Roll() * 180 / M_PI<< std::endl;
+  // gzdbg << "     " << this->referencePose.Rot().Pitch() * 180 / M_PI<< std::endl;
+
   double rel_angle = fmod(_receiver.Rot().Yaw() + 2* M_PI, 2*M_PI);
   double delta_y = _receiver.Pos().Y() - this->referencePose.Pos().Y() ;
   double delta_x = _receiver.Pos().X() - this->referencePose.Pos().X();
@@ -212,12 +220,6 @@ double RFIDtag::SignalStrength(
   tag_h = (rel_angle - tag_h) ;
   tag_h = std::abs(tag_h) - M_PI;
   
-  // gzdbg << "Antenna (" << _receiverName << ") : "<< _receiver.Rot().Yaw() << std::endl;
-  // gzdbg << "Tag (" << tagName << ") : "<< this->referencePose.Rot().Yaw() << std::endl;
-  // gzdbg << "Relative: " << tag_h << std::endl;
-  tag_h = fmod(2*M_PI, tag_h);
-  // gzdbg << ", norm: " << tag_h << std::endl;
-  // gzdbg << "Distance: " << tag_r << std::endl << std::endl;
 
   double db_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_DB_NOISE);
   double ph_noise = ignition::math::Rand::DblNormal(0.0,RFIDTransceiver::STD_DEV_PH_NOISE);
@@ -244,9 +246,13 @@ double RFIDtag::SignalStrength(
     // It must be increased by M_PI because in _antenaGainVector, 
     // the values ranges from (-pi, pi)
     // if (std::abs(tag_h) < 0.01) tag_h = 0.0;
+    // tag_h = tag_h * 180/M_PI;
+    // gzdbg << tag_h << ", " << tag_h + 180  << ", " << ((tag_h + 180) * 1000.0) << ", " << (int)((tag_h + 180) * 1000.0) << std::endl;
+    // tag_h = tag_h * M_PI/180;
     int ang_index = (int) ((tag_h + M_PI) * 1000.0); 
     // int ang_index = (int) ((tag_h) * 1000.0); 
     ant1 = _antenaGainVector.at(ang_index);
+    // gzdbg << "Loss: " << ant1 << std::endl;
 
     antL = this->dataPtr->gain * pow(cos(tag_h), 2) + ant1;
     // propagation losses
