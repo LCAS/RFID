@@ -250,9 +250,9 @@ double RFIDtag::SignalStrength(
     // gzdbg << tag_h << ", " << tag_h + 180  << ", " << ((tag_h + 180) * 1000.0) << ", " << (int)((tag_h + 180) * 1000.0) << std::endl;
     // tag_h = tag_h * M_PI/180;
     int ang_index = (int) ((tag_h + M_PI) * 1000.0); 
-    // int ang_index = (int) ((tag_h) * 1000.0); 
+    // gzdbg << "Tag: " << tag_h * 180.0/M_PI << ", " << ((tag_h + M_PI) * 1000.0) * 180.0/M_PI << std::endl;
     ant1 = _antenaGainVector.at(ang_index);
-    // gzdbg << "Loss: " << ant1 << std::endl;
+    // gzdbg << "Loss: " << ant1 << std::endl << std::endl;
 
     antL = this->dataPtr->gain * pow(cos(tag_h), 2) + ant1;
     // propagation losses

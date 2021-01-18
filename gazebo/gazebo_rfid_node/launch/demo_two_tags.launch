@@ -42,7 +42,7 @@
   <param name="model_extras" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro' - -inorder  min_frequency:='$(arg reader_min_frequency)' max_frequency:='$(arg reader_max_frequency)' power:='$(arg reader_power)' sensitivity:='$(arg reader_sensitivity)'"/> 
   -->
   <!-- <arg name="model_extras" value="$(find gazebo_rfid_node)/urdf/sensor_modules/sensor_frames_lincoln_rfid.xacro" /> -->
-  <arg name="model_extras" value="$(find rasberry_bringup)/urdf/robot_008_sensors_rfid.xacro" />
+  <arg name="model_extras" value="$(find rasberry_bringup)/urdf/robot_008_sensors_two_rfid.xacro" />
   <arg name="reader_min_frequency" default="800.0" />
   <arg name="reader_max_frequency" default="920.0" />
   <arg name="reader_power" default="15.0" /> <!-- (dBm) RFID reader txted. power -->
@@ -128,13 +128,19 @@
 
 
   <!-- GAZEBO-ROS bridge ................................................... -->
-  <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim">
-    <param name="ros_rfid_topic_name" value="/lastTag" />
-    <param name="ros_rfid_frame_id" value="lastTag" />
+  <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim_left">
+    <param name="ros_rfid_topic_name" value="/lastTag_left" />
+    <param name="ros_rfid_frame_id" value="lastTag_left" />
     <param name="gazebo_wireless_node_topic_name"
-      value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor/transceiver" />
+      value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor_left/transceiver" />
   </node>
 
+  <node pkg="gazebo_rfid_node" type="wirelessNodeMonitor" name="rfid_node_sim_right">
+    <param name="ros_rfid_topic_name" value="/lastTag_right" />
+    <param name="ros_rfid_frame_id" value="lastTag_right" />
+    <param name="gazebo_wireless_node_topic_name"
+      value="/gazebo/default/thorvald_ii/base_link/$(arg robot_name)_rfid_reader_sensor_right/transceiver" />
+  </node>
   <!-- Navigation .......................................................... -->
 
   <!-- localization -->
@@ -187,10 +193,19 @@
   <include file="$(find rfid_grid_map)/launch/grid.launch">
     <arg name="rfidgrid_resolution" value="$(arg rfidgrid_resolution)" />
     <arg name="sigma_power" value="$(arg sigma_power)" />
-    <arg name="namespace" value="$(arg robot_name)" />
-    <arg name="robot_frame" value="$(arg tf_prefix)rfid_reader_link" />
-    <arg name="rfid_belief_srv_name" value="get_rfid_belief" />
-    <arg name="rfid_readings_topic_name" value="/lastTag" />
+    <arg name="namespace" value="$(arg robot_name)_right" />
+    <arg name="robot_frame" value="$(arg tf_prefix)rfid_reader_link_right" />
+    <arg name="rfid_belief_srv_name" value="get_rfid_belief_right" />
+    <arg name="rfid_readings_topic_name" value="/lastTag_right" />
+  </include>
+
+  <include file="$(find rfid_grid_map)/launch/grid.launch">
+    <arg name="rfidgrid_resolution" value="$(arg rfidgrid_resolution)" />
+    <arg name="sigma_power" value="$(arg sigma_power)" />
+    <arg name="namespace" value="$(arg robot_name)_left" />
+    <arg name="robot_frame" value="$(arg tf_prefix)rfid_reader_link_left" />
+    <arg name="rfid_belief_srv_name" value="get_rfid_belief_left" />
+    <arg name="rfid_readings_topic_name" value="/lastTag_left" />
   </include>
 
 
