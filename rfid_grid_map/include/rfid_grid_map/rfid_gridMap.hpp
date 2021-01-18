@@ -15,6 +15,7 @@
 #include <string>
 #include <fstream>
 #include <regex>
+#include <mutex>
 
 //#include <boost/algorithm/string/predicate.hpp>
 
@@ -118,6 +119,8 @@ class rfid_gridMap
       ros::Subscriber rfid_readings_topic_sub_;
       // stores readings
       ConsumerProducerQueue<type_measurement> readings_queue_;
+
+      std::mutex model_mutex_;
 
       //! We read the static map once.
       bool isMapLoaded_;

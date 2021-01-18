@@ -67,9 +67,11 @@ namespace rfid_grid_map {
                              " from tag ("<<reading.tagID <<" @ "<< reading.txPower_dB << " dB, "<< reading.rxFreq_Hz/1e6 << " MHz.) " <<
                               "at pose: (" << reading.x_m << ", " << reading.y_m << ") m. " << reading.th_deg  << " deg. :" << 
                                reading.rxPower_dB <<"  dB, " << reading.rxPhase_rad * 180.0/M_PI << " degs  ==> Queue["<< readings_queue_.length() <<"]" );
-            
+
             ros::Time begin = ros::Time::now();
+            model_mutex_.lock();
             model_.addMeasurement(reading.x_m, reading.y_m, reading.th_deg, reading.rxPower_dB, reading.rxPhase_rad, reading.rxFreq_Hz, reading.tagNum, reading.txPower_dB);
+            model_mutex_.unlock();
             ros::Time end = ros::Time::now();
             ROS_INFO_STREAM("Adding measurement took (" << (end-begin).toSec() << ") secs\n" );
 
@@ -313,8 +315,10 @@ namespace rfid_grid_map {
       ROS_DEBUG_STREAM("Queue is empty, creating reply" );
 
       // Store gridmaps into response....................................................
-      model_._rfid_belief_maps.setTimestamp(ros::Time::now().toNSec());      
+      model_mutex_.lock();
+      model_._rfid_belief_maps.setTimestamp(ros::Time::now().toNSec());
       grid_map::GridMapRosConverter::toMessage(model_._rfid_belief_maps, res.rfid_maps);
+      model_mutex_.unlock();
 
       // Publish as topic too for easiness
       rfid_belief_topic_pub_.publish(res.rfid_maps);
