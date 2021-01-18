@@ -35,13 +35,14 @@
   </inertial>
 </link>
 
-<link name="world" />
+<!-- enable the following to keep the model static -->
+<!-- <link name="world" />
 
  <joint name="world_joint" type="fixed">
     <parent link="world" />
     <child link = "$(arg tf_prefix)/rfid_tag_$(arg ID)_link" />
-    <origin xyz="0.0 0.0 0.7" rpy="0.0 0.0 0.0" />
- </joint>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+ </joint> -->
 
 <gazebo reference="$(arg tf_prefix)/rfid_tag_$(arg ID)_link">
   <turnGravityOff>true</turnGravityOff>
