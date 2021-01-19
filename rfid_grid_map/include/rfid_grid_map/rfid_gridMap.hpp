@@ -120,6 +120,7 @@ class rfid_gridMap
       // stores readings
       ConsumerProducerQueue<type_measurement> readings_queue_;
 
+      // mutex to lock the radar model access from different threads
       std::mutex model_mutex_;
 
       //! We read the static map once.
@@ -161,6 +162,9 @@ class rfid_gridMap
       
       // Assing each tag a number
       std::unordered_map<std::string, int> tagID_enumeration_map_;
+
+      // store the timestamp of last received reading for each tag
+      std::unordered_map<std::string, ros::Time> tagID_detections_time_;
 
       // prevents from reading more tags when service is called ...
       bool isReadingEnabled_;

@@ -186,6 +186,7 @@ namespace rfid_grid_map {
                 int tag_id_order = tagID_enumeration_map_.size();
                 tagID_detections_map_[tag_i] = 0;
                 tagID_enumeration_map_[tag_i] = tag_id_order;
+                tagID_detections_time_[tag_i] = ros::Time(0.0);
             }
         } else {
             ROS_WARN_STREAM("No tag inventory provided ");
@@ -228,6 +229,9 @@ namespace rfid_grid_map {
             //                  " from tag ("<<msg->ID<<" @ "<< txPower_dB << " dB, "<< rxFreq_Hz/1e6 << " MHz.) " <<
             //                  "at pose: (" << robot_x_ << ", " << robot_y_ << ") m. " << robot_h_ * 180.0/M_PI << " deg. :" << 
             //                  rxPower_dB <<"  dB, " << msg->phase<< " degs ==> Queue["<< readings_queue_.length() <<"]" );
+
+            // Update reading time for tag
+            tagID_detections_time_[msg->ID] = ros::Time::now();
 
             // Find tag number for RadarModel and account for num of detections
             auto search = tagID_detections_map_.find(msg->ID);
@@ -303,10 +307,20 @@ namespace rfid_grid_map {
       // Print queue size................................................................
       ROS_DEBUG_STREAM("I need to process [" << readings_queue_.length() << "] more readings:" );
       
+      // get exclusive access over the model
+      model_mutex_.lock();
       for (auto const& x : tagID_detections_map_){
-              ROS_DEBUG_STREAM( "\t - Tag num [" << tagID_enumeration_map_[x.first] << "] " <<
-                                "ID ["  << x.first << "] " <<
-                                "Total detections ["  << x.second << "] ") ;
+          ros::Time _tag_time = tagID_detections_time_[x.first];
+          ROS_DEBUG_STREAM("\t - Tag num [" << tagID_enumeration_map_[x.first] << "] "
+                                            << "ID [" << x.first << "] "
+                                            << "Total detections [" << x.second << "] "
+                                            << "Last detected [" << _tag_time.toSec() - begin.toSec() << " secs ago] ");
+          // check if the tag has been read in this call, if not make it uniform
+          if (_tag_time < begin) {
+              Size siz = model_._rfid_belief_maps.getSize();
+              model_._rfid_belief_maps[std::to_string(tagID_enumeration_map_[x.first])] = Eigen::MatrixXf::Ones(siz(0), siz(1));
+              ROS_WARN_STREAM("Belief for " << x.first << " has been made uniform.");
+          }
       }
 
     
@@ -315,9 +329,10 @@ namespace rfid_grid_map {
       ROS_DEBUG_STREAM("Queue is empty, creating reply" );
 
       // Store gridmaps into response....................................................
-      model_mutex_.lock();
       model_._rfid_belief_maps.setTimestamp(ros::Time::now().toNSec());
       grid_map::GridMapRosConverter::toMessage(model_._rfid_belief_maps, res.rfid_maps);
+
+      // release the model's lock
       model_mutex_.unlock();
 
       // Publish as topic too for easiness
