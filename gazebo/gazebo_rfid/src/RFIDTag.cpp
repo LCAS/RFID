@@ -213,11 +213,14 @@ double RFIDtag::SignalStrength(
   // gzdbg << "     " << this->referencePose.Rot().Roll() * 180 / M_PI<< std::endl;
   // gzdbg << "     " << this->referencePose.Rot().Pitch() * 180 / M_PI<< std::endl;
 
-  double rel_angle = fmod(_receiver.Rot().Yaw() + 2* M_PI, 2*M_PI);
+  double absolute_antenna_angle = fmod(_receiver.Rot().Yaw() + 2* M_PI, 2*M_PI);
+  double sign;
+  if (absolute_antenna_angle < M_PI) sign = 1.0;
+  else sign = -1;
   double delta_y = _receiver.Pos().Y() - this->referencePose.Pos().Y() ;
   double delta_x = _receiver.Pos().X() - this->referencePose.Pos().X();
-  double tag_h = fmod(atan2(delta_y, delta_x) + 2* M_PI, 2*M_PI);
-  tag_h = (rel_angle - tag_h) ;
+  double tag_h = fmod(atan2(delta_y, delta_x) + 2* M_PI, 2*M_PI);  // Angle between antenna-tag vector and axis-x
+  tag_h = (absolute_antenna_angle - tag_h) ;
   tag_h = std::abs(tag_h) - M_PI;
   
 
@@ -249,9 +252,11 @@ double RFIDtag::SignalStrength(
     // tag_h = tag_h * 180/M_PI;
     // gzdbg << tag_h << ", " << tag_h + 180  << ", " << ((tag_h + 180) * 1000.0) << ", " << (int)((tag_h + 180) * 1000.0) << std::endl;
     // tag_h = tag_h * M_PI/180;
+    tag_h = sign * std::abs(tag_h);
     int ang_index = (int) ((tag_h + M_PI) * 1000.0); 
     // gzdbg << "Tag: " << tag_h * 180.0/M_PI << ", " << ((tag_h + M_PI) * 1000.0) * 180.0/M_PI << std::endl;
     ant1 = _antenaGainVector.at(ang_index);
+    if (std::abs(tag_h * 180.0 / M_PI) < 55.0) ant1 = std::min(0.0, ant1 + 1.5);
     // gzdbg << "Loss: " << ant1 << std::endl << std::endl;
 
     antL = this->dataPtr->gain * pow(cos(tag_h), 2) + ant1;
