@@ -39,6 +39,7 @@ find_package(Boost REQUIRED COMPONENTS random)
 add_service_files(
    FILES
    GetBeliefMaps.srv
+   GetFakeBeliefMaps.srv
 )
 
 generate_messages(

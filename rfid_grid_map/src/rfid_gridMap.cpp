@@ -34,6 +34,7 @@ namespace rfid_grid_map {
 
         // topic publishers .........................................................................................................
         rfid_belief_topic_pub_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(rfid_belief_topic_name_, 1, true);
+        rfid_fake_belief_topic_pub_ = nodeHandle_.advertise<grid_map_msgs::GridMap>(rfid_fake_belief_topic_name_, 1, true);
 
         // topic subscribers .........................................................................................................
 
@@ -42,6 +43,7 @@ namespace rfid_grid_map {
 
         // service servers ......................................................................................................
         rfid_belief_srv_ss_ = nodeHandle_.advertiseService(rfid_belief_srv_name_, &rfid_gridMap::rfid_belief_srv_callback, this);
+        rfid_fake_belief_srv_ss_ = nodeHandle_.advertiseService(rfid_fake_belief_srv_name_, &rfid_gridMap::rfid_fake_belief_srv_callback, this);
       
         // threads  ......................................................................................................
         ros::AsyncSpinner spinner(0);
@@ -107,6 +109,7 @@ namespace rfid_grid_map {
       ROS_DEBUG("\t\tstatic map service name: %s", map_service_name_.c_str());
       ROS_DEBUG("\t\trfid readings topic name: %s", rfid_readings_topic_name_.c_str());
       ROS_DEBUG("\t\trfid belief maps service name: %s", rfid_belief_srv_name_.c_str());
+      ROS_DEBUG("\t\trfid fake belief maps service name: %s", rfid_fake_belief_srv_name_.c_str());
       ROS_DEBUG("\trobot frame id: %s", robot_frame_.c_str());
 
     }
@@ -165,7 +168,9 @@ namespace rfid_grid_map {
         private_node_handle.param("robot_frame", robot_frame_, std::string("base_link"));
 
         private_node_handle.param("rfid_belief_srv_name", rfid_belief_srv_name_, std::string("grid_map"));       
-        private_node_handle.param("rfid_belief_topic_name",rfid_belief_topic_name_, std::string("rfid_belief_maps"));       
+        private_node_handle.param("rfid_fake_belief_srv_name", rfid_fake_belief_srv_name_, std::string("fake_grid_map"));
+        private_node_handle.param("rfid_belief_topic_name",rfid_belief_topic_name_, std::string("rfid_belief_maps"));  
+        private_node_handle.param("rfid_fake_belief_topic_name",rfid_fake_belief_topic_name_, std::string("rfid_fake_belief_maps"));       
 
         private_node_handle.param("reading_time", temp,std::string("1.0"));
         tag_reading_time_=std::stod(temp);
@@ -204,6 +209,16 @@ namespace rfid_grid_map {
 
     void rfid_gridMap::rfid_readings_topic_callback(const rfid_node::TagReading::ConstPtr& msg){
 
+        //Update local variables
+        this->freq_ = msg->frequency *1000.0; // freq is given in KHz
+        this->phase_ = msg->phase * M_PI/180.0;  // phase is given in degrees
+        if (msg->txP>0){
+            this->txPower_=(msg->txP/100) - 30.0 ; //  transmitted power from reader is given in (100*dBm)
+        } else {
+            // comes from simulation or a weirder place
+            this->txPower_=-10.0; // dB
+        }
+        
         if (isReadingEnabled_){
             // tag reading data from msg
             double txPower_dB, rxPower_dB; 
@@ -347,7 +362,60 @@ namespace rfid_grid_map {
       return isSuccess;
     }
 
+    bool rfid_gridMap::rfid_fake_belief_srv_callback(
+        rfid_grid_map::GetFakeBeliefMaps::Request &req,
+        rfid_grid_map::GetFakeBeliefMaps::Response &res) {
 
+        bool isSuccess;
+        isSuccess = true;
+
+        ros::Time begin = ros::Time::now();
+        // Start reading more
+        // tags..........................................................
+        ROS_WARN_STREAM(
+            "RFID FAKE Belief map service called.");
+            // cout << "Antenna @ " << req.antenna_x << "," << req.antenna_y << endl;
+            // cout << "Tag @ " << req.tag_x << ", " << req.tag_y << endl;
+            // cout << "Freq: " << this->freq_ << endl;
+            // cout << "txPower: " << this->txPower_ << endl;
+        
+        // get exclusive access over the model
+        model_mutex_.lock();
+        // antenna_h expressed in rad
+        double rxPower = model_.received_power_friis_with_obstacles(
+            req.antenna_x, req.antenna_y, req.antenna_h * M_PI /180.0, 
+            req.tag_x, req.tag_y, 0, 
+            this->freq_, this->txPower_);
+        // cout << "Rxpower " << rxPower << endl;
+
+        // antenna_h expressed in deg
+        Eigen::MatrixXf likl_mat = model_.getFakeMeasurement(
+            req.antenna_x, req.antenna_y, req.antenna_h, rxPower, this->phase_,
+            this->freq_, this->txPower_);
+        // cout << "Sum of likelihood: " << likl_mat.sum() << endl;
+
+        // Create a temporary gridmap for storing the eigen matrix
+        GridMap tmp_fake_belief_maps;
+        tmp_fake_belief_maps.setTimestamp(ros::Time::now().toNSec());
+        tmp_fake_belief_maps.setFrameId(map_frame_id_);
+        tmp_fake_belief_maps.setGeometry(model_._rfid_belief_maps.getLength(), 
+                                        model_._rfid_belief_maps.getResolution(),
+                                        model_._rfid_belief_maps.getPosition());
+        tmp_fake_belief_maps.add("42", likl_mat);
+        // Convert it in the right format for answering the service
+        grid_map::GridMapRosConverter::toMessage(tmp_fake_belief_maps,
+                                                res.rfid_maps);
+
+        model_mutex_.unlock();
+
+        // Publish as topic too for easiness
+        rfid_fake_belief_topic_pub_.publish(res.rfid_maps);
+        ros::Time end = ros::Time::now();
+        // Print queue
+        // size................................................................
+        ROS_INFO_STREAM("Service took (" << (end - begin).toSec() << ") secs");
+        return isSuccess;
+    }
 
     // we get information from our global map
     void rfid_gridMap::map_topic_callback(const nav_msgs::OccupancyGrid& msg){

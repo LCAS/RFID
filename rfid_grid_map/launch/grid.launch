@@ -7,33 +7,37 @@
       grid.launch = grid_deploy.launch + grid_visualization.launch
 
   -->
-  <arg name="tag_set"                   default=""/>
-  <arg name="namespace"                 default=""/>
-  <arg name="sigma_power"               default="3.92"/>
-  <arg name="sigma_phase"               default="2.0"/>
-  <arg name="rfidgrid_resolution"       default="0.025"/>
-  <arg name="rfid_readings_topic_name"  default="/lastTag"/>
-  <arg name="map_topic_name"            default="/map"/>
-  <arg name="map_service_name"          default="/static_map"/>
-  <arg name="robot_frame"               default="base_link"/>
-  <arg name="rfid_belief_srv_name"      default="get_rfid_belief"/>
-  <arg name="rfid_belief_topic_name"    default="rfid_belief_maps"/>
-  <arg name="output_prediction"         default="false"/>
+  <arg name="tag_set"                     default=""/>
+  <arg name="namespace"                   default=""/>
+  <arg name="sigma_power"                 default="3.92"/>
+  <arg name="sigma_phase"                 default="2.0"/>
+  <arg name="rfidgrid_resolution"         default="0.025"/>
+  <arg name="rfid_readings_topic_name"    default="/lastTag"/>
+  <arg name="map_topic_name"              default="/map"/>
+  <arg name="map_service_name"            default="/static_map"/>
+  <arg name="robot_frame"                 default="base_link"/>
+  <arg name="rfid_belief_srv_name"        default="get_rfid_belief"/>
+  <arg name="rfid_fake_belief_srv_name"   default="get_rfid_fake_belief"/>
+  <arg name="rfid_belief_topic_name"      default="rfid_belief_maps"/>
+  <arg name="rfid_fake_belief_topic_name" default="rfid_fake_belief_maps"/>
+  <arg name="output_prediction"           default="false"/>
 
   <!-- Launch grid_deploy: locate objects -->
   <include file="$(find rfid_grid_map)/launch/grid_deploy.launch">
-    <arg name="tag_set"                   value="$(arg tag_set)"/>
-    <arg name="namespace"                 value="$(arg namespace)"/>
-    <arg name="rfidgrid_resolution"       value="$(arg rfidgrid_resolution)"/>
-    <arg name="sigma_power"               value="$(arg sigma_power)"/>
-    <arg name="sigma_phase"               value="$(arg sigma_phase)"/>
-    <arg name="rfid_readings_topic_name"  value="$(arg rfid_readings_topic_name)"/>
-    <arg name="map_topic_name"            value="$(arg map_topic_name)"/>
-    <arg name="map_service_name"          value="$(arg map_service_name)"/>
-    <arg name="robot_frame"               value="$(arg robot_frame)"/>
-    <arg name="rfid_belief_srv_name"      value="$(arg rfid_belief_srv_name)"/>
-    <arg name="rfid_belief_topic_name"    value="$(arg rfid_belief_topic_name)"/>
-    <arg name="output_prediction"         value="$(arg output_prediction)"/>
+    <arg name="tag_set"                     value="$(arg tag_set)"/>
+    <arg name="namespace"                   value="$(arg namespace)"/>
+    <arg name="rfidgrid_resolution"         value="$(arg rfidgrid_resolution)"/>
+    <arg name="sigma_power"                 value="$(arg sigma_power)"/>
+    <arg name="sigma_phase"                 value="$(arg sigma_phase)"/>
+    <arg name="rfid_readings_topic_name"    value="$(arg rfid_readings_topic_name)"/>
+    <arg name="map_topic_name"              value="$(arg map_topic_name)"/>
+    <arg name="map_service_name"            value="$(arg map_service_name)"/>
+    <arg name="robot_frame"                 value="$(arg robot_frame)"/>
+    <arg name="rfid_belief_srv_name"        value="$(arg rfid_belief_srv_name)"/>
+    <arg name="rfid_fake_belief_srv_name"   value="$(arg rfid_fake_belief_srv_name)"/>
+    <arg name="rfid_belief_topic_name"      value="$(arg rfid_belief_topic_name)"/>
+    <arg name="rfid_fake_belief_topic_name" value="$(arg rfid_fake_belief_topic_name)"/>
+    <arg name="output_prediction"           value="$(arg output_prediction)"/>
   </include>
 
 </launch>

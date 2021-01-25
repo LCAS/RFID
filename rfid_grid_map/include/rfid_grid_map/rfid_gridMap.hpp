@@ -53,6 +53,7 @@
 // ROS - OURS
 #include <rfid_node/TagReading.h>
 #include "rfid_grid_map/GetBeliefMaps.h"
+#include "rfid_grid_map/GetFakeBeliefMaps.h"
 
 // lib
 #include "RadarModelROS.hpp"
@@ -98,6 +99,8 @@ class rfid_gridMap
 
       bool rfid_belief_srv_callback(rfid_grid_map::GetBeliefMaps::Request  &req, rfid_grid_map::GetBeliefMaps::Response &res);
 
+      bool rfid_fake_belief_srv_callback(rfid_grid_map::GetFakeBeliefMaps::Request  &req, rfid_grid_map::GetFakeBeliefMaps::Response &res);
+
       void loadROSParams();
 
       void showROSParams();
@@ -133,14 +136,14 @@ class rfid_gridMap
       string map_frame_id_;
 
       //! ROS service for rfid belief grid maps.
-      std::string rfid_belief_srv_name_; 
-      ros::ServiceServer rfid_belief_srv_ss_; 
+      std::string rfid_belief_srv_name_, rfid_fake_belief_srv_name_; 
+      ros::ServiceServer rfid_belief_srv_ss_, rfid_fake_belief_srv_ss_; 
       // how long do we have tag reading active
       double tag_reading_time_; // seconds
 
       //! ROS publisher for rfid belief grid map.
-      std::string rfid_belief_topic_name_; //grid_map_name
-      ros::Publisher rfid_belief_topic_pub_; //gridMapPublisher_
+      std::string rfid_belief_topic_name_, rfid_fake_belief_topic_name_; //grid_map_name
+      ros::Publisher rfid_belief_topic_pub_, rfid_fake_belief_topic_pub_; //gridMapPublisher_
 
       // tfs to track robot position
       tf::TransformListener listener_;
@@ -150,7 +153,10 @@ class rfid_gridMap
       // radar model
       RadarModelROS model_;
       double sigma_power_;
-      double sigma_phase_;    
+      double sigma_phase_;  
+      double txPower_;
+      double freq_;
+      double phase_;  
       //! map resolution // m. /cell
       double map_resolution_; 
 
@@ -172,6 +178,10 @@ class rfid_gridMap
       // if the reader must output prediction over tag position (bayes update)
       // or simply the likelihood at each reading action
       bool output_prediction_;
+      
+      // Gridmap
+      Length length_;
+      double resolution_;
 
 
 }; // End of Class rfid_gridMap

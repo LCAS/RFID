@@ -302,6 +302,9 @@ public:
 
   void addMeasurement(double x, double y, double orientation, double rxPower,
                       double phase, double freq, int i, double txtPower);
+  Eigen::MatrixXf getFakeMeasurement(double x_m, double y_m, double orientation_deg,
+                                double rxPower, double phase, double freq,
+                                int i, double txtPower);
   
   std::string getPowLayerName(double freq_i);
 
