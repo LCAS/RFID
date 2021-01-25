@@ -141,9 +141,9 @@ bool RFIDReader::UpdateImpl(const bool /*_force*/)
       tag_i->SignalStrength(myName, myPos, txFreq, this->dataPtr->power, this->dataPtr->antenaGainVector,rxPower,phase);
 
       // If the received signal strength is lower than the sensitivity, set signal to it (minimum perceivable power)
-      if (rxPower < this->Sensitivity()) {
-        rxPower = this->Sensitivity();
-      }
+      // if (rxPower < this->Sensitivity()) {
+      //   rxPower = this->Sensitivity();
+      // }
 
       static const std::string fieldSep_ = (":");
       static const std::string entrySep_ = ("\n");
