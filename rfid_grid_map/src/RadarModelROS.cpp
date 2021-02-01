@@ -1428,6 +1428,28 @@ void RadarModelROS::addMeasurement(double x_m, double y_m, double orientation_de
   }
 }
 
+Eigen::MatrixXf RadarModelROS::getFakeMeasurement(double x_m, double y_m, double orientation_deg,
+                                double rxPower, double phase, double freq,
+                                double txtPower){
+  Size siz = _rfid_belief_maps.getSize();
+  Eigen::MatrixXf rxPw_mat, likl_mat;
+  rxPw_mat = Eigen::MatrixXf(siz(0), siz(1));
+
+  // get the expected power at each point
+  rxPw_mat = getFriisMat(x_m, y_m, orientation_deg, freq, txtPower);
+
+  // get the likelihood of the received power at each point
+  likl_mat = getProbCond(rxPw_mat, rxPower, _sigma_power);
+
+  // Where X_mat is < than SENSITIVITY, the tag wont be... prob 0
+  // likl_mat = (likl_mat.array()<=SENSITIVITY).select(0,likl_mat);
+
+  // this should remove prob at obstcles
+  Eigen::MatrixXf obst_mat = _rfid_belief_maps["ref_map"];
+  likl_mat = (obst_mat.array() == _free_space_val).select(likl_mat, 0);
+  return likl_mat;
+}
+
 double RadarModelROS::getTotalEntropy(double x, double y, double orientation,
                                    double size_x, double size_y, int tag_i) {
   // TODO: I'm not using the orientation. Maybe it would be better to use a

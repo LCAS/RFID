@@ -1,0 +1,7 @@
+float64 antenna_x
+float64 antenna_y
+float64 antenna_h
+float64 tag_x
+float64 tag_y
+---
+grid_map_msgs/GridMap rfid_maps

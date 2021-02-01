@@ -522,6 +522,9 @@ public:
                      double y_m, double orientation_deg, double f_i, double txtPower);
   cv::Mat layerToImage(GridMap *gm, std::string layerName);
 
+  Eigen::MatrixXf getFakeMeasurement(double x_m, double y_m, double orientation_deg,
+                                double rxPower, double phase, double freq,
+                                double txtPower);
 }; // end class
 
 #endif

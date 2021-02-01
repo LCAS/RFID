@@ -190,6 +190,7 @@
     <arg name="namespace" value="$(arg robot_name)" />
     <arg name="robot_frame" value="$(arg tf_prefix)rfid_reader_link" />
     <arg name="rfid_belief_srv_name" value="get_rfid_belief" />
+    <arg name="rfid_fake_belief_srv_name" value="get_fake_rfid_belief" />
     <arg name="rfid_readings_topic_name" value="/lastTag" />
   </include>
 
