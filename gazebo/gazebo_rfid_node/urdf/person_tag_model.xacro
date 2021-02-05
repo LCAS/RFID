@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<!--
+
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rfid_tag">
+
+<xacro:arg name="ID" default="1"/>
+<xacro:arg name="sensitivity" default="-85.0"/>
+<xacro:arg name="gain" default="25.2"/>
+
+<xacro:arg name="tf_prefix" default=""/>
+
+<!-- person -->
+<link name="$(arg tf_prefix)/person">
+  <!-- <static>1</static> -->
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="80" />
+    <inertia ixx="24.88" ixy="0" ixz="0" iyy="25.73" iyz="0" izz="2.48" />
+  </inertial>
+
+  <collision name="bottom">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box>
+        <size>0.5 0.35 0.02</size>
+      </box>
+    </geometry>
+  </collision>
+
+  <collision name="person">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://rasberry_gazebo/models/rfid_person/meshes/standing.dae"/>
+    </geometry>
+  </collision>
+
+  <visual name="visual">
+    <pose>0 0 0.02 0.04 0 0</pose>
+    <geometry>
+      <mesh filename="package://rasberry_gazebo/models/rfid_person/meshes/standing.dae"/>
+    </geometry>
+  </visual>
+</link>
+
+<!-- RFID reader -->
+<link name="$(arg tf_prefix)/rfid_tag_$(arg ID)_link">
+  <collision name="rfid_tag_$(arg ID)_collision">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh scale="0.005 0.005 0.005"  filename="package://gazebo_rfid_node/models/tag/tag.stl"/>
+    </geometry>
+  </collision>
+
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh  scale="0.005 0.005 0.005" filename="package://gazebo_rfid_node/models/tag/tag.stl"/>
+    </geometry>
+  </visual>
+
+  <inertial>
+    <mass value="1e-5" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <inertia ixx="1e-1" ixy="0" ixz="0" iyy="1e-1" iyz="0" izz="1e-1" />
+  </inertial>
+</link>
+
+<joint name="link_rfid" type="fixed">
+  <parent link="$(arg tf_prefix)/person"/>
+  <child link="$(arg tf_prefix)/rfid_tag_$(arg ID)_link"/>
+  <origin xyz="-0.27 -0.05 1.4" rpy="0.0 0.0 0" />  <!-- tag on the arm below the shoulder-->
+</joint>
+
+<!-- enable the following to keep the model static -->
+<!-- <link name="world" />
+
+ <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link = "$(arg tf_prefix)/rfid_tag_$(arg ID)_link" />
+    <origin xyz="0.0 0.0 0.7" rpy="0.0 0.0 0.0" />
+ </joint> -->
+
+<gazebo reference="$(arg tf_prefix)/rfid_tag_$(arg ID)_link">
+  <turnGravityOff>true</turnGravityOff>
+  <static>true</static>
+  <sensor name="rfid_tag_$(arg ID)_sensor" type="rfid_tag">
+    <pose>0 0 0 0 0 0</pose>
+    <visualize>true</visualize>
+    <update_rate>40</update_rate>
+    <always_on>1</always_on>
+    <transceiver>
+      <essid>$(arg ID)</essid>
+      <sensitivity>$(arg sensitivity)</sensitivity>
+      <gain>$(arg gain)</gain>
+    </transceiver>
+  </sensor>
+</gazebo>
+
+
+<gazebo>
+  <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+    <frameName>map</frameName>
+    <bodyName>$(arg tf_prefix)/rfid_tag_$(arg ID)_link</bodyName>
+    <topicName>poses/$(arg ID)</topicName>
+    <updateRate>5.0</updateRate>
+  </plugin>
+</gazebo>
+
+
+</robot>

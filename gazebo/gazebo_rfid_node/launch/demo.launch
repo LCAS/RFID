@@ -118,7 +118,7 @@
 
   <!-- Add rfid tag(s)...................................................... -->
   <param name="tag1_description"
-    command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag1_id)' gain:='$(arg tag1_gain)' sensitivity:='$(arg tag1_sensitivity)'" />
+    command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/person_tag_model.xacro' --inorder ID:='$(arg tag1_id)' gain:='$(arg tag1_gain)' sensitivity:='$(arg tag1_sensitivity)'" />
   <param name="tag2_description"
     command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tag2_id)' gain:='$(arg tag2_gain)' sensitivity:='$(arg tag2_sensitivity)'" />
   <!-- spawn'em!-->
