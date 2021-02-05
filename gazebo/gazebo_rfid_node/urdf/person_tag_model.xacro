@@ -33,14 +33,14 @@
   <collision name="person">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="package://rasberry_gazebo/models/rfid_person/meshes/standing.dae"/>
+      <mesh filename="package://gazebo_rfid_node/models/person_standing/meshes/standing.dae"/>
     </geometry>
   </collision>
 
   <visual name="visual">
     <pose>0 0 0.02 0.04 0 0</pose>
     <geometry>
-      <mesh filename="package://rasberry_gazebo/models/rfid_person/meshes/standing.dae"/>
+      <mesh filename="package://gazebo_rfid_node/models/person_standing/meshes/standing.dae"/>
     </geometry>
   </visual>
 </link>
