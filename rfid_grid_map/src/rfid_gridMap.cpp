@@ -331,11 +331,11 @@ namespace rfid_grid_map {
                                             << "Total detections [" << x.second << "] "
                                             << "Last detected [" << _tag_time.toSec() - begin.toSec() << " secs ago] ");
           // check if the tag has been read in this call, if not make it uniform
-          if (_tag_time < begin) {
-              Size siz = model_._rfid_belief_maps.getSize();
-              model_._rfid_belief_maps[std::to_string(tagID_enumeration_map_[x.first])] = Eigen::MatrixXf::Ones(siz(0), siz(1));
-              ROS_WARN_STREAM("Belief for " << x.first << " has been made uniform.");
-          }
+        //   if (_tag_time < begin) {
+        //       Size siz = model_._rfid_belief_maps.getSize();
+        //       model_._rfid_belief_maps[std::to_string(tagID_enumeration_map_[x.first])] = Eigen::MatrixXf::Ones(siz(0), siz(1));
+        //       ROS_WARN_STREAM("Belief for " << x.first << " has been made uniform.");
+        //   }
       }
 
     

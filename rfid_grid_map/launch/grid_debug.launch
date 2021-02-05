@@ -33,7 +33,7 @@
   </include> -->
 
   <!-- Add rfid tag model ...................................................... -->
-  <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/tag_model.xacro' --inorder ID:='$(arg tagID)' gain:='$(arg tag_gain)' sensitivity:='$(arg tag_sensitivity)'" if="$(arg is_sim)"/>
+  <param name="tag_description_$(arg tag_num)" command="$(find xacro)/xacro '$(find gazebo_rfid_node)/urdf/person_tag_model.xacro' --inorder ID:='$(arg tagID)' gain:='$(arg tag_gain)' sensitivity:='$(arg tag_sensitivity)'" if="$(arg is_sim)"/>
   <!-- spawn it!-->
   <node pkg="gazebo_rfid_node" type="spawn_model" name="tag_spawner_$(arg tag_num)" args="-urdf -param /tag_description_$(arg tag_num) -model tag_$(arg tagID) -pose $(arg worldTagPose)" if="$(arg is_sim)"/>
 </launch>
