@@ -13,7 +13,7 @@
 <xacro:arg name="tf_prefix" default=""/>
 
 <!-- person -->
-<link name="$(arg tf_prefix)/person">
+<link name="$(arg tf_prefix)/person_$(arg ID)">
   <inertial>
     <origin xyz="0 -0.1 0.95" rpy="0 0 0"/>
     <mass value="80" />
@@ -35,7 +35,7 @@
   </visual>
 </link>
 
-<link name="$(arg tf_prefix)/bottom">
+<link name="$(arg tf_prefix)/bottom_$(arg ID)">
   <collision name="$(arg tf_prefix)/bottom_collision">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
@@ -86,13 +86,13 @@
 </link>
 
 <joint name="bottom_person" type="fixed">
-  <parent link="$(arg tf_prefix)/person"/>
-  <child link="$(arg tf_prefix)/bottom"/>
+  <parent link="$(arg tf_prefix)/person_$(arg ID)"/>
+  <child link="$(arg tf_prefix)/bottom_$(arg ID)"/>
   <origin xyz="0 -0.1 0.01" rpy="0.0 0.0 0" />
 </joint>
 
 <joint name="link_rfid" type="fixed">
-  <parent link="$(arg tf_prefix)/person"/>
+  <parent link="$(arg tf_prefix)/person_$(arg ID)"/>
   <child link="$(arg tf_prefix)/rfid_tag_$(arg ID)_link"/>
   <origin xyz="-0.27 -0.05 1.4" rpy="0.0 0.0 0" />  <!-- tag on the arm below the shoulder-->
 </joint>
@@ -118,7 +118,7 @@
 <gazebo>
   <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
     <frameName>map</frameName>
-    <bodyName>$(arg tf_prefix)/rfid_tag_$(arg ID)_link</bodyName>
+    <bodyName>$(arg tf_prefix)/person_$(arg ID)</bodyName>
     <topicName>poses/$(arg ID)</topicName>
     <updateRate>5.0</updateRate>
   </plugin>
