@@ -322,8 +322,7 @@ namespace rfid_grid_map {
       // Print queue size................................................................
       ROS_DEBUG_STREAM("I need to process [" << readings_queue_.length() << "] more readings:" );
       
-      // get exclusive access over the model
-      model_mutex_.lock();
+ 
       for (auto const& x : tagID_detections_map_){
           ros::Time _tag_time = tagID_detections_time_[x.first];
           ROS_DEBUG_STREAM("\t - Tag num [" << tagID_enumeration_map_[x.first] << "] "
@@ -342,7 +341,9 @@ namespace rfid_grid_map {
       // Finish Map building process.....................................................
       readings_queue_.waitEmpty();
       ROS_DEBUG_STREAM("Queue is empty, creating reply" );
-
+    
+      // get exclusive access over the model
+      model_mutex_.lock();
       // Store gridmaps into response....................................................
       model_._rfid_belief_maps.setTimestamp(ros::Time::now().toNSec());
       grid_map::GridMapRosConverter::toMessage(model_._rfid_belief_maps, res.rfid_maps);
